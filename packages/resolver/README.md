@@ -15,3 +15,5 @@ const { event, provenance, relationshipWarnings } = await resolveOpenAjang(url);
 ```
 
 The resolver restricts destinations, follows bounded redirects, and limits response size and retrieval time. `allowPrivateIps` permits private destinations and should only be used in trusted environments. Browser clients need their own retrieval and CORS policy.
+
+Each call is a one-shot retrieval. The resolver does not store events, cache responses, perform conditional refresh, or verify source continuity between revisions. Applications that save events must implement those responsibilities and the lifecycle and removal policies in the specification.
