@@ -1,3 +1,7 @@
+import ipaddr from 'ipaddr.js';
+import { parse as parseLanguageTag } from 'bcp-47';
+import isEmail from 'isemail';
+
 /**
  * Standard media type for OpenAjang documents.
  */
@@ -116,21 +120,27 @@ export function compareStamps(a: string, b: string): number {
  * Validates RFC 3986 URI syntax.
  */
 export function isValidUri(value: string): boolean {
-  if (typeof value !== 'string' || value.length === 0) return false;
-  if (/[\s<>"{}|\\^`\x00-\x1f\x7f]/.test(value)) return false;
-  // Non-ASCII characters must be percent-encoded
-  if (/[^\x00-\x7F]/.test(value)) return false;
-  const schemeMatch = value.match(/^([a-zA-Z][a-zA-Z0-9+.-]*):/);
-  if (!schemeMatch) return false;
-  const percentMatches = value.match(/%[0-9a-fA-F]{2}|%/g);
-  if (percentMatches) {
-    for (const p of percentMatches) {
-      if (p.length !== 3) return false;
-    }
+  if (typeof value !== 'string') return false;
+  const match = /^([A-Za-z][A-Za-z0-9+.-]*):([^?#]*)(?:\?([^#]*))?(?:#(.*))?$/.exec(value);
+  if (!match) return false;
+  const pchar = "(?:[A-Za-z0-9._~!$&'()*+,;=:@-]|%[0-9A-Fa-f]{2})";
+  const query = new RegExp(`^(?:${pchar}|[/?])*$`);
+  if (!query.test(match[3] ?? '') || !query.test(match[4] ?? '')) return false;
+  let path = match[2];
+  if (path.startsWith('//')) {
+    const slash = path.indexOf('/', 2);
+    const authority = path.slice(2, slash < 0 ? undefined : slash);
+    path = slash < 0 ? '' : path.slice(slash);
+    const hostport = authority.slice(authority.lastIndexOf('@') + 1);
+    const userinfo = authority.slice(0, authority.lastIndexOf('@'));
+    if (userinfo && !new RegExp(`^(?:${pchar})*$`).test(userinfo)) return false;
+    if (authority.indexOf('@') !== authority.lastIndexOf('@')) return false;
+    if (hostport.startsWith('[')) {
+      const literal = /^\[([^\]]+)\](?::[0-9]*)?$/.exec(hostport);
+      if (!literal || !(ipaddr.IPv6.isValid(literal[1]) || /^v[0-9A-Fa-f]+\.[A-Za-z0-9._~!$&'()*+,;=:-]+$/.test(literal[1]))) return false;
+    } else if (!/^(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})*(?::[0-9]*)?$/.test(hostport)) return false;
   }
-  const parts = value.split('#');
-  if (parts.length > 2) return false;
-  return true;
+  return new RegExp(`^(?:${pchar}|/)*$`).test(path);
 }
 
 /**
@@ -150,7 +160,7 @@ export function isValidUrl(value: string): boolean {
     const scheme = parsed.protocol.toLowerCase();
     if (scheme !== 'http:' && scheme !== 'https:') return false;
     if (!parsed.hostname) return false;
-    if (parsed.username || parsed.password) return false;
+    if (parsed.username || parsed.password || /^https?:\/\/[^/?#]*@/i.test(value)) return false;
     if (parsed.port) {
       const port = Number(parsed.port);
       if (isNaN(port) || port <= 0 || port > 65535) return false;
@@ -165,13 +175,8 @@ export function isValidUrl(value: string): boolean {
  * Validates public email address syntax.
  */
 export function isValidEmail(value: string): boolean {
-  if (typeof value !== 'string' || /[\r\n\s]/.test(value)) return false;
-  const parts = value.split('@');
-  if (parts.length !== 2) return false;
-  const [local, domain] = parts;
-  if (!local || !domain) return false;
-  if (domain.startsWith('.') || domain.endsWith('.') || !domain.includes('.')) return false;
-  return /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/.test(value);
+  if (typeof value !== 'string' || /[\r\n]/.test(value)) return false;
+  return isEmail.validate(value, { errorLevel: true }) < 127;
 }
 
 /**
@@ -191,13 +196,10 @@ export function isValidTimeZone(value: string): boolean {
  * Validates BCP 47 language tag syntax.
  */
 export function isValidLanguageTag(value: string): boolean {
-  if (typeof value !== 'string' || value.trim().length === 0) return false;
-  try {
-    const loc = new Intl.Locale(value);
-    return Boolean(loc.language);
-  } catch {
-    return false;
-  }
+  if (typeof value !== 'string' || !value) return false;
+  let invalid = false;
+  const parsed = parseLanguageTag(value, { warning: () => { invalid = true; } });
+  return !invalid && Boolean(parsed.language || parsed.irregular || parsed.regular || parsed.privateuse?.length);
 }
 
 /**

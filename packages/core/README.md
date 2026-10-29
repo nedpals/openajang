@@ -16,4 +16,4 @@ const event = validate(parseJsonStrict(json));
 
 `validateSafe` returns a result instead of throwing. The package also exports the bundled schema and event types. Optional conversions and registration helpers are available from `@openajang/core/adapters`. Validation uses the bundled schema and additional checks described in the specification.
 
-The current implementation uses JavaScript `Intl` for language tags and time zones, and its URI and email checks do not cover every valid form accepted by the specification. JSON numbers use JavaScript numeric precision. Treat full document-validator conformance as work in progress.
+The implementation uses JavaScript `Intl` for time zones. URI, email, and language-tag checks are covered by a shared Python and TypeScript conformance corpus, but full equivalence is still work in progress. JSON numbers use JavaScript numeric precision; large values may lose precision.

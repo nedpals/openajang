@@ -1,0 +1,22 @@
+[
+  {"name":"baseline", "valid":true, "changes":{}},
+  {"name":"opaque URI", "valid":true, "changes":{"id":"urn:example:event"}},
+  {"name":"invalid URI path character", "valid":false, "changes":{"id":"urn:example:[event]"}},
+  {"name":"invalid URI escape", "valid":false, "changes":{"id":"urn:example:%zz"}},
+  {"name":"invalid HTTP URL path", "valid":false, "changes":{"url":"https://example.org/[event]"}},
+  {"name":"URL credentials", "valid":false, "changes":{"url":"https://user@example.org/event"}},
+  {"name":"single label email", "valid":true, "changes":{"organizer.email":"event@localhost"}},
+  {"name":"quoted email", "valid":true, "changes":{"organizer.email":"\"event host\"@example.org"}},
+  {"name":"invalid email dot atom", "valid":false, "changes":{"organizer.email":"event..host@example.org"}},
+  {"name":"private language tag", "valid":true, "changes":{"language":"x-private"}},
+  {"name":"grandfathered language tag", "valid":true, "changes":{"language":"i-klingon"}},
+  {"name":"invalid language tag", "valid":false, "changes":{"language":"en--US"}},
+  {"name":"valid date", "valid":true, "changes":{"starts_at":"2024-02-29","ends_at":"2024-03-01"}},
+  {"name":"invalid date", "valid":false, "changes":{"starts_at":"2023-02-29"}},
+  {"name":"reversed dates", "valid":false, "changes":{"starts_at":"2026-11-01","ends_at":"2026-10-01"}},
+  {"name":"unknown extension", "valid":true, "changes":{"extensions":{"org.example:test":null}}},
+  {"name":"duplicate folded tags", "valid":false, "changes":{"tags":["Straße","STRASSE"]}},
+  {"name":"different folded tags", "valid":true, "changes":{"tags":["i","ı"]}},
+  {"name":"duplicate key", "valid":false, "raw":"{\"title\":\"a\",\"title\":\"b\"}"},
+  {"name":"unpaired surrogate", "valid":false, "raw":"{\"title\":\"\\ud800\"}"}
+]
