@@ -37,7 +37,7 @@ export function assertSafeUrl(urlString: string, allowPrivate = false): URL {
   if (url.protocol !== 'http:' && url.protocol !== 'https:') {
     throw new ResolverSecurityError('Only HTTP(S) URLs are allowed');
   }
-  if (url.username || url.password) {
+  if (url.username || url.password || /^https?:\/\/[^/?#]*@/i.test(urlString)) {
     throw new ResolverSecurityError('URL credentials are forbidden');
   }
   assertSafeHostname(url.hostname, allowPrivate);

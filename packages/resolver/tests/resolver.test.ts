@@ -1,7 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert';
 import http from 'node:http';
+import https from 'node:https';
 import dns from 'node:dns';
+import os from 'node:os';
+import { execFile, execFileSync } from 'node:child_process';
+import { promisify } from 'node:util';
 import zlib from 'node:zlib';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -78,7 +82,79 @@ test('assertSafeUrl rejects forbidden schemes and user credentials', () => {
   assert.throws(() => assertSafeUrl('file:///etc/passwd'), ResolverSecurityError);
   assert.throws(() => assertSafeUrl('javascript:alert(1)'), ResolverSecurityError);
   assert.throws(() => assertSafeUrl('https://user:pass@example.org/event.json'), ResolverSecurityError);
+  assert.throws(() => assertSafeUrl('https://@example.org/event.json'), ResolverSecurityError);
   assert.doesNotThrow(() => assertSafeUrl('https://example.org/event.json'));
+});
+
+test('rejects mixed DNS answers containing private addresses', async () => {
+  const original = dns.lookup;
+  dns.lookup = ((_host: string, options: any, callback: any) => {
+    if (options.all) callback(null, [{ address: '8.8.8.8', family: 4 }, { address: '127.0.0.1', family: 4 }]);
+    else callback(null, '127.0.0.1', 4);
+  }) as typeof dns.lookup;
+  try {
+    await assert.rejects(resolveOpenAjang('http://public.example/event'), ResolverSecurityError);
+  } finally {
+    dns.lookup = original;
+  }
+});
+
+test('rejects redirect loops, malformed responses and unsupported encoding', async () => {
+  const server = http.createServer((req, res) => {
+    if (req.url === '/loop') { res.writeHead(302, { Location: '/loop' }); res.end(); }
+    else if (req.url === '/utf8') { res.writeHead(200, { 'Content-Type': 'application/json' }); res.end(Buffer.from([0xff])); }
+    else if (req.url === '/gzip') { res.writeHead(200, { 'Content-Type': 'application/json', 'Content-Encoding': 'gzip' }); res.end('not gzip'); }
+    else if (req.url === '/encoding') { res.writeHead(200, { 'Content-Encoding': 'unknown' }); res.end(); }
+    else if (req.url === '/truncated') { res.writeHead(200, { 'Content-Length': '100' }); res.write('partial'); res.socket?.destroy(); }
+  });
+  await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve));
+  const base = `http://127.0.0.1:${(server.address() as any).port}`;
+  try {
+    for (const path of ['/loop', '/utf8', '/gzip', '/encoding', '/truncated']) {
+      await assert.rejects(resolveOpenAjang(base + path, { allowPrivateIps: true, timeoutMs: 1000, maxRedirects: 2 }), path);
+    }
+  } finally { server.close(); }
+});
+
+test('rejects an untrusted TLS certificate', async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'openajang-tls-'));
+  const key = path.join(dir, 'key.pem');
+  const cert = path.join(dir, 'cert.pem');
+  execFileSync('openssl', ['req', '-x509', '-newkey', 'rsa:2048', '-nodes', '-keyout', key,
+    '-out', cert, '-days', '1', '-subj', '/CN=localhost'], { stdio: 'ignore' });
+  const server = https.createServer({ key: fs.readFileSync(key), cert: fs.readFileSync(cert) }, (_req, res) => res.end('{}'));
+  await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve));
+  try {
+    await assert.rejects(resolveOpenAjang(`https://127.0.0.1:${(server.address() as any).port}/`, { allowPrivateIps: true }),
+      (error: any) => error.code === 'DEPTH_ZERO_SELF_SIGNED_CERT');
+  } finally {
+    server.close();
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('rejects HTTPS redirects to HTTP even when private addresses are allowed', async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'openajang-downgrade-'));
+  const key = path.join(dir, 'key.pem');
+  const cert = path.join(dir, 'cert.pem');
+  execFileSync('openssl', ['req', '-x509', '-newkey', 'rsa:2048', '-nodes', '-keyout', key,
+    '-out', cert, '-days', '1', '-subj', '/CN=localhost', '-addext', 'subjectAltName=IP:127.0.0.1'], { stdio: 'ignore' });
+  const server = https.createServer({ key: fs.readFileSync(key), cert: fs.readFileSync(cert) }, (_req, res) => {
+    res.writeHead(302, { Location: 'http://127.0.0.1/event' }); res.end();
+  });
+  await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve));
+  try {
+    const url = `https://127.0.0.1:${(server.address() as any).port}/`;
+    const code = `import { resolveOpenAjang } from './packages/resolver/dist/index.js';
+      try { await resolveOpenAjang(${JSON.stringify(url)}, { allowPrivateIps: true }); process.exitCode = 1; }
+      catch (error) { if (!error.message.includes('Security downgrade rejected')) throw error; }`;
+    await promisify(execFile)(process.execPath, ['--input-type=module', '-e', code], {
+      cwd: ROOT, env: { ...process.env, NODE_EXTRA_CA_CERTS: cert }
+    });
+  } finally {
+    server.close();
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
 });
 
 test('discovery url normalization per SPEC section 8.2', () => {
