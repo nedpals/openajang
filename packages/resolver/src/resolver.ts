@@ -103,8 +103,9 @@ export async function resolveOpenAjang(
 
   const provenance: RetrievalProvenance = {
     suppliedUrl: urlString,
-    finalEventUrl,
+    finalFetchedUrl: firstFetch.url,
     documentUrl,
+    declaredEventUrl: event.url,
     retrievedAt: new Date().toISOString(),
     sourceHost: new URL(documentUrl).hostname,
     redirectHistory,

@@ -35,8 +35,11 @@ export interface ResolverOptions {
 
 export interface RetrievalProvenance {
   suppliedUrl: string;
-  finalEventUrl: string;
+  /** Final URL fetched from the supplied URL, after redirects. */
+  finalFetchedUrl: string;
   documentUrl: string;
+  /** Human-facing event URL declared by the document. */
+  declaredEventUrl: string;
   retrievedAt: string;
   sourceHost: string;
   redirectHistory: string[];

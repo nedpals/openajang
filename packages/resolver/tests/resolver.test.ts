@@ -261,13 +261,17 @@ test('end-to-end resolution with mock server', async () => {
     assert.strictEqual(directRes.event.title, sampleEvent.title);
     assert.strictEqual(directRes.provenance.viaDiscovery, false);
     assert.strictEqual(directRes.provenance.sourceHost, '127.0.0.1');
+    assert.strictEqual(directRes.provenance.finalFetchedUrl, `${baseUrl}/direct.json`);
+    assert.strictEqual(directRes.provenance.documentUrl, `${baseUrl}/direct.json`);
+    assert.strictEqual(directRes.provenance.declaredEventUrl, sampleEvent.url);
 
     // HTML Discovery resolution
     const htmlRes = await resolveOpenAjang(`${baseUrl}/page`, { allowPrivateIps: true });
     assert.strictEqual(htmlRes.event.title, sampleEvent.title);
     assert.strictEqual(htmlRes.provenance.viaDiscovery, true);
-    assert.strictEqual(htmlRes.provenance.finalEventUrl, `${baseUrl}/page`);
+    assert.strictEqual(htmlRes.provenance.finalFetchedUrl, `${baseUrl}/page`);
     assert.strictEqual(htmlRes.provenance.documentUrl, `${baseUrl}/direct.json`);
+    assert.strictEqual(htmlRes.provenance.declaredEventUrl, sampleEvent.url);
     const canonicalRes = await resolveOpenAjang(`${baseUrl}/canonical-page`, { allowPrivateIps: true });
     assert.deepStrictEqual(canonicalRes.relationshipWarnings, []);
 
