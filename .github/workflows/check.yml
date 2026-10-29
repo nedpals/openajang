@@ -12,6 +12,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm run typecheck
       - run: pnpm test
+      - run: node --test scripts/release.test.mjs
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'

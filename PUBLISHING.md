@@ -94,3 +94,27 @@ modifying unrelated dependency or standards versions.
 
 Keep previously published schema contracts available at their original public URLs.
 Use repository tags or release archives to preserve historical source snapshots.
+
+## Release the TypeScript packages
+
+The SDK is optional: OpenAjang publishers and consumers do not need an npm package.
+The two SDK packages use the same version, independently of the schema version.
+Update both package versions together, update the lockfile, and commit the changes.
+After checks pass, create a tag on that commit named `sdk-v<version>` (for example,
+`sdk-v0.1.0-rc.1`). Manually run **Release SDK** in GitHub Actions and select that tag.
+The tag must include the release workflow. Prereleases use npm's `next` tag; stable
+versions use `latest`.
+
+The workflow verifies the tag and versions, runs the TypeScript and Python checks,
+packs and smoke-tests both packages, and publishes core before resolver. A retry skips
+an existing version only if its registry integrity matches the locally built tarball;
+a mismatch or registry error stops the release.
+
+Before the first release, ensure the `@openajang` npm scope is controlled by the
+publisher. Configure a trusted publisher for each package with GitHub owner `nedpals`,
+repository `openajang`, and workflow filename `release.yml`. For packages that do
+not yet exist, follow npm's package-creation procedure for trusted publishing or its
+first-publish instructions. The workflow uses GitHub OIDC, not an npm token. Set up
+trust close to the release: unvalidated npm trusted-publisher configurations expire.
+Do not run the publishing workflow until the documented validator limitations and
+release contents have been reviewed.

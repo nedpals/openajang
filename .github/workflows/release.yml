@@ -1,0 +1,55 @@
+name: Release SDK
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: sdk-release
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      RELEASE_DIR: ${{ runner.temp }}/openajang-release
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      - name: Validate selected tag and package versions
+        run: node scripts/release.mjs validate
+      - name: Install dependencies
+        run: |
+          npm install --global pnpm@11.9.0
+          pnpm install --frozen-lockfile --ignore-scripts
+      - name: Run checks
+        run: |
+          pnpm run typecheck
+          pnpm test
+          node --test scripts/release.test.mjs
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -r requirements.txt
+      - run: python -m unittest discover -s tests
+      - name: Pack packages
+        run: |
+          mkdir -p "$RELEASE_DIR"
+          pnpm --filter @openajang/core pack --pack-destination "$RELEASE_DIR"
+          pnpm --filter @openajang/resolver pack --pack-destination "$RELEASE_DIR"
+      - name: Smoke test tarballs
+        run: |
+          version="${GITHUB_REF_NAME#sdk-v}"
+          mkdir -p "$RUNNER_TEMP/sdk-smoke"
+          cd "$RUNNER_TEMP/sdk-smoke"
+          npm init -y >/dev/null
+          npm install --ignore-scripts "$RELEASE_DIR/openajang-core-$version.tgz" "$RELEASE_DIR/openajang-resolver-$version.tgz"
+          node --input-type=module -e "import { validateSafe } from '@openajang/core'; import { toSchemaOrg } from '@openajang/core/adapters'; import { resolveOpenAjang } from '@openajang/resolver'; if (validateSafe({}).valid || typeof toSchemaOrg !== 'function' || typeof resolveOpenAjang !== 'function') process.exit(1);"
+      - name: Publish core, then resolver
+        run: node scripts/release.mjs publish
