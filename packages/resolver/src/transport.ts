@@ -129,7 +129,6 @@ function requestOnce(
         else if (Array.isArray(v)) headers[k.toLowerCase()] = v.join(', ');
       }
 
-      // Check redirect status
       if ([301, 302, 303, 307, 308].includes(statusCode)) {
         cleanup();
         res.destroy();
@@ -142,7 +141,6 @@ function requestOnce(
         return;
       }
 
-      // Track raw compressed bytes
       let rawBytes = 0;
       res.on('data', chunk => {
         rawBytes += chunk.length;
@@ -155,7 +153,6 @@ function requestOnce(
         }
       });
 
-      // Setup decompression stream
       const encoding = (headers['content-encoding'] || '').toLowerCase().trim();
       let decompressor: stream.Readable;
 
@@ -176,7 +173,6 @@ function requestOnce(
         fail(new ResolverSecurityError(`Decompression failed: ${err.message}`));
       });
 
-      // Track decompressed bytes
       let decompressedBytes = 0;
       const chunks: Buffer[] = [];
 
@@ -262,7 +258,6 @@ export async function safeFetchWithRedirects(
   const redirectHistory: string[] = [];
 
   for (let hop = 0; hop <= maxRedirects; hop++) {
-    // Assert URL syntax, scheme, and hostname safety
     const validatedUrl = assertSafeUrl(currentUrlString, allowPrivate);
 
     const result = await requestOnce(

@@ -72,7 +72,6 @@ export function normalizeDiscoveryUrl(rawUrl: string): string {
 
   let host = parsed.hostname.toLowerCase();
   if (host.includes(':')) {
-    // IPv6 host
     host = `[${host.replace(/^\[|\]$/g, '')}]`;
   }
 
@@ -141,7 +140,6 @@ export function discoverLinks(html: string, finalHtmlUrl: string, maxHtmlBytes =
               const resolved = new URL(href, finalHtmlUrl).toString();
               candidates.add(normalizeDiscoveryUrl(resolved));
             } catch {
-              // Ignore unresolvable target URL
             }
           }
         }

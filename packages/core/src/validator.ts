@@ -52,10 +52,8 @@ export function validate(d: unknown): OpenAjangEvent {
     throw new OpenAjangValidationError('Document must be a single JSON object');
   }
 
-  // Check Unicode surrogates
   checkUnicodeSurrogates(d);
 
-  // Validate against bundled authoritative JSON schema
   const valid = schemaValidate(d);
   if (!valid && schemaValidate.errors) {
     const diagnostics = schemaValidate.errors.map((e: ErrorObject) => ({
@@ -66,7 +64,6 @@ export function validate(d: unknown): OpenAjangEvent {
 
   const doc = d as OpenAjangEvent;
 
-  // Procedural validation:
   const startIsDate = isFullDate(doc.starts_at);
 
   if (doc.ends_at !== undefined) {
@@ -85,14 +82,12 @@ export function validate(d: unknown): OpenAjangEvent {
     }
   }
 
-  // Registration time windows
   if (doc.registration?.opens_at && doc.registration?.closes_at) {
     if (compareStamps(doc.registration.closes_at, doc.registration.opens_at) <= 0) {
       throw new OpenAjangValidationError('closes_at must follow opens_at');
     }
   }
 
-  // Ticket sales windows
   if (Array.isArray(doc.tickets)) {
     for (const t of doc.tickets) {
       if (t.sales_start && t.sales_end) {
@@ -121,7 +116,6 @@ export function validate(d: unknown): OpenAjangEvent {
     }
   }
 
-  // Ticket IDs: must be unique within event
   if (Array.isArray(doc.tickets)) {
     const ticketIds = new Set<string>();
     for (const t of doc.tickets) {
@@ -144,7 +138,6 @@ export function validate(d: unknown): OpenAjangEvent {
     }
   }
 
-  // Physical location: venue placeholder check
   const p = doc.location?.physical;
   if (p && typeof p.name === 'string') {
     const folded = caseFold(p.name.trim());

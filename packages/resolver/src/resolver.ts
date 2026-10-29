@@ -45,12 +45,10 @@ export async function resolveOpenAjang(
     if (Buffer.byteLength(firstFetch.text, 'utf8') > maxJsonBytes) {
       throw new ResolverSecurityError('JSON response exceeds limit');
     }
-    // Direct JSON response
     documentText = firstFetch.text;
     documentUrl = firstFetch.url;
     finalEventUrl = firstFetch.url;
   } else if (mime === 'text/html' || mime === 'application/xhtml+xml') {
-    // HTML Discovery
     finalEventUrl = firstFetch.url;
     const links = discoverLinks(firstFetch.text, finalEventUrl, maxHtmlBytes);
     const discoveredLink = links.documentUrl;
@@ -64,7 +62,6 @@ export async function resolveOpenAjang(
     viaDiscovery = true;
     documentUrl = discoveredLink;
 
-    // Fetch the discovered JSON
     const jsonFetch = await safeFetchWithRedirects(documentUrl, options, maxJsonBytes);
     if (jsonFetch.status !== 200) {
       throw new ResolverDiscoveryError(
@@ -89,14 +86,11 @@ export async function resolveOpenAjang(
     );
   }
 
-  // Parse strict JSON
   const rawData = parseJsonStrict(documentText);
-  // Conformance validation
   const event = validate(rawData);
 
   const relationshipWarnings: string[] = [];
 
-  // Check relationship between finalEventUrl and event.url
   if (viaDiscovery) {
     const normFinalHtml = normalizeDiscoveryUrl(finalEventUrl);
     const normEventUrl = normalizeDiscoveryUrl(event.url);

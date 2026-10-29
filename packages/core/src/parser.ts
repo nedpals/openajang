@@ -60,7 +60,6 @@ export function parseStamp(value: string): ParsedStamp {
     }
   }
 
-  // Check valid calendar date and time (00-23, 00-59, 00-59)
   const [datePart, timePart] = base.split('T');
   if (!isFullDate(datePart)) {
     throw new OpenAjangValidationError('Invalid date in timestamp');
@@ -77,7 +76,6 @@ export function parseStamp(value: string): ParsedStamp {
   }
 
   const epochSeconds = Math.floor(dateObj.getTime() / 1000);
-  // Compute microseconds from fractional part
   let fracPadded = '';
   if (frac && frac.startsWith('.')) {
     const digits = frac.slice(1);
@@ -104,7 +102,6 @@ export function compareStamps(a: string, b: string): number {
   if (sa.epochSeconds !== sb.epochSeconds) {
     return sa.epochSeconds - sb.epochSeconds;
   }
-  // Compare fractional strings numerically
   const fa = sa.fractional ? sa.fractional.slice(1) : '0';
   const fb = sb.fractional ? sb.fractional.slice(1) : '0';
   const maxLen = Math.max(fa.length, fb.length);
@@ -123,17 +120,14 @@ export function isValidUri(value: string): boolean {
   if (/[\s<>"{}|\\^`\x00-\x1f\x7f]/.test(value)) return false;
   // Non-ASCII characters must be percent-encoded
   if (/[^\x00-\x7F]/.test(value)) return false;
-  // Must match scheme:scheme-specific-part
   const schemeMatch = value.match(/^([a-zA-Z][a-zA-Z0-9+.-]*):/);
   if (!schemeMatch) return false;
-  // Check for broken percent-encoding
   const percentMatches = value.match(/%[0-9a-fA-F]{2}|%/g);
   if (percentMatches) {
     for (const p of percentMatches) {
       if (p.length !== 3) return false;
     }
   }
-  // No multiple fragments
   const parts = value.split('#');
   if (parts.length > 2) return false;
   return true;
@@ -199,7 +193,6 @@ export function isValidTimeZone(value: string): boolean {
 export function isValidLanguageTag(value: string): boolean {
   if (typeof value !== 'string' || value.trim().length === 0) return false;
   try {
-    // Canonical Intl.Locale check
     const loc = new Intl.Locale(value);
     return Boolean(loc.language);
   } catch {
@@ -215,7 +208,6 @@ export function checkUnicodeSurrogates(value: unknown, path = ''): void {
     for (let i = 0; i < value.length; i++) {
       const code = value.charCodeAt(i);
       if (code >= 0xd800 && code <= 0xdbff) {
-        // High surrogate; must be followed by low surrogate
         if (i + 1 >= value.length) {
           throw new OpenAjangValidationError(`Unpaired Unicode surrogate at ${path || 'root'}`);
         }
@@ -225,7 +217,6 @@ export function checkUnicodeSurrogates(value: unknown, path = ''): void {
         }
         i++; // skip valid pair
       } else if (code >= 0xdc00 && code <= 0xdfff) {
-        // Unmatched low surrogate
         throw new OpenAjangValidationError(`Unpaired Unicode surrogate at ${path || 'root'}`);
       }
     }
@@ -249,7 +240,6 @@ export function parseJsonStrict(text: string): unknown {
     throw new OpenAjangValidationError('JSON input must be a string');
   }
 
-  // Lexical scan for duplicate keys in object literals and disallowed constants
   let index = 0;
   const len = text.length;
 

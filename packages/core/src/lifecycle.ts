@@ -28,7 +28,6 @@ export function registrationAction(d: OpenAjangEvent | Record<string, any>): Act
 function toUtcString(stamp: string, local = false): string {
   const parsed = parseStamp(stamp);
   if (parsed.fractional && parsed.fractional.length > 7) {
-    // fractional digits > 6
     throw new Error('Adapter declines precision beyond six fractional digits');
   }
   const iso = stamp.replace('Z', '+00:00');
@@ -87,7 +86,6 @@ export function toSchemaOrg(event: OpenAjangEvent | Record<string, any>): {
   };
   out.eventAttendanceMode = 'https://schema.org/' + modes[d.location.type];
 
-  // Party mapper
   const mapParty = (p: Record<string, any>) => {
     const res: Record<string, any> = {};
     for (const [k, v] of Object.entries(p)) {
@@ -259,7 +257,6 @@ export function toJSCalendar(event: OpenAjangEvent | Record<string, any>): {
   const pStart = parseStamp(d.starts_at);
   const pEnd = parseStamp(d.ends_at);
 
-  // Compute duration in seconds
   const secDiff = pEnd.epochSeconds - pStart.epochSeconds;
   const fa = pStart.fractional ? pStart.fractional.slice(1) : '';
   const fb = pEnd.fractional ? pEnd.fractional.slice(1) : '';
