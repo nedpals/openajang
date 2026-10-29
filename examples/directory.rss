@@ -1,0 +1,74 @@
+<?xml version='1.0' encoding='utf-8'?>
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+  <channel>
+    <title>OpenAjang example snapshots</title>
+    <link>https://directory.example.org/examples</link>
+    <description>Illustrative event snapshots, not current verified listings.</description>
+    <lastBuildDate>Thu, 29 Oct 2026 09:00:00 GMT</lastBuildDate>
+    <atom:link rel="self" type="application/rss+xml" href="https://directory.example.org/feeds/examples.rss" />
+    <item>
+      <guid isPermaLink="false">https://www.metmuseum.org/exhibitions/chasing-clouds</guid>
+      <title>Chasing Clouds</title>
+      <link>https://www.metmuseum.org/exhibitions/chasing-clouds</link>
+      <pubDate>Thu, 29 Oct 2026 09:00:00 GMT</pubDate>
+      <description>Example snapshot, not a current verified listing. 2026-09-14 through 2027-02-28. An exhibition at The Met Fifth Avenue exploring the cultural and artistic meanings of clouds. Status: scheduled. Registration: not specified.</description>
+      <atom:link rel="alternate" type="application/vnd.openajang+json" href="https://directory.example.org/examples/chasing-clouds-2026.openajang.json" />
+    </item>
+    <item>
+      <guid isPermaLink="false">https://devcon.org/en/</guid>
+      <title>Devcon 8 India</title>
+      <link>https://devcon.org/en/</link>
+      <pubDate>Thu, 29 Oct 2026 09:00:00 GMT</pubDate>
+      <description>Example snapshot, not a current verified listing. 2026-11-03 through 2026-11-06. The Ethereum developer community's 2026 Devcon gathering in Mumbai. Status: scheduled. Registration: open.</description>
+      <atom:link rel="alternate" type="application/vnd.openajang+json" href="https://directory.example.org/examples/devcon-8-india-2026.openajang.json" />
+    </item>
+    <item>
+      <guid isPermaLink="false">https://gdg.community.dev/events/details/google-gdg-belgrade-presents-devfest-2026-hackathon/</guid>
+      <title>DevFest 2026 Hackathon</title>
+      <link>https://gdg.community.dev/events/details/google-gdg-belgrade-presents-devfest-2026-hackathon/</link>
+      <pubDate>Thu, 29 Oct 2026 09:00:00 GMT</pubDate>
+      <description>Example snapshot, not a current verified listing. 2026-10-10T09:30:00+02:00 through 2026-10-11T21:30:00+02:00. A two-day GDG Belgrade hackathon for participants aged 18 to 26. Status: scheduled. Registration: open.</description>
+      <atom:link rel="alternate" type="application/vnd.openajang+json" href="https://directory.example.org/examples/devfest-belgrade-hackathon-2026.openajang.json" />
+    </item>
+    <item>
+      <guid isPermaLink="false">https://gdg.community.dev/events/details/google-gdg-kuala-lumpur-presents-devfest-kuala-lumpur-2026/</guid>
+      <title>DevFest Kuala Lumpur 2026</title>
+      <link>https://gdg.community.dev/events/details/google-gdg-kuala-lumpur-presents-devfest-kuala-lumpur-2026/</link>
+      <pubDate>Thu, 29 Oct 2026 09:00:00 GMT</pubDate>
+      <description>Example snapshot, not a current verified listing. 2026-11-14T08:30:00+08:00 through 2026-11-14T18:00:00+08:00. GDG Kuala Lumpur's community-driven developer conference at Sunway University. Status: scheduled. Registration: not_yet_open.</description>
+      <atom:link rel="alternate" type="application/vnd.openajang+json" href="https://directory.example.org/examples/devfest-kuala-lumpur-2026.openajang.json" />
+    </item>
+    <item>
+      <guid isPermaLink="false">https://archive.fosdem.org/2026/</guid>
+      <title>FOSDEM 2026</title>
+      <link>https://archive.fosdem.org/2026/</link>
+      <pubDate>Thu, 29 Oct 2026 09:00:00 GMT</pubDate>
+      <description>Example snapshot, not a current verified listing. 2026-01-31 through 2026-02-01. A free, volunteer-organized conference for free and open source software communities. Status: completed. Registration: not specified.</description>
+      <atom:link rel="alternate" type="application/vnd.openajang+json" href="https://directory.example.org/examples/fosdem-2026.openajang.json" />
+    </item>
+    <item>
+      <guid isPermaLink="false">https://pycon-davao.durianpy.org/</guid>
+      <title>PAGLANTAW: Envisioning the Future Through Python</title>
+      <link>https://pycon-davao.durianpy.org/</link>
+      <pubDate>Thu, 29 Oct 2026 09:00:00 GMT</pubDate>
+      <description>Example snapshot, not a current verified listing. 2026-10-17 through 2026-10-18. PyCon Davao 2026, Davao's community-run Python conference. Status: scheduled. Registration: open.</description>
+      <atom:link rel="alternate" type="application/vnd.openajang+json" href="https://directory.example.org/examples/pycon-davao-2026.openajang.json" />
+    </item>
+    <item>
+      <guid isPermaLink="false">https://reactsummit.us/</guid>
+      <title>React Summit US 2026</title>
+      <link>https://reactsummit.us/</link>
+      <pubDate>Thu, 29 Oct 2026 09:00:00 GMT</pubDate>
+      <description>Example snapshot, not a current verified listing. 2026-11-17 through 2026-11-20. A hybrid React conference with an in-person and streamed day followed by a separate virtual day. Status: scheduled. Registration: open.</description>
+      <atom:link rel="alternate" type="application/vnd.openajang+json" href="https://directory.example.org/examples/react-summit-us-2026.openajang.json" />
+    </item>
+    <item>
+      <guid isPermaLink="false">https://luma.com/3nzv58t2</guid>
+      <title>Draw It, Build It - WebDavao September 2026 Meetup</title>
+      <link>https://luma.com/3nzv58t2</link>
+      <pubDate>Thu, 29 Oct 2026 09:00:00 GMT</pubDate>
+      <description>Example snapshot, not a current verified listing. 2026-09-19T12:00:00+08:00 through 2026-09-19T19:00:00+08:00. An in-person WebDavao comfort-build session that starts with a sketch and ends with a working project. Status: scheduled. Registration: open.</description>
+      <atom:link rel="alternate" type="application/vnd.openajang+json" href="https://directory.example.org/examples/webdavao-september-2026.openajang.json" />
+    </item>
+  </channel>
+</rss>

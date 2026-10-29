@@ -1,0 +1,39 @@
+{
+  "@context": "https://schema.org",
+  "@type": "Event",
+  "@id": "https://gdg.community.dev/events/details/google-gdg-belgrade-presents-devfest-2026-hackathon/",
+  "url": "https://gdg.community.dev/events/details/google-gdg-belgrade-presents-devfest-2026-hackathon/",
+  "name": "DevFest 2026 Hackathon",
+  "startDate": "2026-10-10T09:30:00+02:00",
+  "endDate": "2026-10-11T21:30:00+02:00",
+  "description": "The DevFest 2026 Hackathon is a two-day in-person competition organized by GDG Belgrade. Teams of three or four participants develop and present a project; individual applicants may be matched into teams. Working language is Serbian; presentations are in English. Age, prerequisite conference attendance, and team requirements are stated in the registration instructions.",
+  "eventStatus": "https://schema.org/EventScheduled",
+  "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+  "organizer": {
+    "name": "GDG Belgrade",
+    "url": "https://gdg.community.dev/gdg-belgrade/"
+  },
+  "location": {
+    "@type": "Place",
+    "name": "Naučno-tehnološki park",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Veljka Dugoševića 54",
+      "addressLocality": "Belgrade",
+      "postalCode": "11050",
+      "addressCountry": "RS"
+    }
+  },
+  "keywords": [
+    "DevFest",
+    "hackathon",
+    "software development",
+    "GDG"
+  ],
+  "potentialAction": {
+    "@type": "Action",
+    "identifier": "registration",
+    "name": "Register",
+    "target": "https://forms.gdg-belgrade.com/"
+  }
+}

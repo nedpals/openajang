@@ -1,0 +1,5 @@
+jsonschema>=4.23,<5
+pycountry>=24.6,<27
+langcodes>=3.4,<4
+rfc3986-validator>=0.1.1,<1
+tzdata>=2024.1

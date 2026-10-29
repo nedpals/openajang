@@ -1,0 +1,96 @@
+{
+  "@context": "https://schema.org",
+  "@type": "Event",
+  "@id": "https://pycon-davao.durianpy.org/",
+  "url": "https://pycon-davao.durianpy.org/",
+  "name": "PAGLANTAW: Envisioning the Future Through Python",
+  "startDate": "2026-10-17",
+  "endDate": "2026-10-18",
+  "description": "The second full-scale PyCon Davao brings together Python developers, students, educators, and technology communities. The main conference is on October 17, followed by sprints and workshops on October 18.",
+  "eventStatus": "https://schema.org/EventScheduled",
+  "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+  "organizer": {
+    "name": "DurianPy",
+    "url": "https://www.durianpy.org/",
+    "email": "contact@durianpy.org"
+  },
+  "location": {
+    "@type": "Place",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Davao City",
+      "addressRegion": "Davao Region",
+      "addressCountry": "PH"
+    }
+  },
+  "keywords": [
+    "Python",
+    "software development",
+    "community conference",
+    "Davao"
+  ],
+  "offers": [
+    {
+      "@type": "Offer",
+      "identifier": "kodigo-scholarship",
+      "name": "Kodigo (Scholarship)",
+      "description": "This tier does not specify October 18 coverage in this snapshot. Sprint Day admission is sold separately; check the registration page for eligibility and coverage.",
+      "url": "https://pycon-davao.durianpy.org/tickets/",
+      "price": "375",
+      "priceCurrency": "PHP",
+      "availability": "https://schema.org/InStock",
+      "seller": {
+        "name": "DurianPy",
+        "url": "https://www.durianpy.org/"
+      }
+    },
+    {
+      "@type": "Offer",
+      "identifier": "coder-regular",
+      "name": "Coder (Regular)",
+      "description": "This tier does not specify October 18 coverage in this snapshot. Sprint Day admission is sold separately; check the registration page for eligibility and coverage.",
+      "url": "https://pycon-davao.durianpy.org/tickets/",
+      "price": "750",
+      "priceCurrency": "PHP",
+      "availability": "https://schema.org/InStock",
+      "seller": {
+        "name": "DurianPy",
+        "url": "https://www.durianpy.org/"
+      }
+    },
+    {
+      "@type": "Offer",
+      "identifier": "kasosyo-patron",
+      "name": "Kasosyo (Patron)",
+      "description": "This tier does not specify October 18 coverage in this snapshot. Sprint Day admission is sold separately; check the registration page for eligibility and coverage.",
+      "url": "https://pycon-davao.durianpy.org/tickets/",
+      "price": "2000",
+      "priceCurrency": "PHP",
+      "availability": "https://schema.org/InStock",
+      "seller": {
+        "name": "DurianPy",
+        "url": "https://www.durianpy.org/"
+      }
+    },
+    {
+      "@type": "Offer",
+      "identifier": "extra-sprint-day",
+      "name": "EXTRA (Sprint Day)",
+      "description": "Sprint Day admission is separate from conference admission.",
+      "url": "https://pycon-davao.durianpy.org/tickets/",
+      "price": "500",
+      "priceCurrency": "PHP",
+      "availability": "https://schema.org/InStock",
+      "seller": {
+        "name": "DurianPy",
+        "url": "https://www.durianpy.org/"
+      }
+    }
+  ],
+  "potentialAction": {
+    "@type": "Action",
+    "identifier": "registration",
+    "name": "Register",
+    "target": "https://pycon-davao.durianpy.org/tickets/"
+  }
+}

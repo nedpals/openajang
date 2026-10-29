@@ -1,0 +1,35 @@
+{
+  "@type": "Event",
+  "uid": "https://gdg.community.dev/events/details/google-gdg-belgrade-presents-devfest-2026-hackathon/",
+  "title": "DevFest 2026 Hackathon",
+  "start": "2026-10-10T07:30:00",
+  "timeZone": "Etc/UTC",
+  "updated": "2026-10-29T08:00:00Z",
+  "status": "confirmed",
+  "duration": "PT129600S",
+  "locations": {
+    "venue": {
+      "@type": "Location",
+      "name": "Naučno-tehnološki park",
+      "description": "Veljka Dugoševića 54 Belgrade 11050 RS"
+    }
+  },
+  "links": {
+    "event": {
+      "@type": "Link",
+      "href": "https://gdg.community.dev/events/details/google-gdg-belgrade-presents-devfest-2026-hackathon/",
+      "title": "Event page"
+    },
+    "organizer": {
+      "@type": "Link",
+      "href": "https://gdg.community.dev/gdg-belgrade/",
+      "title": "GDG Belgrade"
+    },
+    "registration": {
+      "@type": "Link",
+      "href": "https://forms.gdg-belgrade.com/",
+      "title": "Register"
+    }
+  },
+  "description": "The DevFest 2026 Hackathon is a two-day in-person competition organized by GDG Belgrade. Teams of three or four participants develop and present a project; individual applicants may be matched into teams. Working language is Serbian; presentations are in English. Age, prerequisite conference attendance, and team requirements are stated in the registration instructions.\n\nOrganizer: GDG Belgrade\n\nSource: https://gdg.community.dev/events/details/google-gdg-belgrade-presents-devfest-2026-hackathon/\n\nRegistration: open. Applicants must be aged 18 to 26 and attend the DevFest Conference on October 9. Teams have three or four members; individuals may apply and be matched."
+}

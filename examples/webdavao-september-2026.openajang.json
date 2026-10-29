@@ -1,0 +1,56 @@
+{
+  "$schema": "https://openajang.nedpals.xyz/schema/0.1/event.json",
+  "type": "event",
+  "id": "https://luma.com/3nzv58t2",
+  "url": "https://luma.com/3nzv58t2",
+  "title": "Draw It, Build It - WebDavao September 2026 Meetup",
+  "summary": "An in-person WebDavao comfort-build session that starts with a sketch and ends with a working project.",
+  "description": "Participants first sketch what they want to make, then build it from an empty repository without AI or code generation. The meetup concludes with a show-and-tell session.",
+  "language": "en",
+  "status": "scheduled",
+  "starts_at": "2026-09-19T12:00:00+08:00",
+  "ends_at": "2026-09-19T19:00:00+08:00",
+  "organizer": {
+    "name": "WebDavao",
+    "url": "https://luma.com/user/webdavao"
+  },
+  "location": {
+    "type": "physical",
+    "physical": {
+      "name": "Fika Cafe - Lapu-Lapu",
+      "address": {
+        "street": "Diamond Piazza, Lapu-Lapu Street, Barangay 15-B, Poblacion District",
+        "locality": "Davao City",
+        "region": "Davao del Sur",
+        "country": "PH"
+      }
+    }
+  },
+  "registration": {
+    "required": true,
+    "url": "https://luma.com/3nzv58t2",
+    "status": "open"
+  },
+  "tickets": [
+    {
+      "id": "registration",
+      "name": "Event registration",
+      "availability": "limited",
+      "url": "https://luma.com/3nzv58t2",
+      "seller": {
+        "name": "WebDavao",
+        "url": "https://luma.com/user/webdavao"
+      }
+    }
+  ],
+  "tags": [
+    "web development",
+    "software development",
+    "meetup",
+    "Davao"
+  ],
+  "updated_at": "2026-10-29T08:00:00Z",
+  "publisher": {
+    "name": "Example fixture publisher"
+  }
+}

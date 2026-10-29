@@ -1,0 +1,174 @@
+{
+  "chasing-clouds-2026": {
+    "schema_org": {
+      "generated": true,
+      "diagnostics": [
+        "Date-only range retains unpublished hours; target display semantics may vary",
+        "Separate civil time_zone omitted; encoded dates/offsets retained",
+        "publisher omitted from structured mapping",
+        "Source updated_at has no selected native Event mapping; omitted",
+        "Party kind unspecified; no Person/Organization type inferred",
+        "Document language is not assumed to be spoken event language; omitted"
+      ]
+    },
+    "jscalendar": {
+      "generated": false,
+      "diagnostics": [
+        "Declined: clock times unpublished; no invented midnight or all-day event"
+      ]
+    }
+  },
+  "devcon-8-india-2026": {
+    "schema_org": {
+      "generated": true,
+      "diagnostics": [
+        "Registration required/state are not preserved as native structured fields; action is an adapter convention",
+        "Date-only range retains unpublished hours; target display semantics may vary",
+        "publisher omitted from structured mapping",
+        "Source updated_at has no selected native Event mapping; omitted",
+        "Party kind unspecified; no Person/Organization type inferred",
+        "Document language is not assumed to be spoken event language; omitted"
+      ]
+    },
+    "jscalendar": {
+      "generated": false,
+      "diagnostics": [
+        "Declined: clock times unpublished; no invented midnight or all-day event"
+      ]
+    }
+  },
+  "devfest-belgrade-hackathon-2026": {
+    "schema_org": {
+      "generated": true,
+      "diagnostics": [
+        "Registration required/state are not preserved as native structured fields; action is an adapter convention",
+        "publisher omitted from structured mapping",
+        "series omitted from structured mapping",
+        "extensions omitted from structured mapping",
+        "Source updated_at has no selected native Event mapping; omitted",
+        "Party kind unspecified; no Person/Organization type inferred",
+        "Document language is not assumed to be spoken event language; omitted"
+      ]
+    },
+    "jscalendar": {
+      "generated": true,
+      "diagnostics": [
+        "Registration semantics retained descriptively; link key is an adapter convention",
+        "Organizer retained descriptively; no calendar ownership or invitation role inferred",
+        "publisher not preserved structurally",
+        "series not preserved structurally",
+        "extensions not preserved structurally",
+        "tags not preserved structurally",
+        "language not preserved structurally"
+      ]
+    }
+  },
+  "devfest-kuala-lumpur-2026": {
+    "schema_org": {
+      "generated": true,
+      "diagnostics": [
+        "Registration required/state are not preserved as native structured fields; action is an adapter convention",
+        "publisher omitted from structured mapping",
+        "series omitted from structured mapping",
+        "Source updated_at has no selected native Event mapping; omitted",
+        "Party kind unspecified; no Person/Organization type inferred",
+        "Document language is not assumed to be spoken event language; omitted"
+      ]
+    },
+    "jscalendar": {
+      "generated": true,
+      "diagnostics": [
+        "Registration semantics retained descriptively; link key is an adapter convention",
+        "Organizer retained descriptively; no calendar ownership or invitation role inferred",
+        "publisher not preserved structurally",
+        "series not preserved structurally",
+        "tags not preserved structurally",
+        "language not preserved structurally"
+      ]
+    }
+  },
+  "fosdem-2026": {
+    "schema_org": {
+      "generated": true,
+      "diagnostics": [
+        "completed has no exact Schema.org eventStatus mapping; omitted",
+        "Registration required/state are not preserved as native structured fields; action is an adapter convention",
+        "Date-only range retains unpublished hours; target display semantics may vary",
+        "publisher omitted from structured mapping",
+        "extensions omitted from structured mapping",
+        "Source updated_at has no selected native Event mapping; omitted",
+        "Party kind unspecified; no Person/Organization type inferred",
+        "Document language is not assumed to be spoken event language; omitted"
+      ]
+    },
+    "jscalendar": {
+      "generated": false,
+      "diagnostics": [
+        "Declined: clock times unpublished; no invented midnight or all-day event"
+      ]
+    }
+  },
+  "pycon-davao-2026": {
+    "schema_org": {
+      "generated": true,
+      "diagnostics": [
+        "Physical venue certainty not preserved structurally",
+        "Registration required/state are not preserved as native structured fields; action is an adapter convention",
+        "Date-only range retains unpublished hours; target display semantics may vary",
+        "publisher omitted from structured mapping",
+        "Source updated_at has no selected native Event mapping; omitted",
+        "Party kind unspecified; no Person/Organization type inferred",
+        "Document language is not assumed to be spoken event language; omitted"
+      ]
+    },
+    "jscalendar": {
+      "generated": false,
+      "diagnostics": [
+        "Declined: clock times unpublished; no invented midnight or all-day event"
+      ]
+    }
+  },
+  "react-summit-us-2026": {
+    "schema_org": {
+      "generated": true,
+      "diagnostics": [
+        "Registration required/state are not preserved as native structured fields; action is an adapter convention",
+        "Date-only range retains unpublished hours; target display semantics may vary",
+        "publisher omitted from structured mapping",
+        "extensions omitted from structured mapping",
+        "Source updated_at has no selected native Event mapping; omitted",
+        "Party kind unspecified; no Person/Organization type inferred",
+        "Document language is not assumed to be spoken event language; omitted"
+      ]
+    },
+    "jscalendar": {
+      "generated": false,
+      "diagnostics": [
+        "Declined: clock times unpublished; no invented midnight or all-day event"
+      ]
+    }
+  },
+  "webdavao-september-2026": {
+    "schema_org": {
+      "generated": true,
+      "diagnostics": [
+        "Registration required/state are not preserved as native structured fields; action is an adapter convention",
+        "publisher omitted from structured mapping",
+        "Source updated_at has no selected native Event mapping; omitted",
+        "Party kind unspecified; no Person/Organization type inferred",
+        "Document language is not assumed to be spoken event language; omitted"
+      ]
+    },
+    "jscalendar": {
+      "generated": true,
+      "diagnostics": [
+        "Registration semantics retained descriptively; link key is an adapter convention",
+        "Ticket prices/availability/coverage have no native mapping here; descriptive text and links only; seller omitted",
+        "Organizer retained descriptively; no calendar ownership or invitation role inferred",
+        "publisher not preserved structurally",
+        "tags not preserved structurally",
+        "language not preserved structurally"
+      ]
+    }
+  }
+}

@@ -1,0 +1,125 @@
+{
+  "@context": "https://schema.org",
+  "@type": "Event",
+  "@id": "https://devcon.org/en/",
+  "url": "https://devcon.org/en/",
+  "name": "Devcon 8 India",
+  "startDate": "2026-11-03",
+  "endDate": "2026-11-06",
+  "description": "Devcon 8 brings the Ethereum ecosystem together at the Jio World Centre in Mumbai for four days of technical talks, workshops, and community collaboration.",
+  "eventStatus": "https://schema.org/EventScheduled",
+  "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+  "organizer": {
+    "name": "Ethereum Foundation",
+    "url": "https://ethereum.foundation/"
+  },
+  "location": {
+    "@type": "Place",
+    "name": "Jio World Centre",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "G Block, Bandra Kurla Complex",
+      "addressLocality": "Mumbai",
+      "addressRegion": "Maharashtra",
+      "addressCountry": "IN"
+    }
+  },
+  "keywords": [
+    "Ethereum",
+    "blockchain",
+    "software development",
+    "community conference"
+  ],
+  "offers": [
+    {
+      "@type": "Offer",
+      "identifier": "general-admission-eth",
+      "name": "General admission - pay via ETH",
+      "description": "General admission purchased using ETH. The advertised price includes 18% GST.",
+      "url": "https://devcon.org/en/tickets/store/",
+      "price": "499",
+      "priceCurrency": "USD",
+      "availability": "https://schema.org/InStock",
+      "seller": {
+        "name": "Ethereum Foundation",
+        "url": "https://ethereum.foundation/"
+      }
+    },
+    {
+      "@type": "Offer",
+      "identifier": "general-admission-fiat",
+      "name": "General admission - pay via fiat",
+      "description": "General admission purchased using fiat currency. The advertised price includes 18% GST.",
+      "url": "https://devcon.org/en/tickets/store/",
+      "price": "999",
+      "priceCurrency": "USD",
+      "availability": "https://schema.org/InStock",
+      "seller": {
+        "name": "Ethereum Foundation",
+        "url": "https://ethereum.foundation/"
+      }
+    },
+    {
+      "@type": "Offer",
+      "identifier": "india-resident",
+      "name": "Community - India Resident",
+      "description": "Discounted ticket for eligible residents of India. The advertised price includes 18% GST.",
+      "url": "https://devcon.org/en/tickets/store/",
+      "price": "149",
+      "priceCurrency": "USD",
+      "availability": "https://schema.org/InStock",
+      "seller": {
+        "name": "Ethereum Foundation",
+        "url": "https://ethereum.foundation/"
+      }
+    },
+    {
+      "@type": "Offer",
+      "identifier": "indian-student",
+      "name": "Community - Indian Student",
+      "description": "Discounted ticket for eligible students in India. The advertised price includes 18% GST.",
+      "url": "https://devcon.org/en/tickets/store/",
+      "price": "25",
+      "priceCurrency": "USD",
+      "availability": "https://schema.org/InStock",
+      "seller": {
+        "name": "Ethereum Foundation",
+        "url": "https://ethereum.foundation/"
+      }
+    },
+    {
+      "@type": "Offer",
+      "identifier": "international-student",
+      "name": "Community - International Student",
+      "description": "Discounted ticket for eligible students outside India. The advertised price includes 18% GST.",
+      "url": "https://devcon.org/en/tickets/store/",
+      "price": "49",
+      "priceCurrency": "USD",
+      "availability": "https://schema.org/InStock",
+      "seller": {
+        "name": "Ethereum Foundation",
+        "url": "https://ethereum.foundation/"
+      }
+    },
+    {
+      "@type": "Offer",
+      "identifier": "youth",
+      "name": "Community - Youth",
+      "description": "Discounted ticket for eligible attendees aged 3 through 17. The advertised price includes 18% GST.",
+      "url": "https://devcon.org/en/tickets/store/",
+      "price": "19",
+      "priceCurrency": "USD",
+      "availability": "https://schema.org/InStock",
+      "seller": {
+        "name": "Ethereum Foundation",
+        "url": "https://ethereum.foundation/"
+      }
+    }
+  ],
+  "potentialAction": {
+    "@type": "Action",
+    "identifier": "registration",
+    "name": "Register",
+    "target": "https://devcon.org/en/tickets/store/"
+  }
+}

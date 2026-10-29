@@ -1,0 +1,56 @@
+{
+  "$schema": "https://openajang.nedpals.xyz/schema/0.1/event.json",
+  "type": "event",
+  "id": "https://www.metmuseum.org/exhibitions/chasing-clouds",
+  "url": "https://www.metmuseum.org/exhibitions/chasing-clouds",
+  "title": "Chasing Clouds",
+  "summary": "An exhibition at The Met Fifth Avenue exploring the cultural and artistic meanings of clouds.",
+  "description": "Chasing Clouds is on view in Gallery 852 at The Met Fifth Avenue from September 14, 2026 through February 28, 2027. The exhibition is free with museum admission and can be visited during the museum's published opening hours.",
+  "language": "en",
+  "status": "scheduled",
+  "starts_at": "2026-09-14",
+  "ends_at": "2027-02-28",
+  "time_zone": "America/New_York",
+  "organizer": {
+    "name": "The Metropolitan Museum of Art",
+    "url": "https://www.metmuseum.org/"
+  },
+  "location": {
+    "type": "physical",
+    "physical": {
+      "name": "The Met Fifth Avenue",
+      "url": "https://www.metmuseum.org/plan-your-visit/met-fifth-avenue",
+      "address": {
+        "street": "1000 Fifth Avenue",
+        "locality": "New York",
+        "region": "NY",
+        "postal_code": "10028",
+        "country": "US"
+      },
+      "instructions": "The exhibition is in Gallery 852 and is accessible only during museum opening hours. Published visiting hours: Monday, Tuesday, Thursday, and Sunday 10:00–17:00; Friday and Saturday 10:00–21:00, America/New_York. Closed Wednesdays and on November 26 and December 25, 2026, and January 1, 2027. The date range is the exhibition envelope, not continuous attendance. Check the museum page before visiting."
+    }
+  },
+  "tickets": [
+    {
+      "id": "museum-admission",
+      "name": "Included with museum admission",
+      "description": "There is no separate exhibition charge; general museum admission rules and prices apply.",
+      "availability": "available",
+      "url": "https://www.metmuseum.org/plan-your-visit",
+      "seller": {
+        "name": "The Metropolitan Museum of Art",
+        "url": "https://www.metmuseum.org/"
+      }
+    }
+  ],
+  "tags": [
+    "art exhibition",
+    "clouds",
+    "museum",
+    "New York"
+  ],
+  "updated_at": "2026-10-29T08:00:00Z",
+  "publisher": {
+    "name": "Example fixture publisher"
+  }
+}

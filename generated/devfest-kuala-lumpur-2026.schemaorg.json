@@ -1,0 +1,37 @@
+{
+  "@context": "https://schema.org",
+  "@type": "Event",
+  "@id": "https://gdg.community.dev/events/details/google-gdg-kuala-lumpur-presents-devfest-kuala-lumpur-2026/",
+  "url": "https://gdg.community.dev/events/details/google-gdg-kuala-lumpur-presents-devfest-kuala-lumpur-2026/",
+  "name": "DevFest Kuala Lumpur 2026",
+  "startDate": "2026-11-14T08:30:00+08:00",
+  "endDate": "2026-11-14T18:00:00+08:00",
+  "description": "DevFest Kuala Lumpur returns for its fifteenth year with knowledge exchange, networking, and learning focused on Google developer technologies. The schedule and speaker lineup have not yet been published.",
+  "eventStatus": "https://schema.org/EventScheduled",
+  "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+  "organizer": {
+    "name": "GDG Kuala Lumpur",
+    "url": "https://gdg.community.dev/gdg-kuala-lumpur/"
+  },
+  "location": {
+    "@type": "Place",
+    "name": "Sunway University",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "5 Jalan Universiti",
+      "addressLocality": "Petaling Jaya",
+      "postalCode": "47500",
+      "addressCountry": "MY"
+    }
+  },
+  "keywords": [
+    "DevFest",
+    "AI",
+    "Android",
+    "Firebase",
+    "Flutter",
+    "Google Cloud",
+    "web development",
+    "community conference"
+  ]
+}

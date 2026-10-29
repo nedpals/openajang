@@ -1,0 +1,50 @@
+{
+  "@context": "https://schema.org",
+  "@type": "Event",
+  "@id": "https://www.metmuseum.org/exhibitions/chasing-clouds",
+  "url": "https://www.metmuseum.org/exhibitions/chasing-clouds",
+  "name": "Chasing Clouds",
+  "startDate": "2026-09-14",
+  "endDate": "2027-02-28",
+  "description": "Chasing Clouds is on view in Gallery 852 at The Met Fifth Avenue from September 14, 2026 through February 28, 2027. The exhibition is free with museum admission and can be visited during the museum's published opening hours.",
+  "eventStatus": "https://schema.org/EventScheduled",
+  "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+  "organizer": {
+    "name": "The Metropolitan Museum of Art",
+    "url": "https://www.metmuseum.org/"
+  },
+  "location": {
+    "@type": "Place",
+    "name": "The Met Fifth Avenue",
+    "url": "https://www.metmuseum.org/plan-your-visit/met-fifth-avenue",
+    "description": "The exhibition is in Gallery 852 and is accessible only during museum opening hours. Published visiting hours: Monday, Tuesday, Thursday, and Sunday 10:00–17:00; Friday and Saturday 10:00–21:00, America/New_York. Closed Wednesdays and on November 26 and December 25, 2026, and January 1, 2027. The date range is the exhibition envelope, not continuous attendance. Check the museum page before visiting.",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "1000 Fifth Avenue",
+      "addressLocality": "New York",
+      "addressRegion": "NY",
+      "postalCode": "10028",
+      "addressCountry": "US"
+    }
+  },
+  "keywords": [
+    "art exhibition",
+    "clouds",
+    "museum",
+    "New York"
+  ],
+  "offers": [
+    {
+      "@type": "Offer",
+      "identifier": "museum-admission",
+      "name": "Included with museum admission",
+      "description": "There is no separate exhibition charge; general museum admission rules and prices apply.",
+      "url": "https://www.metmuseum.org/plan-your-visit",
+      "availability": "https://schema.org/InStock",
+      "seller": {
+        "name": "The Metropolitan Museum of Art",
+        "url": "https://www.metmuseum.org/"
+      }
+    }
+  ]
+}

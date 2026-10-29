@@ -1,0 +1,40 @@
+{
+  "@type": "Event",
+  "uid": "https://luma.com/3nzv58t2",
+  "title": "Draw It, Build It - WebDavao September 2026 Meetup",
+  "start": "2026-09-19T04:00:00",
+  "timeZone": "Etc/UTC",
+  "updated": "2026-10-29T08:00:00Z",
+  "status": "confirmed",
+  "duration": "PT25200S",
+  "locations": {
+    "venue": {
+      "@type": "Location",
+      "name": "Fika Cafe - Lapu-Lapu",
+      "description": "Diamond Piazza, Lapu-Lapu Street, Barangay 15-B, Poblacion District Davao City Davao del Sur PH"
+    }
+  },
+  "links": {
+    "event": {
+      "@type": "Link",
+      "href": "https://luma.com/3nzv58t2",
+      "title": "Event page"
+    },
+    "organizer": {
+      "@type": "Link",
+      "href": "https://luma.com/user/webdavao",
+      "title": "WebDavao"
+    },
+    "registration": {
+      "@type": "Link",
+      "href": "https://luma.com/3nzv58t2",
+      "title": "Register"
+    },
+    "ticket0": {
+      "@type": "Link",
+      "href": "https://luma.com/3nzv58t2",
+      "title": "Event registration"
+    }
+  },
+  "description": "Participants first sketch what they want to make, then build it from an empty repository without AI or code generation. The meetup concludes with a show-and-tell session.\n\nOrganizer: WebDavao\n\nSource: https://luma.com/3nzv58t2\n\nRegistration: open. \n\nEvent registration:  Price not published. Availability: limited"
+}

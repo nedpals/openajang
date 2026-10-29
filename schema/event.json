@@ -1,0 +1,558 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openajang.nedpals.xyz/schema/0.1/event.json",
+  "title": "OpenAjang Event",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "const": "https://openajang.nedpals.xyz/schema/0.1/event.json"
+    },
+    "type": {
+      "const": "event"
+    },
+    "id": {
+      "$ref": "#/$defs/uri"
+    },
+    "url": {
+      "$ref": "#/$defs/url"
+    },
+    "title": {
+      "$ref": "#/$defs/text"
+    },
+    "summary": {
+      "$ref": "#/$defs/text"
+    },
+    "description": {
+      "$ref": "#/$defs/text"
+    },
+    "language": {
+      "type": "string",
+      "format": "oa-language"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "scheduled",
+        "postponed",
+        "rescheduled",
+        "cancelled",
+        "completed"
+      ]
+    },
+    "status_note": {
+      "$ref": "#/$defs/text"
+    },
+    "starts_at": {
+      "$ref": "#/$defs/when"
+    },
+    "ends_at": {
+      "$ref": "#/$defs/when"
+    },
+    "time_zone": {
+      "type": "string",
+      "format": "oa-zone"
+    },
+    "previous_starts_at": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/when"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "location": {
+      "$ref": "#/$defs/location"
+    },
+    "organizer": {
+      "$ref": "#/$defs/party"
+    },
+    "publisher": {
+      "$ref": "#/$defs/party"
+    },
+    "registration": {
+      "$ref": "#/$defs/registration"
+    },
+    "tickets": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ticket"
+      },
+      "minItems": 1
+    },
+    "image": {
+      "$ref": "#/$defs/image"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/text"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "series": {
+      "$ref": "#/$defs/series"
+    },
+    "same_as": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/url"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "extensions": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^[A-Za-z0-9_.-]+:[A-Za-z0-9_.-]+$"
+      }
+    },
+    "updated_at": {
+      "$ref": "#/$defs/stamp"
+    }
+  },
+  "required": [
+    "$schema",
+    "type",
+    "url",
+    "title",
+    "status",
+    "starts_at",
+    "location",
+    "organizer",
+    "updated_at"
+  ],
+  "additionalProperties": true,
+  "$defs": {
+    "text": {
+      "type": "string",
+      "pattern": "\\S"
+    },
+    "url": {
+      "type": "string",
+      "format": "oa-url"
+    },
+    "uri": {
+      "type": "string",
+      "format": "oa-uri"
+    },
+    "stamp": {
+      "type": "string",
+      "format": "oa-date-time"
+    },
+    "date": {
+      "type": "string",
+      "format": "oa-date"
+    },
+    "when": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/date"
+        },
+        {
+          "$ref": "#/$defs/stamp"
+        }
+      ]
+    },
+    "party": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/text"
+        },
+        "id": {
+          "$ref": "#/$defs/uri"
+        },
+        "url": {
+          "$ref": "#/$defs/url"
+        },
+        "email": {
+          "type": "string",
+          "format": "oa-email"
+        },
+        "phone": {
+          "$ref": "#/$defs/text"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": true
+    },
+    "address": {
+      "type": "object",
+      "properties": {
+        "street": {
+          "$ref": "#/$defs/text"
+        },
+        "locality": {
+          "$ref": "#/$defs/text"
+        },
+        "region": {
+          "$ref": "#/$defs/text"
+        },
+        "postal_code": {
+          "$ref": "#/$defs/text"
+        },
+        "country": {
+          "type": "string",
+          "pattern": "^[A-Z]{2}$",
+          "format": "oa-country"
+        }
+      },
+      "required": [],
+      "additionalProperties": true
+    },
+    "physical": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "confirmed",
+            "tentative",
+            "to_be_announced"
+          ]
+        },
+        "name": {
+          "$ref": "#/$defs/text"
+        },
+        "id": {
+          "$ref": "#/$defs/uri"
+        },
+        "url": {
+          "$ref": "#/$defs/url"
+        },
+        "address": {
+          "$ref": "#/$defs/address"
+        },
+        "coordinates": {
+          "type": "object",
+          "properties": {
+            "latitude": {
+              "type": "number",
+              "minimum": -90,
+              "maximum": 90
+            },
+            "longitude": {
+              "type": "number",
+              "minimum": -180,
+              "maximum": 180
+            }
+          },
+          "required": [
+            "latitude",
+            "longitude"
+          ],
+          "additionalProperties": true
+        },
+        "instructions": {
+          "$ref": "#/$defs/text"
+        }
+      },
+      "required": [],
+      "additionalProperties": true,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "to_be_announced"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {},
+          "else": {
+            "required": [
+              "name"
+            ]
+          }
+        }
+      ]
+    },
+    "virtual": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "$ref": "#/$defs/url"
+        },
+        "platform": {
+          "$ref": "#/$defs/text"
+        },
+        "instructions": {
+          "$ref": "#/$defs/text"
+        }
+      },
+      "required": [
+        "url"
+      ],
+      "additionalProperties": true
+    },
+    "location": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "physical",
+            "virtual",
+            "hybrid"
+          ]
+        },
+        "physical": {
+          "$ref": "#/$defs/physical"
+        },
+        "virtual": {
+          "$ref": "#/$defs/virtual"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "additionalProperties": true,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "physical"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "physical"
+            ],
+            "not": {
+              "required": [
+                "virtual"
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "virtual"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "virtual"
+            ],
+            "not": {
+              "required": [
+                "physical"
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "hybrid"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "physical",
+              "virtual"
+            ]
+          }
+        }
+      ]
+    },
+    "registration": {
+      "type": "object",
+      "properties": {
+        "required": {
+          "type": "boolean"
+        },
+        "url": {
+          "$ref": "#/$defs/url"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "not_yet_open",
+            "open",
+            "closed",
+            "waitlist",
+            "unknown"
+          ]
+        },
+        "opens_at": {
+          "$ref": "#/$defs/stamp"
+        },
+        "closes_at": {
+          "$ref": "#/$defs/stamp"
+        },
+        "instructions": {
+          "$ref": "#/$defs/text"
+        }
+      },
+      "required": [
+        "required"
+      ],
+      "additionalProperties": true
+    },
+    "price": {
+      "type": "object",
+      "properties": {
+        "amount": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]+)?$"
+        },
+        "currency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$",
+          "format": "oa-currency"
+        }
+      },
+      "required": [
+        "amount",
+        "currency"
+      ],
+      "additionalProperties": true
+    },
+    "ticket": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/text"
+        },
+        "name": {
+          "$ref": "#/$defs/text"
+        },
+        "description": {
+          "$ref": "#/$defs/text"
+        },
+        "url": {
+          "$ref": "#/$defs/url"
+        },
+        "seller": {
+          "$ref": "#/$defs/party"
+        },
+        "price": {
+          "$ref": "#/$defs/price"
+        },
+        "availability": {
+          "type": "string",
+          "enum": [
+            "available",
+            "limited",
+            "sold_out",
+            "unavailable",
+            "unknown"
+          ]
+        },
+        "sales_start": {
+          "$ref": "#/$defs/stamp"
+        },
+        "sales_end": {
+          "$ref": "#/$defs/stamp"
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ],
+      "additionalProperties": true
+    },
+    "image": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "$ref": "#/$defs/url"
+        },
+        "alt": {
+          "$ref": "#/$defs/text"
+        },
+        "width": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "url"
+      ],
+      "additionalProperties": true
+    },
+    "series": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/uri"
+        },
+        "title": {
+          "$ref": "#/$defs/text"
+        },
+        "url": {
+          "$ref": "#/$defs/url"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "additionalProperties": true
+    }
+  },
+  "allOf": [
+    {
+      "not": {
+        "required": [
+          "schedule"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "rescheduled"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "previous_starts_at"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "starts_at": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "ends_at": {
+            "$ref": "#/$defs/date"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "ends_at": {
+            "$ref": "#/$defs/stamp"
+          }
+        }
+      }
+    }
+  ]
+}

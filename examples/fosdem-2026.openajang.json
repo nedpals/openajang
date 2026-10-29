@@ -1,0 +1,49 @@
+{
+  "$schema": "https://openajang.nedpals.xyz/schema/0.1/event.json",
+  "type": "event",
+  "id": "https://archive.fosdem.org/2026/",
+  "url": "https://archive.fosdem.org/2026/",
+  "title": "FOSDEM 2026",
+  "summary": "A free, volunteer-organized conference for free and open source software communities.",
+  "description": "FOSDEM 2026 took place at the ULB Solbosch Campus in Brussels on January 31 and February 1. The physical conference was free to attend and required no registration. Session recordings remain available online.",
+  "language": "en",
+  "status": "completed",
+  "starts_at": "2026-01-31",
+  "ends_at": "2026-02-01",
+  "organizer": {
+    "name": "FOSDEM",
+    "url": "https://fosdem.org/"
+  },
+  "location": {
+    "type": "physical",
+    "physical": {
+      "name": "ULB Solbosch Campus",
+      "address": {
+        "street": "Avenue Franklin D. Roosevelt 50",
+        "locality": "Brussels",
+        "postal_code": "1050",
+        "country": "BE"
+      }
+    }
+  },
+  "registration": {
+    "required": false,
+    "instructions": "FOSDEM is free to attend and does not require registration."
+  },
+  "tags": [
+    "free software",
+    "open source",
+    "software conference",
+    "community"
+  ],
+  "updated_at": "2026-10-29T08:00:00Z",
+  "extensions": {
+    "unstable:broadcast": {
+      "recordings_url": "https://video.fosdem.org/2026/",
+      "counts_as_attendance": false
+    }
+  },
+  "publisher": {
+    "name": "Example fixture publisher"
+  }
+}
