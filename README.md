@@ -256,3 +256,16 @@ This is a working draft. The proposed authoring website, hosted directory, and
 participant app are possible implementations, not shipped services in this
 repository. The immediate goal is a small contract that independent publishers
 and consumers can implement and test.
+
+## License
+
+- Specification and documentation (`SPEC.md`, `README.md`, `FEEDS.md`, and other `.md` files): [CC BY 4.0](LICENSE-docs). Copyright © 2026 Ned Palacios.
+- Schema, examples, tools, and tests: [Apache-2.0](LICENSE). Copyright © 2026 Ned Palacios.
+
+Third-party content (event descriptions, images, and other material published by
+organizers) keeps its own terms. Publishing an event in OpenAjang format does not
+license it under either license above.
+
+You're free to implement the format and publish compatible events without asking
+permission. Saying a tool or feed is "OpenAjang-compatible" is fine as long as it
+follows the spec. Please don't present a modified or incompatible format as OpenAjang.
