@@ -112,7 +112,8 @@ a mismatch or registry error stops the release.
 
 Before the first release, ensure the `@openajang` npm scope is controlled by the
 publisher. Configure a trusted publisher for each package with GitHub owner `nedpals`,
-repository `openajang`, and workflow filename `release.yml`. For packages that do
+repository `openajang`, workflow filename `release.yml`, and environment `npm`.
+For packages that do
 not yet exist, follow npm's package-creation procedure for trusted publishing or its
 first-publish instructions. The workflow uses GitHub OIDC, not an npm token. Set up
 trust close to the release: unvalidated npm trusted-publisher configurations expire.
