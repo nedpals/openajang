@@ -6,7 +6,7 @@
   "scripts": {
     "build": "pnpm --filter @openajang/core run build && pnpm --filter @openajang/resolver run build",
     "test": "pnpm run build && node --test packages/core/tests/core.test.ts packages/resolver/tests/resolver.test.ts",
-    "typecheck": "pnpm --filter @openajang/core run typecheck && pnpm --filter @openajang/resolver run typecheck"
+    "typecheck": "pnpm --filter @openajang/core run build && pnpm --filter @openajang/resolver run typecheck"
   },
   "devDependencies": {
     "@types/node": "24.0.7",
