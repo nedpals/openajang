@@ -4,6 +4,11 @@ import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 
 const version = JSON.parse(readFileSync('packages/core/package.json', 'utf8')).version;
+test('release workflow does not configure token authentication for npm', () => {
+  const workflow = readFileSync('.github/workflows/release.yml', 'utf8');
+  assert.doesNotMatch(workflow, /registry-url\s*:/);
+  assert.doesNotMatch(workflow, /NODE_AUTH_TOKEN/);
+});
 function validate(ref) {
   return spawnSync(process.execPath, ['scripts/release.mjs', 'validate'], {
     encoding: 'utf8', env: { ...process.env, GITHUB_REF: ref, RELEASE_DIR: '/tmp' }

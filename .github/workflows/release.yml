@@ -21,7 +21,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-          registry-url: https://registry.npmjs.org
       - name: Validate selected tag and package versions
         run: node scripts/release.mjs validate
       - name: Install dependencies
