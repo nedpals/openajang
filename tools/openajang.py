@@ -57,7 +57,7 @@ def zone_ok(value):
 CHECKER=jsonschema.FormatChecker()
 for name,fn in {'oa-url':url_ok,'oa-uri':uri_ok,'oa-email':email_ok,'oa-language':language_ok,'oa-zone':zone_ok,'oa-country':lambda s:pycountry.countries.get(alpha_2=s) is not None,'oa-currency':lambda s:pycountry.currencies.get(alpha_3=s) is not None,'oa-date':lambda s:bool(parse_date(s)),'oa-date-time':lambda s:parse_stamp(s) is not None}.items():
     CHECKER.checks(name,raises=(ValueError,TypeError,OverflowError))(fn)
-SCHEMA=json.loads((ROOT/'schema/event.json').read_text())
+SCHEMA=json.loads((ROOT/'schema/0.1/event.json').read_text())
 SCHEMA_URL=SCHEMA['$id']
 jsonschema.Draft202012Validator.check_schema(SCHEMA)
 VALIDATOR=jsonschema.Draft202012Validator(SCHEMA,format_checker=CHECKER)

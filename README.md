@@ -236,10 +236,12 @@ listings are snapshots, not verified current announcements or endorsements.
 See [publishing and implementation notes](PUBLISHING.md) for their provenance,
 setup details, and operational limits.
 
+The optional TypeScript packages `@openajang/core` and `@openajang/resolver` provide reference tooling. OpenAjang documents can be published and consumed without installing either package.
+
 ## Documentation
 
 - [Core specification](SPEC.md)
-- [JSON Schema](schema/event.json)
+- [JSON Schema](schema/0.1/event.json)
 - [Example events](examples/)
 - [Optional Atom feed profile](FEEDS.md)
 - [Conversion guide](CONVERSIONS.md)

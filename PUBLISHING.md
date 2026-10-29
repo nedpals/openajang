@@ -8,7 +8,7 @@ in [SPEC.md](SPEC.md); filenames remain stable between releases.
 - [Core specification](SPEC.md)
 - [Optional Atom feed profile](FEEDS.md)
 - [Informative conversion guide](CONVERSIONS.md)
-- [Document schema](schema/event.json)
+- [Document schema](schema/0.1/event.json)
 - [Experimental example extensions](experimental-extensions.md)
 - [Validation and scenario report](TEST-REPORT.md)
 
@@ -67,7 +67,7 @@ rebinding protection, isolation, moderation, and notification behavior.
 
 1. Publish the specification as a working draft, keeping the optional feed profile
    and informative conversion guide separate.
-2. Deploy `schema/event.json` at the public HTTPS URL declared in its `$id`.
+2. Deploy `schema/0.1/event.json` at the public HTTPS URL declared in its `$id`.
    The source file has a stable local path; the public URL is versioned. Serve it
    as `application/schema+json` where available. Once published, do not reuse that
    identifier for an incompatible contract.
@@ -83,7 +83,7 @@ rebinding protection, isolation, moderation, and notification behavior.
 ## Maintaining versions
 
 The schema's `$id` is the runtime source of the supported contract identifier.
-The validator loads `schema/event.json` and derives `SCHEMA_URL` from it; its Python
+The validator loads `schema/0.1/event.json` and derives `SCHEMA_URL` from it; its Python
 source has no separately hardcoded release number.
 
 For a new incompatible contract, update the schema `$id`, its matching instance

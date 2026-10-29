@@ -442,7 +442,7 @@ The immutable schema identifier for this contract is:
 
 `https://openajang.nedpals.xyz/schema/0.1/event.json`
 
-The release includes `schema/event.json`. Publish those exact bytes at that
+The release includes `schema/0.1/event.json`. Publish those exact bytes at that
 URL before claiming the public endpoint supports this contract. This package does
 not deploy it. Once published, a schema identifier MUST NOT be reused for an
 incompatible contract. Unknown schema identifiers MUST NOT be silently treated as
