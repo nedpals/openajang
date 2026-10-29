@@ -1,6 +1,6 @@
 {
   "name": "@openajang/resolver",
-  "version": "0.1.0-rc.1",
+  "version": "0.1.0-rc.2",
   "description": "Secure OpenAjang URL resolver and HTML discovery client with SSRF protections and provenance",
   "type": "module",
   "main": "./dist/index.js",
