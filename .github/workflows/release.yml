@@ -14,10 +14,10 @@ concurrency:
 jobs:
   publish:
     runs-on: ubuntu-latest
-    env:
-      RELEASE_DIR: ${{ runner.temp }}/openajang-release
     steps:
       - uses: actions/checkout@v4
+      - name: Set artifact directory
+        run: echo "RELEASE_DIR=$RUNNER_TEMP/openajang-release" >> "$GITHUB_ENV"
       - uses: actions/setup-node@v4
         with:
           node-version: 24
