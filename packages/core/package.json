@@ -39,7 +39,7 @@
     "typescript": "5.9.3"
   },
   "engines": {
-    "node": ">=24"
+    "node": ">=22.18"
   },
   "license": "Apache-2.0",
   "repository": {

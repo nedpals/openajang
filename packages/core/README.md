@@ -3,6 +3,7 @@
 Optional TypeScript tools for OpenAjang. The standard can be used without this package.
 
 The SDK is a release candidate intended for testing and feedback. Its API and validation behavior may change before `0.1.0`.
+The package supports Node.js 22.18 and newer.
 
 ```sh
 npm install @openajang/core@next
