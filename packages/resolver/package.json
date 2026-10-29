@@ -1,0 +1,35 @@
+{
+  "name": "@openajang/resolver",
+  "version": "0.1.0",
+  "description": "Secure OpenAjang URL resolver and HTML discovery client with SSRF protections and provenance",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "pnpm run build && node --test tests/resolver.test.ts"
+  },
+  "dependencies": {
+    "@openajang/core": "workspace:*",
+    "htmlparser2": "^9.1.0",
+    "ipaddr.js": "^2.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "24.0.7",
+    "typescript": "5.9.3"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "license": "Apache-2.0"
+}
