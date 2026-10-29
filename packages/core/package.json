@@ -1,0 +1,42 @@
+{
+  "name": "@openajang/core",
+  "version": "0.1.0",
+  "description": "Parser, schema and procedural validator, and conversions for the OpenAjang event format",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./schema": {
+      "import": "./dist/schema.js",
+      "types": "./dist/schema.d.ts"
+    },
+    "./adapters": {
+      "types": "./dist/adapters.d.ts",
+      "import": "./dist/adapters.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "node ../../scripts/generate-schema.mjs && tsc -p tsconfig.json",
+    "typecheck": "node ../../scripts/generate-schema.mjs && tsc -p tsconfig.json --noEmit",
+    "test": "pnpm run build && node --test tests/core.test.ts"
+  },
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "unicode-case-folding": "^1.1.2"
+  },
+  "devDependencies": {
+    "@types/node": "24.0.7",
+    "typescript": "5.9.3"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "license": "Apache-2.0"
+}

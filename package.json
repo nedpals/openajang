@@ -1,0 +1,19 @@
+{
+  "name": "openajang-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "TypeScript SDK monorepo for OpenAjang: core validator and secure resolver",
+  "scripts": {
+    "build": "pnpm --filter @openajang/core run build && pnpm --filter @openajang/resolver run build",
+    "test": "pnpm run build && node --test packages/core/tests/core.test.ts packages/resolver/tests/resolver.test.ts",
+    "typecheck": "pnpm --filter @openajang/core run typecheck && pnpm --filter @openajang/resolver run typecheck"
+  },
+  "devDependencies": {
+    "@types/node": "24.0.7",
+    "typescript": "5.9.3"
+  },
+  "packageManager": "pnpm@11.9.0",
+  "engines": {
+    "node": ">=24"
+  }
+}
