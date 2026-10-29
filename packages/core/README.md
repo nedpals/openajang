@@ -2,6 +2,12 @@
 
 Optional TypeScript tools for OpenAjang. The standard can be used without this package.
 
+The SDK is a release candidate intended for testing and feedback. Its API and validation behavior may change before `0.1.0`.
+
+```sh
+npm install @openajang/core@next
+```
+
 ```ts
 import { parseJsonStrict, validate } from '@openajang/core';
 

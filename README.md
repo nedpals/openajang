@@ -236,7 +236,15 @@ listings are snapshots, not verified current announcements or endorsements.
 See [publishing and implementation notes](PUBLISHING.md) for their provenance,
 setup details, and operational limits.
 
-The optional TypeScript packages `@openajang/core` and `@openajang/resolver` provide reference tooling. OpenAjang documents can be published and consumed without installing either package.
+The optional TypeScript packages [`@openajang/core`](packages/core/README.md)
+and [`@openajang/resolver`](packages/resolver/README.md) are release candidates
+for testing and feedback. Validation has known limitations, and the resolver
+needs additional security testing. Their APIs may change before `0.1.0`.
+OpenAjang documents can be published and consumed without installing either package.
+
+```sh
+npm install @openajang/core@next @openajang/resolver@next
+```
 
 ## Documentation
 
