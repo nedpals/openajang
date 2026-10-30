@@ -1,0 +1,11 @@
+---
+import { getEntry, render } from 'astro:content';
+import GuideLayout from '../../layouts/GuideLayout.astro';
+
+const guide = (await getEntry('guides', 'start'))!;
+const { Content, headings } = await render(guide);
+---
+<GuideLayout id={guide.id} title={guide.data.title} description={guide.data.description} headings={headings}>
+  <h1>Documentation</h1>
+  <Content />
+</GuideLayout>

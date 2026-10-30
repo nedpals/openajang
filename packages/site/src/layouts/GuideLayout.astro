@@ -1,0 +1,89 @@
+---
+import { getCollection } from 'astro:content';
+import Base from './Base.astro';
+import Icon from '../components/Icon.astro';
+import { getNav, guideHref } from '../lib/docs-nav';
+
+interface Props {
+  id: string;
+  title: string;
+  description: string;
+  headings: { depth: number; slug: string; text: string }[];
+}
+
+const { id, title, description, headings } = Astro.props;
+const groups = getNav(await getCollection('guides'));
+const contents = headings.filter((heading) => heading.depth === 2);
+---
+<Base title={id === 'start' ? 'OpenAjang documentation' : `${title} | OpenAjang docs`} description={description} sidebar>
+  <div class="guide-layout">
+    <div class="guide-side">
+      <nav class="guide-nav" aria-label="Documentation">
+        <p class="side-label"><Icon name="book" size={16} /><strong>Documentation</strong></p>
+        {groups.map((group) => (
+          <div class="guide-group">
+            <p class="group-label">{group.label}</p>
+            <ul>
+              {group.entries.map((entry) => (
+                <li><a href={guideHref(entry.id)} aria-current={entry.id === id ? 'page' : undefined}>{entry.data.title}</a></li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </nav>
+      {contents.length > 1 && (
+        <nav class="on-page" aria-label="On this page">
+          <p class="side-label"><Icon name="list" size={16} /><strong>On this page</strong></p>
+          <ul>
+            {contents.map((heading) => <li><a href={`#${heading.slug}`}>{heading.text}</a></li>)}
+          </ul>
+        </nav>
+      )}
+    </div>
+    <article class="guide"><slot /></article>
+  </div>
+</Base>
+
+<style>
+  .guide-layout {
+    display: grid;
+    grid-template-columns: 14rem minmax(0, 1fr);
+    gap: 2rem;
+    align-items: start;
+    padding-top: 1rem;
+  }
+  .guide-side {
+    position: sticky;
+    top: 4.5rem;
+    max-height: calc(100dvh - 5.5rem);
+    overflow-y: auto;
+    font-size: .85rem;
+    padding: .5rem .25rem;
+  }
+  .side-label { display: flex; align-items: center; gap: .5rem; margin: 0 0 .5rem; }
+  .side-label strong { font-weight: 500; }
+  .group-label { margin: 1rem 0 .25rem; color: var(--muted); font-size: .75rem; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+  .guide-side ul { margin: 0; padding: 0; list-style: none; }
+  .guide-side li { margin: 0 0 .25rem; }
+  .guide-nav a { text-decoration: none; display: block; padding: .15rem 0 .15rem .6rem; border-left: 2px solid transparent; }
+  .guide-nav a:hover { text-decoration: underline; }
+  .guide-nav a[aria-current='page'] { border-left-color: #d36138; color: var(--heading); font-weight: 600; }
+  .on-page { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--line); }
+  .on-page ul { padding-left: 1.25rem; list-style: disc; }
+  .guide { min-width: 0; max-width: 72ch; }
+  .guide :global(h1) { margin-top: 0; }
+  .guide :global(h2) { margin-top: 2.25rem; }
+  .guide :global(h3) { margin-top: 1.5rem; }
+  .guide :global(ul), .guide :global(ol) { padding-left: 1.25rem; margin: 0 0 1.25rem; }
+  .guide :global(li) { margin-bottom: .5rem; }
+  .guide :global(table) { margin: 1.25rem 0 1.5rem; font-size: .875rem; }
+  .guide :global(.audience) { margin: -.25rem 0 1rem; font-size: .8125rem; color: var(--muted); }
+  @media (max-width: 900px) {
+    .guide-layout { grid-template-columns: minmax(0, 1fr); gap: 1.5rem; max-width: 54rem; margin: auto; }
+    .guide-side { position: static; max-height: none; }
+  }
+  @media print {
+    .guide-layout { display: block; }
+    .guide-side { display: none; }
+  }
+</style>
