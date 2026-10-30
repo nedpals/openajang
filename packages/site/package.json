@@ -8,7 +8,8 @@
     "dev": "pnpm run sync && astro dev",
     "build": "pnpm --filter @openajang/core run build && pnpm run sync && astro build",
     "preview": "astro preview",
-    "typecheck": "astro check"
+    "typecheck": "astro check",
+    "check:docs": "node scripts/check-docs.mjs"
   },
   "dependencies": {
     "@lucide/astro": "^1.63.0",
