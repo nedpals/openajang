@@ -134,7 +134,7 @@ If you can edit the HTML of the page at `url`, add this inside its `<head>`:
 />
 ```
 
-This assumes the JSON file sits beside the event page. Change `href` if it lives elsewhere; a full `https://` address is fine, including one on a different domain. With the link in place, people can give a compatible app your ordinary event page address, and the app finds the JSON from there.
+This follows the web platform's standard [`<link rel="alternate">`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/rel/alternate) convention (the same mechanism used to advertise RSS feeds and translations). It assumes the JSON file sits beside the event page. Change `href` if it lives elsewhere; an absolute `https://` address is fine, including one on a different domain. With the link in place, people can give a compatible app your ordinary event page address, and the app discovers the JSON automatically.
 
 Apps follow the same discovery rules so they all reach the same answer ([§8.2](/spec/#82-html-discovery)):
 

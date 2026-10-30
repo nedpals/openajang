@@ -97,8 +97,8 @@ A cancelled event and a removed document are different signals.
 | What happened | What to serve |
 | --- | --- |
 | The event will not take place | Keep the document live. It should stay a `200 OK` response with `status: "cancelled"` and a newer `updated_at`. |
-| You deliberately removed the document | It should return `410 Gone`. |
-| The document is currently unavailable | A `404` says that, and nothing more. |
+| You deliberately removed the document | It should return [`410 Gone`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/410). |
+| The document is currently unavailable | A [`404 Not Found`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404) says that, and nothing more. |
 
 For a cancellation, the spec says the document should stay a `200 OK` response with `status: "cancelled"`, so that people who saved the event can see what happened. A cancelled document is not a deletion ([Spec §5.3](/spec/#53-updates-postponement-rescheduling-cancellation)).
 
@@ -110,7 +110,7 @@ For a cancellation, the spec says the document should stay a `200 OK` response w
 }
 ```
 
-For an intentional removal, the spec says the endpoint should return `410 Gone`. Apps that receive a `410` apply their own removal policy, and the spec states plainly that it is not evidence the event was cancelled ([Spec §5.3](/spec/#53-updates-postponement-rescheduling-cancellation), [Spec §8.3](/spec/#83-redirects-caching-and-refresh)). If people should learn that the event is off, publish the cancelled document and do not remove it.
+For an intentional removal, the spec says the endpoint should return [`410 Gone`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/410). Under HTTP semantics, a 410 status confirms permanent deletion, whereas a 404 suggests a link may be temporarily broken. Apps that receive a 410 apply their own removal policy, and the spec states plainly that it is not evidence the event was cancelled ([Spec §5.3](/spec/#53-updates-postponement-rescheduling-cancellation), [Spec §8.3](/spec/#83-redirects-caching-and-refresh)). If people should learn that the event is off, publish the cancelled document and do not remove it.
 
 ## Sold out is not an event status
 

@@ -55,7 +55,7 @@ A conditional response of `304` keeps the existing document ([§8.3](/spec/#83-r
 
 Three points to carry into your design:
 
-- A cancelled event arrives as a valid `200` with `status: "cancelled"`. Cancellation should stay a `200 OK` document, and consumers should keep it to inform people who saved the event ([§5.3](/spec/#53-updates-postponement-rescheduling-cancellation)). A `410` means the publisher removed the document, which is a different thing.
+- A cancelled event arrives as a valid `200` with `status: "cancelled"`. Cancellation should stay a `200 OK` document, and consumers should keep it to inform people who saved the event ([§5.3](/spec/#53-updates-postponement-rescheduling-cancellation)). A [`410 Gone`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/410) response explicitly confirms the document was permanently removed, distinguishing it from temporary [`404 Not Found`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404) errors.
 - A `404` means the document is currently unavailable ([§5.3](/spec/#53-updates-postponement-rescheduling-cancellation)). The table sends you back to the HTML Event URL before you give up on it.
 - An invalid `200` is an error, not a reason to scrape or fall back to another representation ([§8.1](/spec/#81-inputs-and-direct-json)). Your last valid copy stays.
 
@@ -65,9 +65,9 @@ Redirects apply here as they do for first retrieval. Consumers should follow at 
 
 ## Conditional requests
 
-Publishers should send cache controls and `ETag` or `Last-Modified` ([§8.3](/spec/#83-redirects-caching-and-refresh)). On your side the rule is firmer: a stored-event consumer must use the validators that are available when it revalidates, honoring HTTP precedence rules. Those rules are in RFC 9110 and RFC 9111, which the spec lists as normative foundations ([§11](/spec/#11-references-and-companion-status)).
+Publishers should send cache controls and `ETag` or `Last-Modified` ([§8.3](/spec/#83-redirects-caching-and-refresh)). On your side the rule is firmer: a stored-event consumer must use the validators that are available when it revalidates, honoring HTTP precedence rules in RFC 9110 and RFC 9111 ([§11](/spec/#11-references-and-companion-status)).
 
-Concretely, save the `ETag` and `Last-Modified` values from each valid `200`. On the next refresh, send them back as `If-None-Match` and `If-Modified-Since`. If the server answers `304`, keep the stored document. If it answers `200`, validate the body and apply the table above.
+Standard [HTTP conditional requests](https://developer.mozilla.org/en-US/docs/Web/HTTP/Conditional_requests) avoid re-transferring unchanged documents. Concretely, save the [`ETag`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/ETag) and [`Last-Modified`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Last-Modified) values from each valid `200 OK`. On the next refresh, send them back using [`If-None-Match`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-None-Match) and [`If-Modified-Since`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-Modified-Since). If the server returns [`304 Not Modified`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/304), keep your stored copy without reprocessing. If it returns a fresh `200 OK`, validate the body and apply the update table above.
 
 Validators and `updated_at` do different jobs. Publishers must advance `updated_at` for material changes even when they serve validators, and consumers must not skip a fetch solely because a stored timestamp is recent ([§8.3](/spec/#83-redirects-caching-and-refresh)).
 

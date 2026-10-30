@@ -197,7 +197,7 @@ Add one alternate link to the `<head>` of each event page, pointing to that even
 </head>
 ```
 
-With that link, a person can paste the event page URL into a compatible app instead of hunting for the JSON URL. The rules that matter for a platform:
+Following the standard [`<link rel="alternate">`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/rel/alternate) convention, this tells consumers where to fetch the machine-readable version of the page. A person can paste the public event page URL into a compatible app instead of hunting for the JSON URL. The rules that matter for a platform:
 
 - Resolvers fetch HTML without running scripts. If your event pages render on the client, render this link in the server's HTML response.
 - Only links in `<head>` count. A relative `href` resolves against the final page URL, and resolvers ignore any `<base>` element. An absolute `href` avoids surprises.
@@ -225,7 +225,7 @@ Rescheduling, postponing, cancelling, changing precision, a sell-out and setting
 
 A cancelled event should stay available as a `200 OK` document so people who saved it learn about the cancellation. A cancelled document is not a deletion. You do not need to strip old registration or ticket fields; consumers must stop encouraging registration while an event is cancelled, postponed or completed ([§5.3](/spec/#53-updates-postponement-rescheduling-cancellation)).
 
-When an organizer deletes an event, you should return `410 Gone`. Use `404` only for "currently unavailable", for example while an event is temporarily hidden. Apps do not read `410` as a cancellation ([§8.3](/spec/#83-redirects-caching-and-refresh)), so if the event was called off, publish the cancellation first and keep it up.
+When an organizer deletes an event, return [`410 Gone`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/410). Use [`404 Not Found`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404) only when a resource is temporarily hidden or unavailable. In standard HTTP semantics, a 410 status confirms the resource has been intentionally and permanently removed, whereas apps treat 404 as temporary unavailability and will retry rediscovery ([§8.3](/spec/#83-redirects-caching-and-refresh)). Apps do not read 410 as an event cancellation, so if the event was called off, publish a cancelled document first and keep it up.
 
 If an organizer moves an event off your platform to another host, you should confirm the transfer from your side, for example with a redirect from your document URL to the new one. Matching ids alone do not prove continuity ([§5.1](/spec/#51-identity)).
 

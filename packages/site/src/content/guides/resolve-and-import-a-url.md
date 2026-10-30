@@ -110,7 +110,7 @@ All fetched data is untrusted: render text without executing markup or extension
 
 Configure redirect, timeout, compressed byte and decompressed byte limits. A 1 MiB limit for JSON is recommended. HTML scanning also needs a bounded limit, and the spec does not give a number. Directories also apply moderation and rate limits ([§10](/spec/#10-security-and-operational-requirements)).
 
-A static browser client may need the remote server to support CORS, or you may need a server-side resolver. No browser workaround may bypass authorization.
+In browser environments, [Cross-Origin Resource Sharing (CORS)](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) restricts client scripts from reading third-party endpoints unless the remote host returns appropriate `Access-Control-Allow-Origin` headers. Applications accepting arbitrary event URLs typically perform resolution on a backend server, which also isolates network retrieval from user devices.
 
 ## What the reference tools cover
 

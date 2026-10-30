@@ -32,7 +32,7 @@ The document gives calendar dates with no clock time:
 }
 ```
 
-Show the dates as written and say that exact hours are not published, which the spec says consumers should do ([Spec §4.2](/spec/#42-calendar-dates-with-unpublished-clock-times)). `ends_at` is the inclusive last calendar date, so this example covers 14, 15 and 16 November. Without `ends_at`, only the start date is described.
+Show the dates as written and say that exact hours are not published ([Spec §4.2](/spec/#42-calendar-dates-with-unpublished-clock-times)). Wrap rendered dates in semantic HTML [`<time>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/time) tags with machine-readable `datetime` attributes per [standard HTML date formats](https://developer.mozilla.org/en-US/docs/Web/HTML/Date_and_time_formats) for accessibility. `ends_at` is the inclusive last calendar date, so this example covers 14, 15 and 16 November. Without `ends_at`, only the start date is described.
 
 ```html
 <p>

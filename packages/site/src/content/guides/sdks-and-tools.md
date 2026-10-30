@@ -82,7 +82,7 @@ Each call is a one-shot retrieval. The resolver does not store events, cache res
 These limits apply to the SDK and to anyone checking documents with other tools:
 
 - The schema uses custom `oa-*` format annotations. Generic JSON Schema tools ignore them unless you add the procedural checks, so a pass from a generic validator is not a full document check.
-- Time-zone checks in `@openajang/core` use the JavaScript runtime's `Intl` data.
+- Time-zone checks in `@openajang/core` use the JavaScript runtime's standard [`Intl`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl) API.
 - JSON numbers use IEEE 754 precision, so very large values may lose precision.
 - Validation equivalence between the Python reference validator and the TypeScript SDK is still in progress. URI, email and language-tag checks share a conformance corpus, but the two are not yet proven equivalent.
 - `@openajang/resolver` is one-shot and is not a storing consumer.
