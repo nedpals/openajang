@@ -6,3 +6,4 @@ dist/
 packages/site/.impeccable/
 packages/site/DESIGN.md
 packages/core/src/schema.ts
+docs/superpowers/
