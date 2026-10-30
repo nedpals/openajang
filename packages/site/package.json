@@ -15,7 +15,8 @@
     "@lucide/astro": "^1.63.0",
     "@openajang/core": "workspace:*",
     "astro": "^5.14.0",
-    "buffer": "^6.0.3"
+    "buffer": "^6.0.3",
+    "mermaid": "^12.2.0"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.4",

@@ -53,6 +53,25 @@ Refresh a saved event by requesting its Document URL again. [Spec §8.3](/spec/#
 
 A conditional response of `304` keeps the existing document ([§8.3](/spec/#83-redirects-caching-and-refresh)).
 
+```mermaid
+flowchart TD
+    Trigger(["Scheduled Refresh Trigger"]) --> ConditionalGet["Conditional HTTP GET<br/>(Send If-None-Match & If-Modified-Since)"]
+    ConditionalGet --> Status{"HTTP Status?"}
+
+    Status -->|"304 Not Modified"| KeepStored["Keep stored copy unchanged"]
+    Status -->|"200 OK"| CheckUpdate{"Valid JSON & same ID & continuity?"}
+    Status -->|"404 Not Found"| CheckOrigin{"Discovered from HTML page?"}
+    Status -->|"410 Gone"| GonePolicy["Apply documented removal policy<br/>(Do not assume cancelled)"]
+    Status -->|"5xx or Network Failure"| Retry["Retain last valid copy<br/>Retry with backoff"]
+
+    CheckUpdate -->|"Yes"| UpdateDoc["Replace representation & record retrieval time"]
+    CheckUpdate -->|"Invalid JSON"| KeepInvalid["Retain last valid copy & record failure"]
+    CheckUpdate -->|"Different ID"| KeepConflict["Do not overwrite existing event"]
+
+    CheckOrigin -->|"Yes"| Rediscover["Repeat discovery from original HTML URL"]
+    CheckOrigin -->|"No or HTML unavailable"| MarkUnavailable["Record unavailability & apply removal policy"]
+```
+
 Three points to carry into your design:
 
 - A cancelled event arrives as a valid `200` with `status: "cancelled"`. Cancellation should stay a `200 OK` document, and consumers should keep it to inform people who saved the event ([§5.3](/spec/#53-updates-postponement-rescheduling-cancellation)). A [`410 Gone`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/410) response explicitly confirms the document was permanently removed, distinguishing it from temporary [`404 Not Found`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404) errors.

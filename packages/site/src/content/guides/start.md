@@ -48,4 +48,29 @@ You want to accept an event URL from a person, save the event, and show it faith
 
 The organizer's website hosts each event document at a stable URL. A participant gives that URL, or the event page that links to it, to a compatible app. A directory can also collect event links into an Atom feed that apps follow. Whichever way an event arrives, the app keeps refreshing it from the organizer's own site.
 
+```mermaid
+flowchart LR
+    subgraph Publisher["Organizer's Website"]
+        Page["Event Web Page<br/>(HTML landing page)"]
+        Doc["OpenAjang Document<br/>(JSON at stable URL)"]
+        Page -->|"link rel=alternate"| Doc
+    end
+
+    subgraph External["Registration Provider"]
+        RegForm["Ticketing / RSVP Form<br/>(External service)"]
+    end
+
+    subgraph Ecosystem["Ecosystem Consumers"]
+        Directory["Directory Service<br/>(Optional Atom feed)"]
+        App["Calendar & Discovery App<br/>(Imports & refreshes)"]
+    end
+
+    Doc -.->|"registration URL"| RegForm
+    Page -->|"Paste event URL"| App
+    Doc -->|"Paste document URL"| App
+    Doc -->|"Lists document URL"| Directory
+    Directory -->|"Subscribes & syncs"| App
+    App -->|"Sends attendee to RSVP"| RegForm
+```
+
 The [specification](/spec/) defines the normative requirements, while the [reference page](/docs/reference/) collects the feed profile, conversion guide, schema, validator, examples, and license terms.
