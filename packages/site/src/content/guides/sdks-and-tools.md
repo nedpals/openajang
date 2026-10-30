@@ -5,11 +5,9 @@ section: developers
 order: 1
 ---
 
-This page is for developers who want code help with OpenAjang: parsing and validating documents, converting them, fetching them from a URL, or checking them locally. After reading it you can pick a tool, use the calls the packages document, and know where each tool stops.
+You do not need a specialized package to publish or consume OpenAjang events. Any strict JSON parser, schema validator, and HTTP client that implements the rules in the [specification](/spec/#9-extensions-versions-and-conformance) can work with the format.
 
-## You do not need a package
-
-No OpenAjang package is required to publish or consume events. Any strict JSON parser, schema validator and HTTP client that implements the rules in the [specification](/spec/#9-extensions-versions-and-conformance) is enough. The packages and tools below are optional helpers for testing and for JavaScript or TypeScript work.
+The TypeScript packages, browser validator, and Python reference tools are optional helpers for development, automated testing, and format conversion.
 
 ## TypeScript packages
 

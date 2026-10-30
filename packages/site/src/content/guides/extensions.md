@@ -5,7 +5,7 @@ section: evaluate
 order: 3
 ---
 
-This page is for publishers and tool builders who want to carry structured data that the core format does not define. It explains how extension keys are named, the rule that limits what an extension may do, and what to do on each side of a document that uses one.
+When you need to carry structured data that the core format does not define, OpenAjang provides an optional `extensions` object. Extension keys follow a clear naming convention and a strict semantic boundary: an extension may add domain-specific detail, but the core listing must remain complete and comprehensible on its own.
 
 ## What the extensions object is
 

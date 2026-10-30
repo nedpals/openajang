@@ -5,7 +5,7 @@ section: evaluate
 order: 4
 ---
 
-This page lists every reference document, tool and sample file in the OpenAjang project, so you can check a rule at its source or look at a working example. It also explains where the example files came from and how the project is licensed.
+The OpenAjang project includes normative specifications, formal schemas, developer tools, test suites, and reference samples across the format ecosystem. Use these primary resources to verify requirements at their source or explore working implementations.
 
 ## Specification and profiles
 

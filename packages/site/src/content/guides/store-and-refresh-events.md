@@ -5,9 +5,9 @@ section: apps
 order: 2
 ---
 
-This page is for developers whose app saves events that people import, such as a personal calendar, a reminder tool or a directory. After reading it you will know what to keep for each saved event, how to refresh it, and what to do with each response. The rules come from [spec §5.1](/spec/#51-identity), [§8.3](/spec/#83-redirects-caching-and-refresh) and [§10](/spec/#10-security-and-operational-requirements). The spec calls an app that does this a Storing Consumer ([§9](/spec/#9-extensions-versions-and-conformance)).
+Applications that retain imported events (such as personal calendars, reminder apps, and event directories) are classified as Storing Consumers under the specification ([§9](/spec/#9-extensions-versions-and-conformance)). Storing an event means maintaining its identity, recording provenance, scheduling conditional refreshes, and handling status updates faithfully ([spec §5.1](/spec/#51-identity), [§8.3](/spec/#83-redirects-caching-and-refresh), [§10](/spec/#10-security-and-operational-requirements)).
 
-Getting from a pasted URL to a validated document is covered in [Resolve and import a URL](/docs/resolve-and-import-a-url/). This page starts from the point where you have a valid document and decide to keep it.
+If you are resolving a pasted link into a validated document first, see [Resolve and import a URL](/docs/resolve-and-import-a-url/). Once you hold a valid document and decide to keep it, store the event and its provenance as described below.
 
 ## What to store
 

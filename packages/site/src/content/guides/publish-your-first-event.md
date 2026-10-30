@@ -5,9 +5,9 @@ section: organizers
 order: 1
 ---
 
-This page is for organizers publishing an event in OpenAjang for the first time. By the end you will have an event document at a public URL that compatible apps and directories can import, and, if you control your event page, a link on that page that lets people import the event from its ordinary web address.
+Publishing an event in OpenAjang requires only a text editor and a public URL to host one JSON file. Once published, compatible apps and directories can import the event directly, and linking the file from your existing event page lets visitors import it using your ordinary website address.
 
-You need a text editor and somewhere to host one file. You do not need a server, an account with an OpenAjang service, or any package.
+You do not need a custom server, a central OpenAjang account, or any third-party package.
 
 ## Write the event document
 
@@ -254,4 +254,4 @@ The spec defines two publisher roles ([§9](/spec/#9-extensions-versions-and-con
 
 - [Keep an event current](/docs/keep-an-event-current/): changes, postponements and cancellations after you publish.
 - [Recurring, annual and multi-day events](/docs/recurring-annual-and-multi-day-events/): when to publish one document and when to publish several.
-- [Specification](/spec/): the full rules behind this page.
+- [Specification](/spec/): the normative format, validation, and discovery rules.

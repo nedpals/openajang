@@ -5,7 +5,9 @@ section: organizers
 order: 2
 ---
 
-This page is for organizers who already have a published event document and need to change it. After reading it you will know which fields to edit for each kind of change, when to advance `updated_at`, and how to signal a cancellation or a removal. If you have not published an event yet, start with [Publish your first event](/docs/publish-your-first-event/).
+Updating a published event document keeps attendee calendars and directory listings accurate when dates shift, venues change, or registrations close. How you update the file depends on keeping event identity stable, advancing timestamps correctly, and signaling cancellations or removals clearly.
+
+If you have not published an event yet, start with [Publish your first event](/docs/publish-your-first-event/).
 
 ## Why identity stays stable
 

@@ -5,9 +5,9 @@ section: apps
 order: 3
 ---
 
-This page is for designers and front-end developers building the screen that shows an imported event. Each section takes one situation you will meet in real documents and says what the document contains, what to show, what not to do, and which spec section sets the rule.
+Displaying an imported OpenAjang event faithfully means showing what the organizer published without filling gaps with assumptions. Under the specification's conservative interpretation rule, consumers must not infer eligibility, continuous occupancy, universal ticket coverage, or a final payable price from missing information ([Spec §1.1](/spec/#11-occurrence-boundaries-and-conservative-interpretation)).
 
-One rule sits under all of them. Consumers must not infer eligibility, continuous occupancy, universal ticket coverage, or a final payable price from missing information ([Spec §1.1](/spec/#11-occurrence-boundaries-and-conservative-interpretation)). When a field is absent or partial, the screen says so instead of filling the gap.
+When a field is absent or partial, your interface should reflect what is known rather than inventing details.
 
 ## Render every string as plain text
 

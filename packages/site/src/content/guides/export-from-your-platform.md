@@ -5,7 +5,7 @@ section: platforms
 order: 1
 ---
 
-This page is for developers of event platforms and event software. By the end you will have a public OpenAjang document for each event your platform hosts, linked from the event's page, so people can paste that page's URL into a compatible app or directory and keep getting updates from your platform.
+Adding OpenAjang export to an event platform gives every hosted event a public, machine-readable document linked directly from its event page. Attendees can paste the page URL into compatible calendar apps or directories, which discover the document and refresh updates automatically.
 
 ## What changes in your product
 

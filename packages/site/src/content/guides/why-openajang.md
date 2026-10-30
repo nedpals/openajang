@@ -5,7 +5,7 @@ section: evaluate
 order: 1
 ---
 
-This page is for organizers, platform developers and directory builders deciding whether to adopt OpenAjang. After reading it you should know what the format fixes in place, what it leaves to other tools, and where it sits next to existing standards and two similar projects.
+OpenAjang defines a small JSON format for publishing events at independent URLs. Evaluating whether to adopt it involves understanding what the specification prescribes, what boundaries it establishes, and how it compares to existing calendar standards and similar open event formats.
 
 ## Why a small prescribed format
 
@@ -92,7 +92,7 @@ OpenAjang provides no mapping to or from Open Evnt or OpenTechEvents. Whether to
 
 ## What has not been shown yet
 
-The specification is implementable, with a validator, examples and conversion adapters in the repository. Whether it actually makes publishing easier for organizers has not yet been shown in use, and the project asks people to [help test the idea](https://github.com/nedpals/openajang#help-test-the-idea) by publishing an event and consuming it in an independent tool.
+The specification is implementable, with a validator, examples, and conversion adapters in the repository. Whether OpenAjang makes publishing easier for organizers has not yet been shown in use. You can help test it by [publishing an event](https://github.com/nedpals/openajang#help-test-the-draft) and importing it into an independent tool.
 
 ## Related
 

@@ -5,9 +5,7 @@ section: apps
 order: 1
 ---
 
-This page is for people building an app, directory or other consumer that accepts an event URL from a person. After reading it you can describe what your resolver does from the moment someone pastes a URL to the moment it holds one validated document and a record of where that document came from.
-
-The rules come from [spec §8.1](/spec/#81-inputs-and-direct-json), [§8.2](/spec/#82-html-discovery), [§8.3](/spec/#83-redirects-caching-and-refresh) and [§10](/spec/#10-security-and-operational-requirements). Terms such as Event URL and Document URL are defined in [spec §2](/spec/#2-terminology).
+When a user pastes an event URL into an app or directory, a resolver turns that web address into a validated OpenAjang document and records where it came from. The process handles HTML discovery, network safeguards, redirect limits, and document validation ([spec §8.1](/spec/#81-inputs-and-direct-json), [§8.2](/spec/#82-html-discovery), [§8.3](/spec/#83-redirects-caching-and-refresh), [§10](/spec/#10-security-and-operational-requirements)). Terms such as Event URL and Document URL are defined in [spec §2](/spec/#2-terminology).
 
 ## What happens when someone pastes a URL
 
@@ -86,7 +84,7 @@ Keep a source record with every imported document. [Spec §10](/spec/#10-securit
 | Retrieval time | When your app fetched it. This is a different clock from the document's `updated_at`. |
 | Declared Event URL | The `url` value inside the document. |
 
-For a directory, [§10](/spec/#10-security-and-operational-requirements) also names the source host and useful redirect and verification history. Retain both origins when cross-origin JSON is explicitly linked ([§8.2](/spec/#82-html-discovery)). These records feed the refresh decisions on the [next page](/docs/store-and-refresh-events/).
+For a directory, [§10](/spec/#10-security-and-operational-requirements) also names the source host and useful redirect and verification history. Retain both origins when cross-origin JSON is explicitly linked ([§8.2](/spec/#82-html-discovery)). These records feed the refresh decisions described in [Store and refresh events](/docs/store-and-refresh-events/).
 
 Control of a host establishes where an assertion came from, not who the organizer is ([§2](/spec/#2-terminology)). A document that validates is not thereby included, endorsed, verified or live inventory ([§10](/spec/#10-security-and-operational-requirements)).
 

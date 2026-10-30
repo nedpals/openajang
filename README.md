@@ -255,7 +255,7 @@ npm install @openajang/core@next @openajang/resolver@next
 - [Conversion guide](CONVERSIONS.md)
 - [Test report](TEST-REPORT.md)
 
-## Help test the idea
+## Help test the draft
 
 Try publishing an event and consuming it in an independent tool. Feedback is
 particularly useful on which fields are hard to write, which descriptions lead

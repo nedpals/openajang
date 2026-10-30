@@ -5,9 +5,9 @@ section: apps
 order: 4
 ---
 
-This page is for people building apps that subscribe to a directory's feed, and for people building the directory. After reading the first half you can follow a feed without mistaking a feed entry for the event itself. After reading the second half you can produce a feed that follows the [Atom feed profile](/feeds/).
+An OpenAjang directory collects event links into an Atom feed so calendar apps and readers can discover events in bulk. Feed entries distribute links to publisher-hosted event documents; they do not replace the documents themselves or require organizers to maintain feeds ([FEEDS.md](/feeds/)).
 
-The feed profile is an optional companion to the core format. It distributes links to event documents. It does not replace the documents and does not require organizers to publish feeds ([FEEDS.md](/feeds/)).
+Whether you are subscribing to a directory feed or publishing one, you keep the feed layer and the event documents separate.
 
 The example feeds in the repository, `examples/directory.atom` and `examples/directory.rss`, use `example.org` placeholder URLs for their document links. They are not live endpoints, so you cannot subscribe to them ([§4 Example](/feeds/#4-example)).
 

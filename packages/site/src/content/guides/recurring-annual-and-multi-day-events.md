@@ -5,11 +5,13 @@ section: organizers
 order: 3
 ---
 
-This page is for organizers whose events repeat, return every year, or run over several days. By the end you will know how many documents to publish, which fields change between them, and where to put the hours and limits that the format does not structure.
+Events that repeat monthly, return every year, or span several days follow a consistent rule in OpenAjang: each document describes one concrete occurrence or one overall edition ([Spec §1.1](/spec/#11-occurrence-boundaries-and-conservative-interpretation)).
+
+Publishers produce individual documents for each date or edition rather than relying on complex recurrence rules, keeping event identity clear and calendar synchronizations reliable.
 
 ## What one document describes
 
-Each OpenAjang document describes one event occurrence, such as a single meetup night, or one overall edition, such as a whole three-day conference or a four-month exhibition ([Spec §1.1](/spec/#11-occurrence-boundaries-and-conservative-interpretation)). Everything else on this page follows from that rule.
+Each OpenAjang document describes one event occurrence, such as a single meetup night, or one overall edition, such as a whole three-day conference or a four-month exhibition ([Spec §1.1](/spec/#11-occurrence-boundaries-and-conservative-interpretation)).
 
 What the format supports:
 
@@ -27,7 +29,7 @@ In practice, you or the tool you publish with write a document for each meeting 
 
 Publish each meeting as its own document at its own address, and give every one the same `series.id` so apps know they belong together.
 
-Here is the January meeting of an invented community group. Each meeting has its own permanent page, so the page address in `url` serves as the meeting's identity and `id` is left out ([Spec §5.1](/spec/#51-identity)). If your meeting pages might be renamed or reused, add an `id` as the annual conference example below does.
+Here is the January meeting of an invented community group. Each meeting has its own permanent page, so the page address in `url` is the meeting's identity and `id` is left out ([Spec §5.1](/spec/#51-identity)). If your meeting pages might be renamed or reused, add an `id` as the annual conference example below does.
 
 ```json
 {

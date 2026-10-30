@@ -5,7 +5,7 @@ section: evaluate
 order: 2
 ---
 
-This page is for anyone deciding whether to build on OpenAjang `0.1`. It sets out what the project currently promises about versions, what it does not promise, and what publishers and consumers should do as a result.
+OpenAjang `0.1` is an active working draft. Deciding whether to adopt the format requires understanding what the project currently guarantees across schema identifiers, compatibility rules, media types, and SDK packages, as well as what remains open to revision.
 
 ## Current status
 
