@@ -5,8 +5,9 @@ interface Props {
   title: string;
   description?: string;
   sidebar?: boolean;
+  wide?: boolean;
 }
-const { title, description = 'A small JSON format for publishing public events at a URL.', sidebar = false } = Astro.props;
+const { title, description = 'A small JSON format for publishing public events at a URL.', sidebar = false, wide = false } = Astro.props;
 const examples = readdirSync(new URL('../../../../examples/', import.meta.url)).filter((f) => f.endsWith('.openajang.json'));
 const nav = [
   { href: '/spec/', label: 'Spec' },
@@ -39,7 +40,7 @@ const nav = [
         <span>Try the working draft and share your experience.</span>
       </div>
     </aside>
-    <main class:list={{ home: title === 'OpenAjang', 'with-sidebar': sidebar }}><slot /></main>
+    <main class:list={{ home: title === 'OpenAjang', 'with-sidebar': sidebar, wide }}><slot /></main>
     <footer>
       <nav class="footer-resources" aria-label="Project resources">
         <ResourceLinks label="Project resources" items={[
@@ -123,7 +124,7 @@ const nav = [
   }
   main { width: 100%; flex: 1; }
   main.home { max-width: none; padding: 0; }
-  main.with-sidebar { max-width: 56.5rem; }
+  main.with-sidebar, main.wide { max-width: 56.5rem; }
   .footer-inner, .footer-resources, .navbar-inner, .test-banner-inner { max-width: 56.5rem; }
   header { background: #2b2a47; }
   .navbar-inner {
