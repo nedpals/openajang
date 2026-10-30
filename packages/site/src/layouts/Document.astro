@@ -1,5 +1,6 @@
 ---
 import Base from './Base.astro';
+import Icon from '../components/Icon.astro';
 
 interface Props {
   title: string;
@@ -12,7 +13,7 @@ const contents = headings.filter((heading) => heading.depth === 2);
 <Base title={title} sidebar>
   <div class="document-layout">
     <nav class="contents" aria-label="Table of contents">
-      <p><strong>Contents</strong></p>
+      <p class="contents-label"><Icon name="list" size={16} /><strong>Contents</strong></p>
       <ul>
         {contents.map((heading) => <li><a href={`#${heading.slug}`}>{heading.text}</a></li>)}
       </ul>
@@ -38,6 +39,7 @@ const contents = headings.filter((heading) => heading.depth === 2);
     padding: .5rem .25rem;
   }
   .contents p { margin-bottom: .5rem; }
+  .contents-label { display: flex; align-items: center; gap: .5rem; }
   .contents strong { font-weight: 500; }
   .contents ul { margin: 0; padding-left: 1.25rem; }
   .contents li { margin-bottom: .5rem; }

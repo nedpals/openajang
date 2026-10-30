@@ -1,5 +1,6 @@
 ---
 import { readdirSync } from 'node:fs';
+import Icon from '../components/Icon.astro';
 interface Props {
   title: string;
   description?: string;
@@ -41,9 +42,9 @@ const nav = [
         </div>
         <div>
           <nav aria-label="Project links">
-            <a href="/spec/">Specification</a>
-            <a href="https://github.com/nedpals/openajang">Source code</a>
-            <a href="https://github.com/nedpals/openajang/issues">Issues and feedback</a>
+            <a href="/spec/"><Icon name="book" size={15} />Specification</a>
+            <a href="https://github.com/nedpals/openajang"><Icon name="code" size={15} />Source code</a>
+            <a href="https://github.com/nedpals/openajang/issues"><Icon name="message" size={15} />Issues and feedback</a>
           </nav>
           <p>Spec under <a href="https://github.com/nedpals/openajang/blob/master/LICENSE-docs">LICENSE-docs</a>. Code under <a href="https://github.com/nedpals/openajang/blob/master/LICENSE">Apache-2.0</a>.</p>
         </div>
@@ -142,6 +143,7 @@ const nav = [
   .footer-brand { display: inline-block; color: var(--heading); font-size: 1.1rem; font-weight: 600; text-decoration: none; margin-bottom: .25rem; }
   footer p { margin: .5rem 0 0; }
   footer nav { display: flex; flex-wrap: wrap; gap: .5rem 1.25rem; }
+  footer nav a { display: inline-flex; align-items: center; gap: .35rem; }
   [id] { scroll-margin-top: 1rem; }
   pre, code { background: var(--code); border-radius: 4px; font: .9em/1.5 ui-monospace, monospace; }
   code { padding: .1em .3em; overflow-wrap: anywhere; }
@@ -156,7 +158,9 @@ const nav = [
   h3 { font-size: 1.15rem; font-weight: 500; }
   p { margin: 0 0 1rem; }
   button, .button {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
     font: 400 .95rem/1.4 'Merriweather Sans', sans-serif;
     background: linear-gradient(#444360, #2b2a47);
     color: #fff;

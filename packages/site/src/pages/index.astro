@@ -1,19 +1,21 @@
 ---
 import Base from '../layouts/Base.astro';
+import Logo from '../components/Logo.astro';
+import Icon from '../components/Icon.astro';
 ---
 <Base title="OpenAjang">
   <div class="opening">
     <div class="opening-inner">
   <section class="introduction">
-    <h1>OpenAjang</h1>
+    <h1 class="project-logo" aria-label="OpenAjang"><Logo /></h1>
     <p class="lead">A small JSON format for publishing public events at a URL.</p>
     <p>Publish an event file on your own website and link to your existing registration form. Compatible apps and directories can read the document, display the event, and check for changes.</p>
     <p class="status"><strong>Working draft, version 0.1.</strong> Available for experimentation. No central OpenAjang account is required.</p>
-    <p class="project-links"><a class="button" href="/spec/">Read the specification</a> <a href="/validator/">Validator</a> <a href="https://github.com/nedpals/openajang">Source on GitHub</a></p>
+    <p class="project-links"><a class="button" href="/spec/"><Icon name="book" size={18} />Read the specification</a> <a href="/validator/">Validator</a> <a href="https://github.com/nedpals/openajang">Source on GitHub</a></p>
   </section>
 
   <section id="try" class="demo">
-    <h2>Read an event from a URL</h2>
+    <h2 class="icon-heading"><Icon name="link" />Read an event from a URL</h2>
     <p>Paste a direct link to an OpenAjang JSON document to see its event details, or load an example.</p>
     <form id="fetch-form">
       <label for="event-url">Event JSON URL</label>
@@ -30,17 +32,17 @@ import Base from '../layouts/Base.astro';
   <div class="home-content">
   <div class="audiences">
     <section>
-      <h2>For organizers</h2>
+      <h2 class="icon-heading"><Icon name="calendar" />For organizers</h2>
       <p>Keep event information on hosting you choose, with a link to the registration service you already use.</p>
       <p><a href="#publish">Publish your first event</a></p>
     </section>
     <section>
-      <h2>For participants</h2>
+      <h2 class="icon-heading"><Icon name="person" />For participants</h2>
       <p>Import an event into a compatible app or follow a directory feed. Ordinary feed readers can show summaries and links, too.</p>
       <p><a href="/feeds/">About directory feeds</a></p>
     </section>
     <section>
-      <h2>For developers</h2>
+      <h2 class="icon-heading"><Icon name="code" />For developers</h2>
       <p>Export event documents from your platform, or build a directory that fetches and validates them, keeps their source information, and shares links through feeds.</p>
       <p><a href="/spec/">Read the specification</a></p>
     </section>
@@ -61,7 +63,7 @@ import Base from '../layouts/Base.astro';
     <p>Directories are optional. Consumers can keep refreshing saved events from their source after they leave a feed. Registration takes place with the organizer’s chosen provider.</p>
   </section>
   <section id="publish">
-    <h2>Publish your first event</h2>
+    <h2 class="icon-heading"><Icon name="upload" size={24} />Publish your first event</h2>
     <div class="publish">
       <div>
         <ol>
@@ -94,7 +96,7 @@ import Base from '../layouts/Base.astro';
     <p>The aim is less publishing and integration work. Whether that makes authoring simpler needs testing with organizers; another copy of the same event to maintain would defeat the purpose.</p>
   </section>
   <section class="feedback">
-    <h2>Try it and give feedback</h2>
+    <h2 class="icon-heading"><Icon name="message" size={24} />Try it and give feedback</h2>
     <p><a href="/validator/">Validate a document</a>, <a href="/examples/">browse the examples</a>, or try the optional <a href="https://github.com/nedpals/openajang/tree/master/packages/core">TypeScript SDK</a>. If you publish or consume an event, <a href="https://github.com/nedpals/openajang/issues">share what worked and what didn’t</a>.</p>
   </section>
   </div>
@@ -156,6 +158,10 @@ import Base from '../layouts/Base.astro';
   .opening-inner { padding-top: 2rem; padding-bottom: 2rem; }
   .introduction { margin: 0 0 1.75rem; max-width: 70ch; }
   .introduction h1 { margin-top: 0; }
+  .project-logo { margin-bottom: 1rem; }
+  .icon-heading { display: flex; align-items: center; gap: .6rem; }
+  .audiences .icon-heading :global(svg) { color: var(--accent); }
+  .feedback .icon-heading :global(svg) { color: #ffae8f; }
   .introduction p:last-child { margin-bottom: 0; }
   .lead { font-size: 1.2rem; font-weight: 300; line-height: 1.5; }
   .status { color: var(--muted); font-size: .9rem; }
