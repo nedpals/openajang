@@ -89,6 +89,9 @@ const contents = headings.filter((heading) => heading.depth === 2);
       const code = block.textContent || '';
       const container = document.createElement('div');
       container.className = 'mermaid-container';
+      container.tabIndex = 0;
+      container.setAttribute('role', 'region');
+      container.setAttribute('aria-label', 'Diagram (scroll horizontally to see all content)');
       const id = `mermaid-diagram-${idx}`;
       try {
         const { svg } = await mermaid.render(id, code.trim());
@@ -96,8 +99,10 @@ const contents = headings.filter((heading) => heading.depth === 2);
         const svgEl = container.querySelector('svg');
         if (svgEl) {
           svgEl.removeAttribute('height');
-          svgEl.style.width = '100%';
-          svgEl.style.maxWidth = '100%';
+          // Keep Mermaid's coordinate scale so 14px labels stay readable.
+          // Wide diagrams scroll inside their container on smaller screens.
+          svgEl.style.width = `${svgEl.viewBox.baseVal.width}px`;
+          svgEl.style.maxWidth = 'none';
         }
         block.replaceWith(container);
       } catch (err) {
@@ -163,9 +168,6 @@ const contents = headings.filter((heading) => heading.depth === 2);
   .guide :global(.mermaid-container svg) {
     display: block;
     margin: 0 auto;
-    width: 100%;
-    min-width: min(100%, 460px);
-    max-width: 100%;
     height: auto;
   }
   @media (max-width: 900px) {
