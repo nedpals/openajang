@@ -55,21 +55,17 @@ A conditional response of `304` keeps the existing document ([§8.3](/spec/#83-r
 
 ```mermaid
 flowchart TD
-    Trigger(["Scheduled Refresh Trigger"]) --> ConditionalGet["Conditional HTTP GET<br/>(Send If-None-Match & If-Modified-Since)"]
-    ConditionalGet --> Status{"HTTP Status?"}
+    Trigger(["Scheduled Refresh Trigger"]) --> Get["Conditional HTTP GET<br/>(If-None-Match, If-Modified-Since)"]
 
-    Status -->|"304 Not Modified"| KeepStored["Keep stored copy unchanged"]
-    Status -->|"200 OK"| CheckUpdate{"Valid JSON & same ID & continuity?"}
-    Status -->|"404 Not Found"| CheckOrigin{"Discovered from HTML page?"}
-    Status -->|"410 Gone"| GonePolicy["Apply documented removal policy<br/>(Do not assume cancelled)"]
-    Status -->|"5xx or Network Failure"| Retry["Retain last valid copy<br/>Retry with backoff"]
+    Get --> Result{"Server response?"}
 
-    CheckUpdate -->|"Yes"| UpdateDoc["Replace representation & record retrieval time"]
-    CheckUpdate -->|"Invalid JSON"| KeepInvalid["Retain last valid copy & record failure"]
-    CheckUpdate -->|"Different ID"| KeepConflict["Do not overwrite existing event"]
+    Result -->|"304 Not Modified"| KeepStored["Keep stored copy unchanged"]
 
-    CheckOrigin -->|"Yes"| Rediscover["Repeat discovery from original HTML URL"]
-    CheckOrigin -->|"No or HTML unavailable"| MarkUnavailable["Record unavailability & apply removal policy"]
+    Result -->|"200 OK"| CheckUpdate{"Valid JSON & verified source?"}
+    CheckUpdate -->|"Yes"| UpdateDoc["Replace stored copy & update retrieval time"]
+    CheckUpdate -->|"No"| RetainValid["Retain last valid copy & record failure"]
+
+    Result -->|"404 / 410 / 5xx"| FailureAction["Failure Handling<br/>• 404: Rediscover from HTML Event URL<br/>• 410: Apply document removal policy<br/>• 5xx: Retain copy & retry with backoff"]
 ```
 
 Three points to carry into your design:

@@ -5,9 +5,14 @@ section: developers
 order: 1
 ---
 
-You do not need a specialized package to publish or consume OpenAjang events. Any strict JSON parser, schema validator, and HTTP client that implements the rules in the [specification](/spec/#9-extensions-versions-and-conformance) can work with the format.
+OpenAjang provides tools and SDKs for parsing, resolving, validating, and converting event documents across web applications and backend services.
 
-The TypeScript packages, browser validator, and Python reference tools are optional helpers for development, automated testing, and format conversion.
+<aside class="doc-note" aria-label="Format independence">
+<p class="doc-note-title">Format independence</p>
+
+You do not need a specialized package to publish or consume OpenAjang events. Any strict JSON parser, schema validator, and HTTP client that implements the rules in the [specification](/spec/#9-extensions-versions-and-conformance) can work with the format. The TypeScript packages, browser validator, and Python reference tools are optional helpers for development, automated testing, and format conversion.
+
+</aside>
 
 ## TypeScript packages
 

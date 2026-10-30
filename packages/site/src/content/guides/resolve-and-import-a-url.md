@@ -17,27 +17,26 @@ When a user pastes an event URL into an app or directory, a resolver turns that 
 
 ```mermaid
 flowchart TD
-    Start(["User pastes URL"]) --> SafeCheck{"SSRF and scheme check"}
-    SafeCheck -->|"Fail"| ErrReject["Reject unsafe URL"]
-    SafeCheck -->|"Pass"| FetchPasted["Fetch URL<br/>(Follow redirects up to limit)"]
-    FetchPasted --> CheckType{"Content-Type?"}
+    Start(["User pastes URL"]) --> SafeCheck{"Safe HTTP(S) URL?"}
+    SafeCheck -->|"No"| ErrSafe["Reject: unsafe or loopback"]
+    SafeCheck -->|"Yes"| Fetch["Fetch URL within limits"]
 
-    CheckType -->|"application/json or<br/>application/vnd.openajang+json"| ParseJSON["Parse and validate JSON"]
-    CheckType -->|"text/html"| DiscoverHead["Inspect HTML head<br/>for link rel=alternate"]
-    CheckType -->|"Other (e.g. text/plain)"| ErrType["Reject: unsupported media type"]
+    Fetch --> CheckType{"Content-Type?"}
+    CheckType -->|"JSON"| DirectJSON["Parse JSON directly"]
+    CheckType -->|"HTML"| Discover["Inspect head for alternate link"]
+    CheckType -->|"Other"| ErrType["Reject: unsupported type"]
 
-    DiscoverHead --> CheckCandidates{"Discovery candidates?"}
-    CheckCandidates -->|"0 links"| ErrNotFound["Discovery failed: no link found"]
-    CheckCandidates -->|"2 or more distinct URLs"| ErrAmbiguous["Discovery failed: ambiguous links"]
-    CheckCandidates -->|"Exactly 1 link"| FetchDoc["Fetch linked Document URL<br/>(Direct JSON required)"]
+    Discover --> Candidates{"Discovery candidate?"}
+    Candidates -->|"1 unambiguous link"| FetchLinked["Fetch linked Document URL"]
+    Candidates -->|"0 or multiple distinct"| ErrDisc["Discovery failed: not found or ambiguous"]
 
-    FetchDoc --> CheckDocType{"Content-Type is JSON?"}
-    CheckDocType -->|"No (HTML or Other)"| ErrRecursive["Reject: recursive discovery forbidden"]
-    CheckDocType -->|"Yes"| ParseJSON
+    FetchLinked --> LinkedType{"Is direct JSON?"}
+    LinkedType -->|"Yes"| DirectJSON
+    LinkedType -->|"No (HTML)"| ErrRecursive["Reject: recursive HTML forbidden"]
 
-    ParseJSON --> Validate{"Valid OpenAjang document?"}
-    Validate -->|"No"| ErrValidation["Reject: schema validation failed"]
-    Validate -->|"Yes"| SaveDoc["Record provenance and import event"]
+    DirectJSON --> Validate{"Valid OpenAjang document?"}
+    Validate -->|"Yes"| SaveDoc(["Record provenance & import event"])
+    Validate -->|"No"| ErrValidation["Reject: validation failed"]
 ```
 
 Two URLs matter throughout. The Event URL is the public page a person visits, the value of `url` in the document. The Document URL is where the JSON was retrieved from. They can be the same address, and often are not.
