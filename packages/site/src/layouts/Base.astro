@@ -1,0 +1,60 @@
+---
+import { readdirSync } from 'node:fs';
+interface Props {
+  title: string;
+  description?: string;
+}
+const { title, description = 'A small JSON format for publishing public events at a URL.' } = Astro.props;
+const examples = readdirSync(new URL('../../../../examples/', import.meta.url)).filter((f) => f.endsWith('.openajang.json'));
+const nav = [
+  { href: '/spec/', label: 'Spec' },
+  { href: '/validator/', label: 'Validator' },
+  { href: '/examples/', label: 'Examples' },
+  { href: '/feeds/', label: 'Feeds' },
+  { href: 'https://github.com/nedpals/openajang', label: 'GitHub' }
+];
+---
+<!doctype html>
+<html lang="en" data-examples={examples.join(',')}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%276%27 fill=%27%230b5fc4%27/%3E%3Ctext x=%2716%27 y=%2723%27 font-size=%2720%27 font-family=%27sans-serif%27 font-weight=%27700%27 text-anchor=%27middle%27 fill=%27white%27%3EA%3C/text%3E%3C/svg%3E" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <header>
+      <a class="brand" href="/">OpenAjang</a>
+      <nav>{nav.map((n) => <a href={n.href}>{n.label}</a>)}</nav>
+    </header>
+    <main><slot /></main>
+    <footer>
+      <p>Working draft, version 0.1. Spec under <a href="https://github.com/nedpals/openajang/blob/master/LICENSE-docs">LICENSE-docs</a>, code under Apache-2.0.</p>
+    </footer>
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    color-scheme: light dark;
+    --bg: #fff; --fg: #1a1a1a; --muted: #5c5c5c; --line: #ddd; --accent: #0b5fc4; --code: #f4f4f4; --bad: #b3261e; --good: #1b6e3c;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #151515; --fg: #ececec; --muted: #a0a0a0; --line: #333; --accent: #7ab4ff; --code: #222; --bad: #ff8a80; --good: #7bd89a; }
+  }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.6 system-ui, sans-serif; }
+  header, main, footer { max-width: 46rem; margin: 0 auto; padding: 1rem; box-sizing: border-box; }
+  header { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; align-items: baseline; justify-content: space-between; border-bottom: 1px solid var(--line); }
+  header nav { display: flex; flex-wrap: wrap; gap: 1rem; }
+  .brand { font-weight: 700; color: var(--fg); text-decoration: none; }
+  a { color: var(--accent); }
+  footer { color: var(--muted); font-size: 0.875rem; }
+  pre, code { background: var(--code); border-radius: 4px; font-size: 0.9em; }
+  code { padding: 0.1em 0.3em; }
+  pre { padding: 0.75rem; overflow-x: auto; }
+  pre code { padding: 0; background: none; }
+  table { border-collapse: collapse; display: block; overflow-x: auto; }
+  th, td { border: 1px solid var(--line); padding: 0.3rem 0.6rem; text-align: left; }
+  h1, h2, h3 { line-height: 1.25; }
+</style>

@@ -1,0 +1,81 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="OpenAjang validator" description="Check an OpenAjang event file in your browser.">
+  <h1>Validator</h1>
+  <p>
+    Paste an event file to check it against the schema and the additional rules in the
+    specification. Validation runs in your browser with
+    <a href="https://github.com/nedpals/openajang/tree/master/packages/core"><code>@openajang/core</code></a>;
+    nothing is uploaded.
+  </p>
+  <form id="form">
+    <label for="input">Event JSON</label>
+    <textarea id="input" rows="16" spellcheck="false" autocomplete="off"></textarea>
+    <div class="actions">
+      <button type="submit">Validate</button>
+      <label for="sample">or load an example</label>
+      <select id="sample"><option value="">Choose…</option></select>
+    </div>
+  </form>
+  <div id="result" role="status" aria-live="polite"></div>
+</Base>
+
+<script>
+  import { parseJsonStrict, validateSafe, OpenAjangValidationError } from '@openajang/core';
+
+  const input = document.getElementById('input') as HTMLTextAreaElement;
+  const result = document.getElementById('result') as HTMLElement;
+  const sample = document.getElementById('sample') as HTMLSelectElement;
+
+  const show = (valid: boolean, heading: string, errors: { code: string; path: string; message: string }[] = []) => {
+    result.replaceChildren();
+    const h = document.createElement('p');
+    h.className = valid ? 'ok' : 'bad';
+    h.textContent = heading;
+    result.append(h);
+    if (!errors.length) return;
+    const table = document.createElement('table');
+    table.innerHTML = '<thead><tr><th>Code</th><th>Path</th><th>Message</th></tr></thead>';
+    const body = document.createElement('tbody');
+    for (const e of errors) {
+      const row = body.insertRow();
+      for (const text of [e.code, e.path || '(root)', e.message]) row.insertCell().textContent = text;
+    }
+    table.append(body);
+    result.append(table);
+  };
+
+  const run = () => {
+    try {
+      const r = validateSafe(parseJsonStrict(input.value));
+      if (r.valid) show(true, 'Valid OpenAjang event.');
+      else show(false, `${r.errors.length} problem${r.errors.length === 1 ? '' : 's'} found.`, r.errors);
+    } catch (e) {
+      if (e instanceof OpenAjangValidationError) show(false, 'Not valid JSON for OpenAjang.', e.diagnostics);
+      else show(false, `Unexpected error: ${(e as Error).message}`);
+    }
+  };
+
+  document.getElementById('form')!.addEventListener('submit', (ev) => {
+    ev.preventDefault();
+    run();
+  });
+
+  const files = (document.documentElement.dataset.examples ?? '').split(',').filter(Boolean);
+  for (const f of files) sample.add(new Option(f.replace('.openajang.json', ''), f));
+  sample.addEventListener('change', async () => {
+    if (!sample.value) return;
+    input.value = await (await fetch(`/examples/${sample.value}`)).text();
+    run();
+  });
+</script>
+
+<style>
+  form { display: grid; gap: 0.5rem; }
+  textarea { width: 100%; box-sizing: border-box; font: 0.875rem/1.5 ui-monospace, monospace; background: var(--code); color: var(--fg); border: 1px solid var(--line); border-radius: 4px; padding: 0.5rem; }
+  .actions { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; }
+  button, select { font: inherit; padding: 0.35rem 0.75rem; }
+  .ok { color: var(--good); font-weight: 600; }
+  .bad { color: var(--bad); font-weight: 600; }
+</style>

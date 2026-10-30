@@ -1,0 +1,24 @@
+{
+  "name": "@openajang/site",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "sync": "node scripts/sync-public.mjs",
+    "dev": "pnpm run sync && astro dev",
+    "build": "pnpm --filter @openajang/core run build && pnpm run sync && astro build",
+    "preview": "astro preview",
+    "typecheck": "astro check"
+  },
+  "dependencies": {
+    "@openajang/core": "workspace:*",
+    "astro": "^5.14.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.4",
+    "typescript": "5.9.3"
+  },
+  "engines": {
+    "node": ">=22.18"
+  }
+}

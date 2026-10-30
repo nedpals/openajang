@@ -1,0 +1,28 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="OpenAjang">
+  <h1>OpenAjang</h1>
+  <p class="lead">A small JSON format for publishing public events at a URL.</p>
+  <p>
+    Write an event file, link to your registration form, and host it on your own website or a static
+    host such as GitHub Pages. Compatible apps and directories can read it, display it, and check for
+    changes. There is no central service to join.
+  </p>
+  <p>
+    <a href="/validator/">Validate an event file</a> ·
+    <a href="/spec/">Read the specification</a> ·
+    <a href="/examples/">Browse examples</a>
+  </p>
+  <h2>Status</h2>
+  <p>
+    Working draft, version 0.1. The schema is published at
+    <a href="/schema/0.1/event.json"><code>/schema/0.1/event.json</code></a>, and the optional TypeScript
+    SDK is on npm as <code>@openajang/core</code>.
+  </p>
+  <p><a href="https://github.com/nedpals/openajang#readme">Why this exists and how to publish your first event</a></p>
+</Base>
+
+<style>
+  .lead { font-size: 1.25rem; }
+</style>
