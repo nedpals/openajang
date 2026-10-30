@@ -83,6 +83,12 @@ importers:
       '@astrojs/sitemap':
         specifier: ^3.7.4
         version: 3.7.4
+      '@freshcoat-js/coatfile':
+        specifier: ^0.5.0
+        version: 0.5.0
+      '@freshcoat-js/engine':
+        specifier: ^0.5.0
+        version: 0.5.0
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -517,6 +523,18 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
+
+  '@freshcoat-js/coatfile@0.5.0':
+    resolution: {integrity: sha512-pdDAhBSj9DS3OyW5ie4eJZc0y3rCanG9bcaQFkPAFsSHXPeCWeWi2J2Cd5RJJEEU5fSY3YhAhGQmqtRpbhIBWg==}
+    engines: {node: '>=22'}
+
+  '@freshcoat-js/engine@0.5.0':
+    resolution: {integrity: sha512-mqZZMKtBAHUMpSDmULyxqufuzFp8WTdxTZnDzMh7DvlyBRWjMy55tiusM5JNxudS0IlZ0maDMFUkwVW2GlyoFQ==}
+    engines: {node: '>=22'}
+
+  '@freshcoat-js/for-print@0.5.0':
+    resolution: {integrity: sha512-/Jy7d5IFdZC9n1plBlCrMoeXB9T72vZiIkl1DDQRBbR/sag+BVQzv2y58faj+ogkeAbubP/OAZ4cC3wDsxGShg==}
+    engines: {node: '>=22'}
 
   '@iconify/types@2.0.0':
     resolution: {integrity: sha512-+wluvCrRhXrhyOmRDJ3q8mux9JkKy5SJ/v8ol2tu4FVjyYvtEzkc/3pK15ET6RKg4b4w4BmTk1+gsCUhf21Ykg==}
@@ -1053,6 +1071,9 @@ packages:
   '@vscode/l10n@0.0.18':
     resolution: {integrity: sha512-KYSIHVmslkaCDyw013pphY+d7x1qV8IZupYfeIfzNA+nsaWHbn5uPuQRvdRFsa9zFzGeudPuoGoZ1Op4jrJXIQ==}
 
+  '@webgpu/types@0.1.21':
+    resolution: {integrity: sha512-pUrWq3V5PiSGFLeLxoGqReTZmiiXwY3jRkIG5sLLKjyqNxrwm/04b4nw7LSmGWJcKk59XOM/YRTUwOzo4MMlow==}
+
   acorn@8.19.0:
     resolution: {integrity: sha512-oJlA3XiRm7Cyk6qFD2Jn8ak9B7jSy0qy00ADO3+8dpT0LSjFihQYv4C02LFCSYJV3Q37xYwwRy5m+IpIiUzqWw==}
     engines: {node: '>=0.4.0'}
@@ -1134,12 +1155,22 @@ packages:
     resolution: {integrity: sha512-F3PH5k5juxom4xktynS7MoFY+NUWH5LC4CnH11YB8NPew+HLpmBLCybSAEyb2F+4pRXhuhWqFesoQd6DAyc2hw==}
     engines: {node: '>=18'}
 
+  brotli@2.1.0:
+    resolution: {integrity: sha512-4KAtOr4Z3jaIQlXy9AeuaVz1vPWTyZ6eiQYu4SsSz6VcUsV6Epz6kA3Vf7eTGTaspaqlnQLBqvkozKP5WyQMZQ==}
+
   buffer@6.0.3:
     resolution: {integrity: sha512-FTiCpNxtwiZZHEZbcbTIcZjERVICn9yq/pDFkTl95/AxzD1naBctN7YO68riM/gLSDY7sdrMby8hofADYuuqOA==}
+
+  bwip-js@4.11.4:
+    resolution: {integrity: sha512-FOXnOQkinxog8FwxdnPB+8k2wRqwPnqXwxX37KcXOtMNW+9CinOkGv9MtIoRC4HX/UyogT0/9lIp6FDm2DcquQ==}
+    hasBin: true
 
   camelcase@8.0.0:
     resolution: {integrity: sha512-8WB3Jcas3swSvjIeA2yvCJ+Miyz5l1ZmB6HFb9R1317dt9LCQoswg/BGrmAmkWVEszSrrg4RwmO46qIm2OEnSA==}
     engines: {node: '>=16'}
+
+  canvaskit-wasm@0.41.1:
+    resolution: {integrity: sha512-gO2rNMIE0lOQ8MaarM4qNeq2zZAEknAObKP2XAKidMSAY8P5sURGdFkrx1TSdHuBFqTf5w35JqjuUzjibqkD5g==}
 
   ccount@2.0.1:
     resolution: {integrity: sha512-eyrF0jiFpY+3drT6383f1qhkbGsLSifNAjA61IUjZjmLCWjItY6LB9ft9YhoDgwfmclB2zhu51Lc7+95b8NRAg==}
@@ -1535,6 +1566,9 @@ packages:
       picomatch:
         optional: true
 
+  fflate@0.8.3:
+    resolution: {integrity: sha512-tbZNuJrLwGUp3zshBtdy4W+ORxZuIh8a5ilyIEQDC5rY1f3U20JMry0Ll3WBzU58EZKsEuJFXhb5gwv8CsPvgA==}
+
   flattie@1.1.1:
     resolution: {integrity: sha512-9UbaD6XdAL97+k/n+N7JwX46K/M6Zc6KcFYskrYL8wbBV/Uyk0CTAMY0VT+qiK5PM7AIc9aTWYtq65U7T+aCNQ==}
     engines: {node: '>=8'}
@@ -1699,6 +1733,10 @@ packages:
 
   layout-base@2.0.1:
     resolution: {integrity: sha512-dp3s92+uNI1hWIpPGH3jK2kxE2lMjdXdr+DH8ynZHpd6PUlH6x6cbuXnoMmiNumznqaNO31xu9e79F0uuZ0JFg==}
+
+  lean-qr@2.7.4:
+    resolution: {integrity: sha512-tlMPFfqhAAZN7+j/djRSvl/2+AYT2+7RRuyq8bvcbV8gMiENiscquQ9WTfCSyeEdxsVaEB+tU7e9nFZC63BFnQ==}
+    hasBin: true
 
   lodash-es@4.18.1:
     resolution: {integrity: sha512-J8xewKD/Gk22OZbhpOVSwcs60zhd95ESDwezOFuA3/099925PdHJ7OFHNTGtajL3AlZkykD32HykiMo+BIBI8A==}
@@ -2866,6 +2904,26 @@ snapshots:
   '@esbuild/win32-x64@0.27.7':
     optional: true
 
+  '@freshcoat-js/coatfile@0.5.0':
+    dependencies:
+      '@freshcoat-js/engine': 0.5.0
+      '@freshcoat-js/for-print': 0.5.0
+      bwip-js: 4.11.4
+      fflate: 0.8.3
+      lean-qr: 2.7.4
+      zod: 4.6.7
+
+  '@freshcoat-js/engine@0.5.0':
+    dependencies:
+      brotli: 2.1.0
+      canvaskit-wasm: 0.41.1
+      fflate: 0.8.3
+
+  '@freshcoat-js/for-print@0.5.0':
+    dependencies:
+      '@freshcoat-js/engine': 0.5.0
+      zod: 4.6.7
+
   '@iconify/types@2.0.0': {}
 
   '@iconify/utils@3.1.7':
@@ -3332,6 +3390,8 @@ snapshots:
 
   '@vscode/l10n@0.0.18': {}
 
+  '@webgpu/types@0.1.21': {}
+
   acorn@8.19.0: {}
 
   ajv-draft-04@1.0.0(ajv@8.20.0):
@@ -3501,12 +3561,22 @@ snapshots:
       widest-line: 5.0.0
       wrap-ansi: 9.0.2
 
+  brotli@2.1.0:
+    dependencies:
+      base64-js: 1.5.1
+
   buffer@6.0.3:
     dependencies:
       base64-js: 1.5.1
       ieee754: 1.2.1
 
+  bwip-js@4.11.4: {}
+
   camelcase@8.0.0: {}
+
+  canvaskit-wasm@0.41.1:
+    dependencies:
+      '@webgpu/types': 0.1.21
 
   ccount@2.0.1: {}
 
@@ -3938,6 +4008,8 @@ snapshots:
     optionalDependencies:
       picomatch: 4.0.7
 
+  fflate@0.8.3: {}
+
   flattie@1.1.1: {}
 
   fontace@0.4.1:
@@ -4130,6 +4202,8 @@ snapshots:
   layout-base@1.0.2: {}
 
   layout-base@2.0.1: {}
+
+  lean-qr@2.7.4: {}
 
   lodash-es@4.18.1: {}
 

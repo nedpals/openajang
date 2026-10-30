@@ -47,8 +47,8 @@ const ogImageURL = new URL('/openajang-og.png', Astro.site ?? 'https://openajang
     <meta name="twitter:image" content={ogImageURL} />
 
     <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%276%27 fill=%27%232b2a47%27/%3E%3Ctext x=%2716%27 y=%2723%27 font-size=%2720%27 font-family=%27sans-serif%27 font-weight=%27700%27 text-anchor=%27middle%27 fill=%27%23d36138%27%3EA%3C/text%3E%3C/svg%3E" />
     <link rel="preload" href="/fonts/MerriweatherSans.ttf" as="font" type="font/ttf" crossorigin />
     <title>{title}</title>
   </head>
