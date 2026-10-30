@@ -21,7 +21,12 @@ Two URLs matter throughout. The Event URL is the public page a person visits, th
 
 ## Fetch with safety limits
 
+<aside class="doc-note" aria-label="Before fetching a URL">
+<p class="doc-note-title">Before fetching a URL</p>
+
 Resolvers accept an absolute HTTP(S) URL and fetch it subject to the security requirements below ([§8.1](/spec/#81-inputs-and-direct-json)). A URL that parses correctly is not yet safe to fetch: [§3](/spec/#3-document-and-authoring-rules) says a syntactically valid URL still needs retrieval safety checks, and [§10](/spec/#10-security-and-operational-requirements) says a syntax check alone is not SSRF protection.
+
+</aside>
 
 Apply the same checks to every request your resolver makes: the pasted URL, each redirect target and each discovered link.
 

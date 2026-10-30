@@ -101,7 +101,12 @@ It checks:
 
 It uses the bundled 0.1 schema and does not fetch schemas from URLs. Unknown fields are generally ignored, with exceptions such as the reserved `schedule` field. Procedural checks may stop at the first error, so fix what it reports and validate again. Time-zone checks use your browser's `Intl` support.
 
+<aside class="doc-note" aria-label="What a validation pass means">
+<p class="doc-note-title">What a validation pass means</p>
+
 A pass means the document meets this implementation's checks. It does not test your hosted endpoint, the media type it is served with, the HTML discovery link or network retrieval security. It also does not verify the organizer, guarantee directory inclusion or confirm that registration is open. Check the hosted response yourself, for example with `curl -I`.
+
+</aside>
 
 ## Python reference CLI
 

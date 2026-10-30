@@ -170,7 +170,12 @@ If you added a discovery link, confirm it is in the HTML the server sends, witho
 curl -s https://example.org/events/build-night-november | grep -i openajang
 ```
 
+<aside class="doc-note" aria-label="Validation and hosting">
+<p class="doc-note-title">Validation and hosting</p>
+
 The [validator](/validator/) checks the document itself: its fields, values and dates. It does not test your hosted response, your media type or your discovery link, so a file can pass the validator and still fail to import if it is hosted with the wrong type. Use `curl` for the hosting side and the validator for the content. To validate exactly what is online, fetch it with `curl -s <your JSON URL>` and paste the output into the validator.
+
+</aside>
 
 ## What happens next
 

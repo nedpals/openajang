@@ -89,7 +89,12 @@ Store all three when you have them. The spec warns against blind timestamp sorti
 
 A feed subscription discovers listings. A saved event is a separate thing, and the spec says saved events should continue to refresh directly even after they leave a feed window ([§8.3](/spec/#83-redirects-caching-and-refresh), [Feeds §2](/feeds/#2-refresh-identity-and-source-provenance)).
 
+<aside class="doc-note" aria-label="Saved events can leave a feed">
+<p class="doc-note-title">Saved events can leave a feed</p>
+
 Feeds are bounded. An entry can drop out of a feed before the event is cancelled, and omission from a feed means neither cancellation nor deletion ([Feeds §3](/feeds/#3-changes-cancellation-and-disappearance)). A consumer that only reads a feed must not promise reliable cancellation delivery for saved events ([Feeds §2](/feeds/#2-refresh-identity-and-source-provenance)). The direct refresh of the Document URL is how your app learns about a late cancellation.
+
+</aside>
 
 Following and running directory feeds is covered in [Directory feeds](/docs/directory-feeds/).
 

@@ -37,12 +37,12 @@ For a platform or directory, it means one shape to export or import and one URL-
 
 OpenAjang is a small contract between independent publishers and consumers. Several things that event platforms and calendar suites handle are out of scope.
 
-- No scraping or platform extraction. An event is compatible only when its publisher exposes an OpenAjang document. An invalid JSON response is an error, not a reason to scrape the page ([Spec §8.1](/spec/#81-inputs-and-direct-json)).
-- No central account or registry. Organizers host documents on their own site or a static host. Directories are optional, and several can index the same publisher independently ([Spec §1](/spec/#1-purpose-and-scope)).
-- No checkout, form submission or live inventory. Documents link to the organizer's registration or ticket page. Ticket availability is current only as of `updated_at`, and a form can close without the JSON changing ([Spec §7](/spec/#7-registration-and-ticket-discovery)).
-- No organizer verification or directory endorsement. Control of a host establishes where a claim came from, not who the organizer is. Passing validation is not inclusion, endorsement or verification ([Spec §10](/spec/#10-security-and-operational-requirements)).
-- No recurrence, opening hours or session schedules. One document is one occurrence or one overall edition. The top-level `schedule` property is reserved and must be absent ([Spec §1.1](/spec/#11-occurrence-boundaries-and-conservative-interpretation), [Spec §3](/spec/#3-document-and-authoring-rules)).
-- No inline data blocks or executable content. Discovery uses a `head` link to a standalone JSON URL, and display text is plain text, never rendered as HTML ([Spec §8.2](/spec/#82-html-discovery), [Spec §3](/spec/#3-document-and-authoring-rules)).
+- **No scraping or platform extraction.** An event is compatible only when its publisher exposes an OpenAjang document. An invalid JSON response is an error, not a reason to scrape the page ([Spec §8.1](/spec/#81-inputs-and-direct-json)).
+- **No central account or registry.** Organizers host documents on their own site or a static host. Directories are optional, and several can index the same publisher independently ([Spec §1](/spec/#1-purpose-and-scope)).
+- **No checkout, form submission or live inventory.** Documents link to the organizer's registration or ticket page. Ticket availability is current only as of `updated_at`, and a form can close without the JSON changing ([Spec §7](/spec/#7-registration-and-ticket-discovery)).
+- **No organizer verification or directory endorsement.** Control of a host establishes where a claim came from, not who the organizer is. Passing validation is not inclusion, endorsement or verification ([Spec §10](/spec/#10-security-and-operational-requirements)).
+- **No recurrence, opening hours or session schedules.** One document is one occurrence or one overall edition. The top-level `schedule` property is reserved and must be absent ([Spec §1.1](/spec/#11-occurrence-boundaries-and-conservative-interpretation), [Spec §3](/spec/#3-document-and-authoring-rules)).
+- **No inline data blocks or executable content.** Discovery uses a `head` link to a standalone JSON URL, and display text is plain text, never rendered as HTML ([Spec §8.2](/spec/#82-html-discovery), [Spec §3](/spec/#3-document-and-authoring-rules)).
 
 ## How it relates to Schema.org Event, iCalendar and JSCalendar
 
@@ -59,7 +59,12 @@ The [conversion guide](/conversions/) has the full mapping tables and the list o
 
 ## How it compares with Open Evnt and OpenTechEvents
 
-As of October 30, 2026. [Open Evnt](https://github.com/openevnt/evnt) and [OpenTechEvents](https://github.com/OpenTechEvents/opentechevents-spec) are two other open JSON formats for describing events. Both are drafts and are changing, so check their repositories for the current text. This section describes each project from its own specification files. It does not rank them.
+<aside class="doc-note" aria-label="As of October 30, 2026">
+<p class="doc-note-title">As of October 30, 2026</p>
+
+[Open Evnt](https://github.com/openevnt/evnt) and [OpenTechEvents](https://github.com/OpenTechEvents/opentechevents-spec) are two other open JSON formats for describing events. Both are drafts and are changing, so check their repositories for the current text. This section describes each project from its own specification files. It does not rank them.
+
+</aside>
 
 Open Evnt describes itself as "a JSON format for describing one event: what it is, where and when it takes place, and where to find out more", and does not define how events are created, updated, deleted, stored or transmitted ([event spec §1](https://github.com/openevnt/evnt/blob/main/docs/spec/open-evnt-event.md)). OpenTechEvents describes itself as "a minimal specification for describing tech community events and publishing them in a reusable feed" ([v0.4](https://github.com/OpenTechEvents/opentechevents-spec/blob/main/spec/v0.4/README.md)).
 

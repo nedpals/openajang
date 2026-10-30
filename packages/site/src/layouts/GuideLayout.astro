@@ -88,6 +88,15 @@ const contents = headings.filter((heading) => heading.depth === 2);
   .guide :global(li) { margin-bottom: .5rem; }
   .guide :global(table) { margin: 1.25rem 0 1.5rem; font-size: .875rem; }
   .guide :global(.audience) { margin: -.25rem 0 1rem; font-size: .8125rem; color: var(--muted); }
+  .guide :global(.doc-note) {
+    margin: 1.5rem 0;
+    padding: 1rem 1.25rem;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+  }
+  .guide :global(.doc-note-title) { color: var(--heading); font-weight: 600; margin-bottom: .5rem; }
+  .guide :global(.doc-note > :last-child) { margin-bottom: 0; }
   @media (max-width: 900px) {
     .guide-layout { grid-template-columns: minmax(0, 1fr); gap: 1.5rem; max-width: 54rem; margin: auto; }
     .guide-side { position: static; max-height: none; padding: 0; border-bottom: 1px solid var(--line); }
