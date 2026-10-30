@@ -1,21 +1,39 @@
 ---
+import {
+  BookOpen,
+  CalendarDays,
+  CodeXml,
+  FileBraces,
+  Link,
+  List,
+  MessageSquareText,
+  SquareCheck,
+  Upload,
+  UserRound,
+} from '@lucide/astro';
+
+const icons = {
+  book: BookOpen,
+  calendar: CalendarDays,
+  check: SquareCheck,
+  code: CodeXml,
+  file: FileBraces,
+  link: Link,
+  list: List,
+  message: MessageSquareText,
+  person: UserRound,
+  upload: Upload,
+};
+
 interface Props {
-  name: 'calendar' | 'person' | 'code' | 'book' | 'link' | 'upload' | 'message' | 'list';
+  name: keyof typeof icons;
   size?: number;
 }
 const { name, size = 20 } = Astro.props;
+const LucideIcon = icons[name];
 ---
-<svg class="icon" xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-  {name === 'calendar' && <><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M8 3v4m8-4v4M3 11h18m-14 5h2m4 0h2" /></>}
-  {name === 'person' && <><circle cx="12" cy="7" r="4" /><path d="M4 21v-2a8 8 0 0 1 16 0v2" /></>}
-  {name === 'code' && <path d="m8 6-6 6 6 6m8-12 6 6-6 6M14 3l-4 18" />}
-  {name === 'book' && <><path d="M12 5c-3-2-6-2-10-1v15c4-1 7-1 10 1 3-2 6-2 10-1V4c-4-1-7-1-10 1Zm0 0v15" /></>}
-  {name === 'link' && <path d="m10 14 4-4m-6 5-1 1a4 4 0 0 1-6-6l4-4a4 4 0 0 1 6 0m2 3 1-1a4 4 0 0 1 6 6l-4 4a4 4 0 0 1-6 0" />}
-  {name === 'upload' && <path d="M12 16V3m-5 5 5-5 5 5M3 15v5a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1v-5" />}
-  {name === 'message' && <path d="M21 14a3 3 0 0 1-3 3H8l-5 4V6a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3Zm-14-6h10M7 12h7" />}
-  {name === 'list' && <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />}
-</svg>
+<LucideIcon class="icon" size={size} stroke-width={1.75} aria-hidden="true" focusable="false" />
 
-<style>
+<style is:global>
   .icon { display: inline-block; flex-shrink: 0; vertical-align: -.15em; }
 </style>

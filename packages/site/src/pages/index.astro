@@ -96,8 +96,18 @@ import Icon from '../components/Icon.astro';
     <p>The aim is less publishing and integration work. Whether that makes authoring simpler needs testing with organizers; another copy of the same event to maintain would defeat the purpose.</p>
   </section>
   <section class="feedback">
-    <h2 class="icon-heading"><Icon name="message" size={24} />Try it and give feedback</h2>
-    <p><a href="/validator/">Validate a document</a>, <a href="/examples/">browse the examples</a>, or try the optional <a href="https://github.com/nedpals/openajang/tree/master/packages/core">TypeScript SDK</a>. If you publish or consume an event, <a href="https://github.com/nedpals/openajang/issues">share what worked and what didn’t</a>.</p>
+    <div class="feedback-main">
+      <div>
+        <h2>Try it and give feedback</h2>
+        <p>Try the draft with an event of your own. Share what worked, where you got stuck, or what the format couldn’t express.</p>
+      </div>
+      <a class="button feedback-action" href="https://github.com/nedpals/openajang/issues"><Icon name="message" size={18} />Share feedback on GitHub</a>
+    </div>
+    <ul class="feedback-resources" aria-label="Tools to try the draft">
+      <li><a href="/examples/"><Icon name="file" size={18} />Browse examples</a></li>
+      <li><a href="/validator/"><Icon name="check" size={18} />Validate a document</a></li>
+      <li><a href="https://github.com/nedpals/openajang/tree/master/packages/core"><Icon name="code" size={18} />Try the TypeScript SDK</a></li>
+    </ul>
   </section>
   </div>
 </Base>
@@ -161,7 +171,6 @@ import Icon from '../components/Icon.astro';
   .project-logo { margin-bottom: 1rem; }
   .icon-heading { display: flex; align-items: center; gap: .6rem; }
   .audiences .icon-heading :global(svg) { color: var(--accent); }
-  .feedback .icon-heading :global(svg) { color: #ffae8f; }
   .introduction p:last-child { margin-bottom: 0; }
   .lead { font-size: 1.2rem; font-weight: 300; line-height: 1.5; }
   .status { color: var(--muted); font-size: .9rem; }
@@ -188,11 +197,21 @@ import Icon from '../components/Icon.astro';
   .publish { display: grid; grid-template-columns: 1fr 1.5fr; gap: 1.5rem; align-items: start; }
   .publish pre { margin: 0; background: var(--bg); }
   .feedback { background: #2b2a47; color: #eeeaf0; padding: 1.75rem; border-radius: 4px; }
+  .feedback-main { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 1.5rem; }
   .feedback h2 { color: #fff; }
   .feedback a { color: #ffae8f; }
-  .feedback p { max-width: 70ch; margin-bottom: 0; }
+  .feedback p { max-width: 50ch; margin-bottom: 0; }
+  .feedback .feedback-action { color: #2b2a47; background: linear-gradient(#fff, #eeeaf0); border-color: #fff; font-weight: 500; justify-self: start; }
+  .feedback .feedback-action:hover { background: #eeeaf0; }
+  .feedback .feedback-action:active { background: #dddce8; }
+  .feedback-resources { display: flex; flex-wrap: wrap; gap: .75rem 1.5rem; list-style: none; padding: 1.25rem 0 0; margin: 1.5rem 0 0; border-top: 1px solid #646079; }
+  .feedback-resources li { margin: 0; }
+  .feedback-resources a { display: inline-flex; align-items: center; gap: .5rem; }
   li { margin-bottom: .5rem; }
   .publish ol { margin-top: 0; padding-left: 1.25rem; }
+  @media (max-width: 780px) {
+    .feedback-main { grid-template-columns: minmax(0, 1fr); gap: 1.25rem; }
+  }
   @media (max-width: 600px) {
     .audiences { grid-template-columns: 1fr; }
     .fetch-row { flex-direction: column; }
