@@ -16,6 +16,8 @@ try {
   const [frame] = await renderTemplate(renderer, template, {
     description: template.fields.properties.description.default,
     logo: `data:image/svg+xml;base64,${logo.toString('base64')}`,
+  }, {
+    exports: [{ supersample: 2 }],
   });
   if (frame.warnings.length) {
     throw new Error(frame.warnings.map(describeWarning).join('\n'));
@@ -24,7 +26,7 @@ try {
     throw new Error(`Unexpected Open Graph dimensions: ${frame.width}×${frame.height}`);
   }
   await writeFile(new URL('public/openajang-og.png', site), frame.bytes);
-  console.log('Rendered Freshcoat Open Graph image (1200×630).');
+  console.log('Rendered Freshcoat Open Graph image (1200×630, 2× supersampling).');
 
   const favicon = await readFile(new URL('static/favicon.svg', site));
   const [icon] = await renderTemplate(renderer, {
