@@ -15,9 +15,10 @@ const { id, title, description, headings } = Astro.props;
 const groups = getNav(await getCollection('guides'));
 const contents = headings.filter((heading) => heading.depth === 2);
 ---
-<Base title={id === 'start' ? 'OpenAjang documentation' : `${title} | OpenAjang docs`} description={description} sidebar>
+<Base title={id === 'start' ? 'OpenAjang documentation' : `${title} | OpenAjang docs`} description={description} sidebar skipTarget="guide-content">
   <div class="guide-layout">
-    <div class="guide-side">
+    <details class="guide-side" open>
+      <summary>Browse documentation</summary>
       <nav class="guide-nav" aria-label="Documentation">
         <p class="side-label"><Icon name="book" size={16} /><strong>Documentation</strong></p>
         {groups.map((group) => (
@@ -39,10 +40,18 @@ const contents = headings.filter((heading) => heading.depth === 2);
           </ul>
         </nav>
       )}
-    </div>
-    <article class="guide"><slot /></article>
+    </details>
+    <article class="guide" id="guide-content" tabindex="-1"><slot /></article>
   </div>
 </Base>
+
+<script>
+  const menu = document.querySelector<HTMLDetailsElement>('.guide-side');
+  const mobile = window.matchMedia('(max-width: 900px)');
+  const updateMenu = () => { if (menu) menu.open = !mobile.matches; };
+  updateMenu();
+  mobile.addEventListener('change', updateMenu);
+</script>
 
 <style>
   .guide-layout {
@@ -58,8 +67,9 @@ const contents = headings.filter((heading) => heading.depth === 2);
     max-height: calc(100dvh - 5.5rem);
     overflow-y: auto;
     font-size: .85rem;
-    padding: .5rem .25rem;
+    padding: .5rem;
   }
+  .guide-side > summary { display: none; }
   .side-label { display: flex; align-items: center; gap: .5rem; margin: 0 0 .5rem; }
   .side-label strong { font-weight: 500; }
   .group-label { margin: 1rem 0 .25rem; color: var(--muted); font-size: .75rem; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
@@ -67,7 +77,7 @@ const contents = headings.filter((heading) => heading.depth === 2);
   .guide-side li { margin: 0 0 .25rem; }
   .guide-nav a { text-decoration: none; display: block; padding: .15rem 0 .15rem .6rem; border-left: 2px solid transparent; }
   .guide-nav a:hover { text-decoration: underline; }
-  .guide-nav a[aria-current='page'] { border-left-color: #d36138; color: var(--heading); font-weight: 600; }
+  .guide-nav a[aria-current='page'] { border-left-color: var(--accent); color: var(--heading); font-weight: 600; }
   .on-page { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--line); }
   .on-page ul { padding-left: 1.25rem; list-style: disc; }
   .guide { min-width: 0; max-width: 72ch; }
@@ -80,7 +90,11 @@ const contents = headings.filter((heading) => heading.depth === 2);
   .guide :global(.audience) { margin: -.25rem 0 1rem; font-size: .8125rem; color: var(--muted); }
   @media (max-width: 900px) {
     .guide-layout { grid-template-columns: minmax(0, 1fr); gap: 1.5rem; max-width: 54rem; margin: auto; }
-    .guide-side { position: static; max-height: none; }
+    .guide-side { position: static; max-height: none; padding: 0; border-bottom: 1px solid var(--line); }
+    .guide-side > summary { display: list-item; padding: .75rem .25rem; cursor: pointer; color: var(--heading); font-weight: 600; }
+    .guide-side[open] { padding-bottom: 1rem; }
+    .guide-side .side-label { margin-top: .75rem; }
+    .guide-nav a, .on-page a { display: block; padding-top: .65rem; padding-bottom: .65rem; }
   }
   @media print {
     .guide-layout { display: block; }

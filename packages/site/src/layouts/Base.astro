@@ -6,8 +6,9 @@ interface Props {
   description?: string;
   sidebar?: boolean;
   wide?: boolean;
+  skipTarget?: string;
 }
-const { title, description = 'A small JSON format for publishing public events at a URL.', sidebar = false, wide = false } = Astro.props;
+const { title, description = 'A small JSON format for publishing public events at a URL.', sidebar = false, wide = false, skipTarget = 'main-content' } = Astro.props;
 const examples = readdirSync(new URL('../../../../examples/', import.meta.url)).filter((f) => f.endsWith('.openajang.json'));
 const nav = [
   { href: '/docs/', label: 'Docs' },
@@ -29,10 +30,11 @@ const nav = [
     <title>{title}</title>
   </head>
   <body>
+    <a class="skip-link" href={`#${skipTarget}`}>Skip to content</a>
     <header>
       <div class="navbar-inner">
       <a class="brand" href="/">OpenAjang</a>
-      <nav>{nav.map((n) => <a href={n.href}>{n.label}</a>)}</nav>
+      <nav aria-label="Main navigation">{nav.map((n) => <a href={n.href}>{n.label}</a>)}</nav>
       </div>
     </header>
     <aside class="test-banner" aria-label="Working draft invitation">
@@ -41,7 +43,7 @@ const nav = [
         <span>Try the working draft and share your experience.</span>
       </div>
     </aside>
-    <main class:list={{ home: title === 'OpenAjang', 'with-sidebar': sidebar, wide }}><slot /></main>
+    <main id="main-content" tabindex="-1" class:list={{ home: title === 'OpenAjang', 'with-sidebar': sidebar, wide }}><slot /></main>
     <footer>
       <nav class="footer-resources" aria-label="Project resources">
         <ResourceLinks label="Project resources" items={[
@@ -149,6 +151,8 @@ const nav = [
   a { color: var(--accent); text-underline-offset: .18em; overflow-wrap: anywhere; }
   a:hover { text-decoration-thickness: 2px; }
   :focus-visible { outline: 3px solid #d36138; outline-offset: 3px; }
+  .skip-link { position: fixed; top: .5rem; left: .5rem; z-index: 20; padding: .65rem 1rem; background: var(--bg); transform: translateY(calc(-100% - 1rem)); }
+  .skip-link:focus { transform: translateY(0); }
   ::selection { background: #2b2a47; color: #fff; }
   footer {
     border-top: 1px solid var(--line);
