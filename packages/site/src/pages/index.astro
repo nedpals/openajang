@@ -40,7 +40,23 @@ import Base from '../layouts/Base.astro';
     <p>Directories are optional. Registration takes participants to the organizer's chosen provider.</p>
     <p><a href="/feeds/">Read the feed guidance</a></p>
   </section>
-  <section><h2>Publish your first event</h2><div class="publish">
+  <section class="prose">
+    <h2>For organizers</h2>
+    <p>Publish an event document on hosting you choose and link to your existing registration process.</p>
+    <p><a href="#publish">Publish your first event</a></p>
+  </section>
+  <section class="prose">
+    <h2>For participants</h2>
+    <p>Import an event into a compatible consumer, or discover events through a directory's feed. Ordinary feed readers can display event summaries and links.</p>
+    <p><a href="/feeds/">Read about directory feeds</a></p>
+  </section>
+  <section class="prose">
+    <h2>For developers</h2>
+    <p><strong>Platform developers:</strong> export event documents and provide discovery links while continuing to offer your own management features.</p>
+    <p><strong>Directory developers:</strong> fetch and validate events, retain source provenance, refresh them, and distribute links through feeds.</p>
+    <p><a href="/spec/">Read the specification</a> or explore the <a href="https://github.com/nedpals/openajang/tree/master/packages/core">TypeScript SDK</a>.</p>
+  </section>
+  <section id="publish"><h2>Publish your first event</h2><div class="publish">
     <div><ol><li><strong>Write</strong> an event JSON document.</li><li><strong>Host</strong> it at a public URL.</li><li><strong>Share</strong> the URL with compatible consumers or a directory.</li><li><strong>Maintain</strong> the source as details change.</li></ol><p>This example is illustrative; replace its details with your own.</p><a href="https://github.com/nedpals/openajang#publish-your-first-event">Full publishing guidance</a></div>
     <pre><code>{`{
   "$schema": "https://openajang.nedpals.xyz/schema/0.1/event.json",
