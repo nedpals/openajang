@@ -1,0 +1,54 @@
+---
+import Base from './Base.astro';
+
+interface Props {
+  title: string;
+  headings: { depth: number; slug: string; text: string }[];
+}
+
+const { title, headings } = Astro.props;
+const contents = headings.filter((heading) => heading.depth === 2);
+---
+<Base title={title} sidebar>
+  <div class="document-layout">
+    <nav class="contents" aria-label="Table of contents">
+      <p><strong>Contents</strong></p>
+      <ul>
+        {contents.map((heading) => <li><a href={`#${heading.slug}`}>{heading.text}</a></li>)}
+      </ul>
+    </nav>
+    <article><slot /></article>
+  </div>
+</Base>
+
+<style>
+  .document-layout {
+    display: grid;
+    grid-template-columns: 14rem minmax(0, 54rem);
+    gap: 2rem;
+    align-items: start;
+    padding-top: 1rem;
+  }
+  .contents {
+    position: sticky;
+    top: 1rem;
+    max-height: calc(100dvh - 2rem);
+    overflow-y: auto;
+    font-size: .85rem;
+    padding: .5rem .25rem;
+  }
+  .contents p { margin-bottom: .5rem; }
+  .contents ul { margin: 0; padding-left: 1.25rem; }
+  .contents li { margin-bottom: .5rem; }
+  article { min-width: 0; }
+  article :global(h1) { margin-top: 0; }
+  article :global(h2) { margin-top: 2rem; }
+  @media (max-width: 900px) {
+    .document-layout { grid-template-columns: minmax(0, 1fr); gap: 1.5rem; max-width: 54rem; margin: auto; }
+    .contents { position: static; max-height: none; }
+  }
+  @media print {
+    .document-layout { display: block; }
+    .contents { display: none; }
+  }
+</style>

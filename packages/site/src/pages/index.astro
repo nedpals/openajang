@@ -2,6 +2,8 @@
 import Base from '../layouts/Base.astro';
 ---
 <Base title="OpenAjang">
+  <div class="opening">
+    <div class="opening-inner">
   <section class="introduction">
     <h1>OpenAjang</h1>
     <p class="lead">A small JSON format for publishing public events at a URL.</p>
@@ -22,7 +24,10 @@ import Base from '../layouts/Base.astro';
     <noscript><p>Enable JavaScript to fetch an event here. You can still <a href="/examples/">browse the examples</a> and read the specification.</p></noscript>
     <div id="event-result" aria-live="polite"><p>Enter a URL or load the example to see an event.</p></div>
   </section>
+    </div>
+  </div>
 
+  <div class="home-content">
   <div class="audiences">
     <section>
       <h2>For organizers</h2>
@@ -88,10 +93,11 @@ import Base from '../layouts/Base.astro';
     <p><a href="https://schema.org/Event">Schema.org Event</a>, <a href="https://www.rfc-editor.org/rfc/rfc5545">iCalendar</a>, and <a href="https://www.rfc-editor.org/rfc/rfc8984">JSCalendar</a> already cover much of this information. OpenAjang experiments with one prescribed document shape, explicit registration fields, and a predictable URL-import contract.</p>
     <p>The aim is less publishing and integration work. Whether that makes authoring simpler needs testing with organizers; another copy of the same event to maintain would defeat the purpose.</p>
   </section>
-  <section class="prose">
+  <section class="feedback">
     <h2>Try it and give feedback</h2>
     <p><a href="/validator/">Validate a document</a>, <a href="/examples/">browse the examples</a>, or try the optional <a href="https://github.com/nedpals/openajang/tree/master/packages/core">TypeScript SDK</a>. If you publish or consume an event, <a href="https://github.com/nedpals/openajang/issues">share what worked and what didn’t</a>.</p>
   </section>
+  </div>
 </Base>
 <script>
   import { Buffer } from 'buffer';
@@ -145,7 +151,12 @@ import Base from '../layouts/Base.astro';
 </script>
 <style>
   section { margin: 2rem 0; }
-  .introduction { margin: .5rem 0 1.75rem; max-width: 70ch; }
+  .opening { background: var(--panel); border-bottom: 1px solid var(--line); }
+  .opening-inner, .home-content { max-width: 56.5rem; margin: auto; padding: 0 1.25rem; }
+  .opening-inner { padding-top: 2rem; padding-bottom: 2rem; }
+  .introduction { margin: 0 0 1.75rem; max-width: 70ch; }
+  .introduction h1 { margin-top: 0; }
+  .introduction p:last-child { margin-bottom: 0; }
   .lead { font-size: 1.2rem; line-height: 1.5; }
   .status { color: var(--muted); font-size: .9rem; }
   .project-links { display: flex; flex-wrap: wrap; gap: .75rem 1.25rem; align-items: center; }
@@ -154,7 +165,7 @@ import Base from '../layouts/Base.astro';
   .audiences section { margin: 0; }
   .audiences h2 { font-size: 1.15rem; }
   .audiences p:last-child { margin-bottom: 0; }
-  .demo { background: var(--panel); padding: 1.25rem; border: 1px solid var(--line); border-radius: 4px; }
+  .demo { border-top: 1px solid var(--line); padding-top: 1.5rem; margin: 0; }
   .demo h2 { font-size: 1.25rem; }
   label { display: block; font-weight: 600; margin-bottom: .35rem; }
   .fetch-row { display: flex; gap: .5rem; }
@@ -166,14 +177,19 @@ import Base from '../layouts/Base.astro';
   #event-result { border-top: 1px solid var(--line); padding-top: .75rem; overflow-wrap: anywhere; }
   #event-result h3 { margin: .5rem 0; }
   #event-result p { margin: .4rem 0; }
+  #publish { background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: 1.5rem; }
   .publish { display: grid; grid-template-columns: 1fr 1.5fr; gap: 1.5rem; align-items: start; }
-  .publish pre { margin: 0; }
+  .publish pre { margin: 0; background: var(--bg); }
+  .feedback { background: #2b2a47; color: #eeeaf0; padding: 1.75rem; border-radius: 4px; }
+  .feedback h2 { color: #fff; }
+  .feedback a { color: #ffae8f; }
+  .feedback p { max-width: 70ch; margin-bottom: 0; }
   li { margin-bottom: .5rem; }
   .publish ol { margin-top: 0; padding-left: 1.25rem; }
   @media (max-width: 600px) {
     .audiences { grid-template-columns: 1fr; }
     .fetch-row { flex-direction: column; }
     .publish { grid-template-columns: 1fr; }
-    .demo { padding: 1rem; }
+    #publish, .feedback { padding: 1.25rem; }
   }
 </style>
