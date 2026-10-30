@@ -40,7 +40,7 @@ If the document is invalid, report an error. The spec says an invalid JSON docum
 
 ### HTML
 
-If the response is an HTML page, run discovery, described in the next section. The spec names these two branches. It does not define a result for other media types, such as the `text/plain` that raw repository URLs serve, which [§3](/spec/#3-document-and-authoring-rules) calls non-conforming document endpoints. Pick an error your app can show to the person who pasted the URL.
+If the response is an HTML page, run HTML discovery. Other media types (such as the `text/plain` served by raw repository URLs) are non-conforming document endpoints ([§3](/spec/#3-document-and-authoring-rules)); report an unsupported media type error.
 
 ## Discover a document from HTML
 

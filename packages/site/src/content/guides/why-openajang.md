@@ -62,7 +62,7 @@ The [conversion guide](/conversions/) has the full mapping tables and the list o
 <aside class="doc-note" aria-label="As of October 30, 2026">
 <p class="doc-note-title">As of October 30, 2026</p>
 
-[Open Evnt](https://github.com/openevnt/evnt) and [OpenTechEvents](https://github.com/OpenTechEvents/opentechevents-spec) are two other open JSON formats for describing events. Both are drafts and are changing, so check their repositories for the current text. This section describes each project from its own specification files. It does not rank them.
+[Open Evnt](https://github.com/openevnt/evnt) and [OpenTechEvents](https://github.com/OpenTechEvents/opentechevents-spec) are two other open JSON formats for describing events. Both are evolving drafts. The comparison below draws directly from each project's published specification without ranking them.
 
 </aside>
 

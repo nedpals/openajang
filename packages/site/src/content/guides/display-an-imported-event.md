@@ -7,7 +7,7 @@ order: 3
 
 Displaying an imported OpenAjang event faithfully means showing what the organizer published without filling gaps with assumptions. Under the specification's conservative interpretation rule, consumers must not infer eligibility, continuous occupancy, universal ticket coverage, or a final payable price from missing information ([Spec §1.1](/spec/#11-occurrence-boundaries-and-conservative-interpretation)).
 
-When a field is absent or partial, your interface should reflect what is known rather than inventing details.
+When a field is absent or partial, show what is known and leave the rest unspecified.
 
 ## Render every string as plain text
 
@@ -226,7 +226,7 @@ The document sets `location.type` to `virtual` or `hybrid`. A virtual location h
 }
 ```
 
-Show both parts, each with its `instructions` text. The virtual `url` may be an access-information page rather than a join link, so a neutral label such as "Online access details" fits it better than "Join now".
+Show both parts, each with its `instructions` text. The virtual `url` often points to an access-information page instead of a direct meeting link; use a neutral label such as "Online access details" rather than "Join now".
 
 What not to do:
 
@@ -265,7 +265,7 @@ The document's `status` is one of `scheduled`, `postponed`, `rescheduled`, `canc
 
 The spec requires suppressing registration and purchase encouragement for these three statuses ([Spec §5.3](/spec/#53-updates-postponement-rescheduling-cancellation)). Informational ticket details, such as tier names, descriptions and prices, can remain visible as long as they carry no action to register or buy.
 
-A postponed document keeps the last scheduled start, and consumers must not treat that start as confirmed attendance ([Spec §5.3](/spec/#53-updates-postponement-rescheduling-cancellation)). Write it as "Was planned for 14 November 2026" rather than as the event date. For a rescheduled event, `previous_starts_at` keeps the earlier starts in the order the publisher moved them; show them as written and do not re-sort them.
+A postponed document keeps the last scheduled start, and consumers must not treat that start as confirmed attendance ([Spec §5.3](/spec/#53-updates-postponement-rescheduling-cancellation)). Label the date clearly as previous: "Was planned for 14 November 2026". For a rescheduled event, `previous_starts_at` keeps the earlier starts in the order the publisher moved them; show them as written and do not re-sort them.
 
 A cancelled document stays a normal listing. The spec says consumers should retain it to inform people who saved the event, so keep the page reachable with the banner on top.
 

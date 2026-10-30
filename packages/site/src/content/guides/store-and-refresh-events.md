@@ -112,7 +112,7 @@ Polling frequency is consumer policy and not a JSON property ([§8.3](/spec/#83-
 
 The spec defines a Storing Consumer as a validator and resolver plus identity, refresh and provenance handling ([§9](/spec/#9-extensions-versions-and-conformance)). This checklist collects the rules from the sections above. Each item names the section that sets it and keeps that section's strength.
 
-- Validate each document before you store it, and treat an invalid JSON document as an error rather than falling back to another representation ([§9](/spec/#9-extensions-versions-and-conformance) document validator, [§8.1](/spec/#81-inputs-and-direct-json)).
+- Validate each document before storing it; reject an invalid JSON document as an error without falling back to scraping or alternate representations ([§9](/spec/#9-extensions-versions-and-conformance), [§8.1](/spec/#81-inputs-and-direct-json)).
 - Do not silently treat an unknown schema identifier as supported ([§9](/spec/#9-extensions-versions-and-conformance)).
 - Use the effective Event ID as the primary lifecycle key ([§5.1](/spec/#51-identity), a must).
 - Do not treat titles, dates, venues or IDs from unrelated sources as proof of identity or continuity ([§5.1](/spec/#51-identity)).

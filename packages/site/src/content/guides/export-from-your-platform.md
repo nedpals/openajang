@@ -25,7 +25,7 @@ The work is:
 
 ## Map your event records
 
-Build the document from your public event data. The table below uses a generic platform's fields as an illustration; your column names will differ. Every OpenAjang field in it comes from [spec §3 to §7](/spec/#32-core-properties).
+Map your database records to the document's public fields ([spec §3 to §7](/spec/#32-core-properties)). Field names and database columns vary by platform:
 
 | Your record (illustrative) | OpenAjang field | Notes |
 | --- | --- | --- |

@@ -7,7 +7,7 @@ order: 1
 
 OpenAjang is a small JSON format for publishing public events at a URL. An organizer hosts one event file and links their existing registration form. Compatible apps and directories read the file, show the event, and keep checking it for changes. Registration stays with the organizer's own provider, and there is no central OpenAjang account to join.
 
-These guides are grouped by what you are doing. The format is a `0.1` working draft; [Versioning and stability](/docs/versioning-and-stability/) says what that does and does not promise.
+The guides below cover each role in the ecosystem. OpenAjang is a `0.1` working draft; see [Versioning and stability](/docs/versioning-and-stability/) for compatibility expectations and status.
 
 ## Pick your path
 
@@ -48,4 +48,4 @@ You want to accept an event URL from a person, save the event, and show it faith
 
 The organizer's website hosts each event document at a stable URL. A participant gives that URL, or the event page that links to it, to a compatible app. A directory can also collect event links into an Atom feed that apps follow. Whichever way an event arrives, the app keeps refreshing it from the organizer's own site.
 
-For exact rules, the [specification](/spec/) is the source. The [reference page](/docs/reference/) lists everything else: the feed profile, conversion guide, schema, validator, examples and license terms.
+The [specification](/spec/) defines the normative requirements, while the [reference page](/docs/reference/) collects the feed profile, conversion guide, schema, validator, examples, and license terms.

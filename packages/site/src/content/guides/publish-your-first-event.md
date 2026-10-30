@@ -11,7 +11,7 @@ You do not need a custom server, a central OpenAjang account, or any third-party
 
 ## Write the event document
 
-Create a UTF-8 JSON file holding one JSON object. The name is up to you; this guide uses `event.openajang.json`.
+Create a UTF-8 JSON file holding one JSON object. The filename is arbitrary; `event.openajang.json` is a convenient default.
 
 Every document needs these fields ([Spec §3.2](/spec/#32-core-properties)):
 

@@ -9,7 +9,7 @@ OpenAjang `0.1` is an active working draft. Deciding whether to adopt the format
 
 ## Current status
 
-The [specification](/spec/) is a working draft, version `0.1`. The [Atom feed profile](/feeds/) is an optional companion, also a working draft. While `0.1` is a working draft, the project makes no further stability promise than the ones listed on this page.
+The [specification](/spec/) is a working draft, version `0.1`. The [Atom feed profile](/feeds/) is an optional companion, also a working draft. While `0.1` is a working draft, stability expectations follow the explicit commitments below.
 
 ## How a version is identified
 
