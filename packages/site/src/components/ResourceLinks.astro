@@ -1,0 +1,36 @@
+---
+import Icon from './Icon.astro';
+
+interface Props {
+  label: string;
+  items: {
+    title: string;
+    description: string;
+    href: string;
+    icon: 'book' | 'code' | 'message' | 'file' | 'check';
+  }[];
+}
+const { items, label } = Astro.props;
+---
+<ul class="resource-links" aria-label={label}>
+  {items.map((item) => (
+    <li>
+      <span class="resource-icon"><Icon name={item.icon} size={22} /></span>
+      <div>
+        <a href={item.href}>{item.title}</a>
+        <p>{item.description}</p>
+      </div>
+    </li>
+  ))}
+</ul>
+
+<style>
+  .resource-links { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem; list-style: none; margin: 0; padding: 0; }
+  .resource-links li { display: flex; align-items: flex-start; gap: .75rem; min-width: 0; margin: 0; }
+  .resource-icon { display: flex; flex-shrink: 0; padding-top: .15rem; color: var(--resource-icon, var(--heading)); }
+  a { color: var(--resource-link, var(--accent)); font-size: .95rem; font-weight: 500; }
+  p { margin: .35rem 0 0; color: var(--resource-description, var(--muted)); font-size: .85rem; line-height: 1.65; }
+  @media (max-width: 700px) {
+    .resource-links { grid-template-columns: minmax(0, 1fr); gap: 1.25rem; }
+  }
+</style>

@@ -15,6 +15,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm run typecheck
       - run: pnpm test
+      - run: pnpm --filter @openajang/site run typecheck
+      - run: pnpm run site:build
       - run: node --test scripts/release.test.mjs
       - uses: actions/setup-python@v5
         with:

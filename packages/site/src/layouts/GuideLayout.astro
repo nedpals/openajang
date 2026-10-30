@@ -1,0 +1,185 @@
+---
+import { getCollection } from 'astro:content';
+import Base from './Base.astro';
+import Icon from '../components/Icon.astro';
+import { getNav, guideHref } from '../lib/docs-nav';
+
+interface Props {
+  id: string;
+  title: string;
+  description: string;
+  headings: { depth: number; slug: string; text: string }[];
+}
+
+const { id, title, description, headings } = Astro.props;
+const groups = getNav(await getCollection('guides'));
+const contents = headings.filter((heading) => heading.depth === 2);
+---
+<Base title={id === 'start' ? 'OpenAjang documentation' : `${title} | OpenAjang docs`} description={description} sidebar skipTarget="guide-content">
+  <div class="guide-layout">
+    <details class="guide-side" open>
+      <summary>Browse documentation</summary>
+      <nav class="guide-nav" aria-label="Documentation">
+        <p class="side-label"><Icon name="book" size={16} /><strong>Documentation</strong></p>
+        {groups.map((group) => (
+          <div class="guide-group">
+            <p class="group-label">{group.label}</p>
+            <ul>
+              {group.entries.map((entry) => (
+                <li><a href={guideHref(entry.id)} aria-current={entry.id === id ? 'page' : undefined}>{entry.data.title}</a></li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </nav>
+      {contents.length > 1 && (
+        <nav class="on-page" aria-label="On this page">
+          <p class="side-label"><Icon name="list" size={16} /><strong>On this page</strong></p>
+          <ul>
+            {contents.map((heading) => <li><a href={`#${heading.slug}`}>{heading.text}</a></li>)}
+          </ul>
+        </nav>
+      )}
+    </details>
+    <article class="guide" id="guide-content" tabindex="-1"><slot /></article>
+  </div>
+</Base>
+
+<script>
+  const menu = document.querySelector<HTMLDetailsElement>('.guide-side');
+  const mobile = window.matchMedia('(max-width: 900px)');
+  const updateMenu = () => { if (menu) menu.open = !mobile.matches; };
+  updateMenu();
+  mobile.addEventListener('change', updateMenu);
+
+  const mermaidBlocks = document.querySelectorAll<HTMLElement>('pre[data-language="mermaid"], pre.mermaid, code.language-mermaid');
+  if (mermaidBlocks.length > 0) {
+    const { default: mermaid } = await import('mermaid');
+    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: isDark ? 'dark' : 'neutral',
+      fontFamily: "'Merriweather Sans', sans-serif",
+      fontSize: 14,
+      flowchart: {
+        useMaxWidth: false,
+        htmlLabels: true,
+        curve: 'basis'
+      },
+      themeVariables: isDark ? {
+        primaryColor: '#292731',
+        primaryTextColor: '#eeeaf0',
+        primaryBorderColor: '#ffae8f',
+        lineColor: '#c1bac5',
+        secondaryColor: '#302d38',
+        tertiaryColor: '#1d1c26',
+        fontSize: '14px'
+      } : {
+        primaryColor: '#f5f5f5',
+        primaryTextColor: '#2b2a47',
+        primaryBorderColor: '#9b401f',
+        lineColor: '#626262',
+        secondaryColor: '#ededed',
+        tertiaryColor: '#ffffff',
+        fontSize: '14px'
+      }
+    });
+
+    for (const [idx, block] of Array.from(mermaidBlocks).entries()) {
+      const code = block.textContent || '';
+      const container = document.createElement('div');
+      container.className = 'mermaid-container';
+      container.tabIndex = 0;
+      container.setAttribute('role', 'region');
+      container.setAttribute('aria-label', 'Diagram (scroll horizontally to see all content)');
+      const id = `mermaid-diagram-${idx}`;
+      try {
+        const { svg } = await mermaid.render(id, code.trim());
+        container.innerHTML = svg;
+        const svgEl = container.querySelector('svg');
+        if (svgEl) {
+          svgEl.removeAttribute('height');
+          // Keep Mermaid's coordinate scale so 14px labels stay readable.
+          // Wide diagrams scroll inside their container on smaller screens.
+          svgEl.style.width = `${svgEl.viewBox.baseVal.width}px`;
+          svgEl.style.maxWidth = 'none';
+        }
+        block.replaceWith(container);
+      } catch (err) {
+        console.error('Mermaid render error:', err);
+      }
+    }
+  }
+</script>
+
+<style>
+  .guide-layout {
+    display: grid;
+    grid-template-columns: 14rem minmax(0, 1fr);
+    gap: 2rem;
+    align-items: start;
+    padding-top: 1rem;
+  }
+  .guide-side {
+    position: sticky;
+    top: 4.5rem;
+    max-height: calc(100dvh - 5.5rem);
+    overflow-y: auto;
+    font-size: .85rem;
+    padding: .5rem;
+  }
+  .guide-side > summary { display: none; }
+  .side-label { display: flex; align-items: center; gap: .5rem; margin: 0 0 .5rem; }
+  .side-label strong { font-weight: 500; }
+  .group-label { margin: 1rem 0 .25rem; color: var(--muted); font-size: .75rem; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+  .guide-side ul { margin: 0; padding: 0; list-style: none; }
+  .guide-side li { margin: 0 0 .25rem; }
+  .guide-nav a { text-decoration: none; display: block; padding: .15rem 0 .15rem .6rem; border-left: 2px solid transparent; }
+  .guide-nav a:hover { text-decoration: underline; }
+  .guide-nav a[aria-current='page'] { border-left-color: var(--accent); color: var(--heading); font-weight: 600; }
+  .on-page { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--line); }
+  .on-page ul { padding-left: 1.25rem; list-style: disc; }
+  .guide { min-width: 0; max-width: 72ch; }
+  .guide :global(h1) { margin-top: 0; }
+  .guide :global(h2) { margin-top: 2.25rem; }
+  .guide :global(h3) { margin-top: 1.5rem; }
+  .guide :global(ul), .guide :global(ol) { padding-left: 1.25rem; margin: 0 0 1.25rem; }
+  .guide :global(li) { margin-bottom: .5rem; }
+  .guide :global(table) { margin: 1.25rem 0 1.5rem; font-size: .875rem; }
+  .guide :global(.audience) { margin: -.25rem 0 1rem; font-size: .8125rem; color: var(--muted); }
+  .guide :global(.doc-note) {
+    margin: 1.5rem 0;
+    padding: 1rem 1.25rem;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+  }
+  .guide :global(.doc-note-title) { color: var(--heading); font-weight: 600; margin-bottom: .5rem; }
+  .guide :global(.doc-note > :last-child) { margin-bottom: 0; }
+  .guide :global(.mermaid-container) {
+    margin: 1.75rem 0;
+    padding: 1.25rem 1rem;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .guide :global(.mermaid-container svg) {
+    display: block;
+    margin: 0 auto;
+    height: auto;
+  }
+  @media (max-width: 900px) {
+    .guide-layout { grid-template-columns: minmax(0, 1fr); gap: 1.5rem; max-width: 54rem; margin: auto; }
+    .guide-side { position: static; max-height: none; padding: 0; border-bottom: 1px solid var(--line); }
+    .guide-side > summary { display: list-item; padding: .75rem .25rem; cursor: pointer; color: var(--heading); font-weight: 600; }
+    .guide-side[open] { padding-bottom: 1rem; }
+    .guide-side .side-label { margin-top: .75rem; }
+    .guide-nav a, .on-page a { display: block; padding-top: .65rem; padding-bottom: .65rem; }
+  }
+  @media print {
+    .guide-layout { display: block; }
+    .guide-side { display: none; }
+  }
+</style>

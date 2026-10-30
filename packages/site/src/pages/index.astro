@@ -1,0 +1,223 @@
+---
+import Base from '../layouts/Base.astro';
+import Logo from '../components/Logo.astro';
+import Icon from '../components/Icon.astro';
+import ResourceLinks from '../components/ResourceLinks.astro';
+---
+<Base title="OpenAjang">
+  <div class="opening">
+    <div class="opening-inner">
+  <section class="introduction">
+    <h1 class="project-logo" aria-label="OpenAjang"><Logo /></h1>
+    <p class="lead">A small JSON format for publishing public events at a URL.</p>
+    <p>Publish an event file on your own website and link to your existing registration form. Compatible apps and directories can read the document, display the event, and check for changes.</p>
+    <p class="status"><strong>Working draft, version 0.1.</strong> Available for experimentation.</p>
+    <p class="project-links"><a class="button" href="/docs/publish-your-first-event/"><Icon name="calendar" size={18} />Publish an event</a> <a href="/spec/">Read the specification</a> <a href="/validator/">Validator</a> <a href="https://github.com/nedpals/openajang">Source on GitHub</a></p>
+  </section>
+    </div>
+  </div>
+
+  <div class="demo-band">
+    <div class="demo-inner">
+  <section id="try" class="demo">
+    <h2 class="icon-heading"><Icon name="link" />Read an event from a URL</h2>
+    <p>Paste a direct link to an OpenAjang JSON document to see its event details, or load an example.</p>
+    <form id="fetch-form">
+      <label for="event-url">Event JSON URL</label>
+      <div class="fetch-row"><input id="event-url" type="url" placeholder="https://example.org/event.openajang.json" required /><button type="submit">Fetch event</button></div>
+      <div class="demo-actions"><button type="button" id="example">Load bundled example</button><button type="reset" class="reset">Clear</button></div>
+    </form>
+    <p class="hint">The example is illustrative, not a live listing; its details have not been rechecked. Fetching runs in your browser and requires the host to allow CORS. This demo accepts JSON URLs only.</p>
+    <noscript><p>Enable JavaScript to fetch an event here. You can still <a href="/examples/">browse the examples</a> and read the specification.</p></noscript>
+    <div id="event-result" aria-live="polite"><p>Enter a URL or load the example to see an event.</p></div>
+  </section>
+    </div>
+  </div>
+
+  <div class="home-content">
+  <div class="audiences">
+    <section>
+      <h2 class="icon-heading"><Icon name="calendar" />For organizers</h2>
+      <p>Keep event information on hosting you choose, with a link to the registration service you already use.</p>
+      <p><a href="#publish">Publish your first event</a></p>
+    </section>
+    <section>
+      <h2 class="icon-heading"><Icon name="person" />For participants</h2>
+      <p>Import an event into a compatible app or follow a directory feed. Ordinary feed readers can show summaries and links, too.</p>
+      <p><a href="/feeds/">About directory feeds</a></p>
+    </section>
+    <section>
+      <h2 class="icon-heading"><Icon name="code" />For developers</h2>
+      <p>Export event documents from your platform, or build a directory that fetches and validates them, keeps their source information, and shares links through feeds.</p>
+      <p><a href="/docs/">Find your guide</a></p>
+    </section>
+  </div>
+
+  <section class="prose">
+    <h2>Why this exists</h2>
+    <p>In Davao’s tech community, I’ve seen organizations build their own event platforms while announcements remain spread across Facebook, community websites, and other services. Organizers have reasons for choosing those places: audience reach, control, cost, or what their volunteers can maintain. Participants have to piece the information together across them.</p>
+    <p>I ran into this while building <a href="https://naonao.ph">Naonao.ph</a>, an event platform for our small startup. We built useful features, but asking organizers to maintain another listing was still difficult. For participants, another account, onboarding flow, and place to remember added friction too.</p>
+    <p>That raised a question: could an event stay where its organizer already works, while people follow it through the tools they choose? Instead of asking organizers to cross-post to yet another site, an event stays on the organizer's own domain while calendar apps and directories subscribe to updates. See <a href="/docs/why-openajang/">how it compares</a> with Schema.org, iCalendar, and JSCalendar.</p>
+  </section>
+  <section class="prose">
+    <h2>How it works</h2>
+    <p>The organizer hosts an event document at a stable URL. A compatible app retrieves it through either of two routes:</p>
+    <ul>
+      <li><strong>Direct import:</strong> give the app a JSON URL, or an event page that links to the document.</li>
+      <li><strong>Feed discovery:</strong> follow a directory’s feed. The app uses its links to retrieve event documents from their publishers.</li>
+    </ul>
+    <p>Directories are optional. Consumers can keep refreshing saved events from their source after they leave a feed (<a href="/docs/store-and-refresh-events/">how refresh works</a>). Registration takes place with the organizer’s chosen provider.</p>
+    <p>OpenAjang itself has no central account. Hosting, registration providers, and consumer services may have their own accounts and policies.</p>
+  </section>
+  <section id="publish">
+    <h2>Publish your first event</h2>
+    <div class="publish">
+      <div>
+        <p>The JSON here is illustrative. Host a single UTF-8 JSON file on your website or static host (such as GitHub Pages) and point <code>registration.url</code> at the form or ticket page you already use.</p>
+        <p>When details change, update the file and its <code>updated_at</code> timestamp so apps that saved your event can refresh it from the source.</p>
+        <p><a href="/docs/publish-your-first-event/">Read the publishing walkthrough</a> or <a href="/validator/">check a file in the validator</a>.</p>
+      </div>
+    <pre><code>{`{
+  "$schema": "https://openajang.nedpals.xyz/schema/0.1/event.json",
+  "type": "event",
+  "url": "https://example.org/events/build-night",
+  "title": "Community Build Night",
+  "status": "scheduled",
+  "starts_at": "2026-11-14T18:00:00+08:00",
+  "organizer": { "name": "Example Community" },
+  "location": {
+    "type": "physical",
+    "physical": { "name": "Community Hall, Davao" }
+  },
+  "registration": {
+    "required": true,
+    "status": "open",
+    "url": "https://example.org/events/build-night/register"
+  },
+  "updated_at": "2026-10-29T08:00:00Z"
+}`}</code></pre>
+  </div></section>
+  <section id="feedback" class="feedback">
+    <div class="feedback-main">
+      <div>
+        <h2>Try it and give feedback</h2>
+        <p>Try the draft with an event of your own. Share what worked, where you got stuck, or what the format couldn’t express.</p>
+      </div>
+      <a class="button feedback-action" href="https://github.com/nedpals/openajang/issues"><Icon name="message" size={18} />Share feedback on GitHub</a>
+    </div>
+    <div class="feedback-resources">
+      <ResourceLinks label="Tools to try the draft" items={[
+        { title: 'Browse examples', icon: 'file', href: '/examples/', description: 'See how event documents describe different kinds of events.' },
+        { title: 'Validate a document', icon: 'check', href: '/validator/', description: 'Check your JSON against the draft’s schema and validation rules.' },
+        { title: 'Try the TypeScript SDK', icon: 'code', href: '/docs/sdks-and-tools/', description: 'Parse and validate event documents in your own tools.' },
+      ]} />
+    </div>
+  </section>
+  </div>
+</Base>
+<script>
+  import { Buffer } from 'buffer';
+  globalThis.Buffer = Buffer;
+  import { parseJsonStrict, validateSafe } from '@openajang/core';
+  const form = document.querySelector('#fetch-form') as HTMLFormElement;
+  const input = document.querySelector('#event-url') as HTMLInputElement;
+  const result = document.querySelector('#event-result') as HTMLElement;
+  const submit = form.querySelector('button[type=submit]') as HTMLButtonElement;
+  let controller: AbortController | undefined;
+  let generation = 0;
+  const message = (text: string) => { result.replaceChildren(); const p = document.createElement('p'); p.textContent = text; result.append(p); };
+  async function load(value: string) {
+    controller?.abort(); const current = ++generation;
+    let url: URL;
+    try { url = new URL(value, location.href); if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password) throw Error(); }
+    catch { submit.disabled = false; message('Enter a valid HTTP or HTTPS JSON URL.'); return; }
+    const requestController = new AbortController();
+    controller = requestController;
+    const timer = setTimeout(() => requestController.abort(), 10000);
+    submit.disabled = true; message('Loading event…');
+    try {
+      const response = await fetch(url.href, { signal: requestController.signal, credentials: 'omit' });
+      if (!response.ok) throw new Error(`The server returned HTTP ${response.status}.`);
+      const reader = response.body?.getReader(); if (!reader) throw new Error('The response was empty.');
+      const chunks: Uint8Array[] = []; let size = 0;
+      while (true) { const {done, value} = await reader.read(); if (done) break; size += value.length; if (size > 1024 * 1024) { await reader.cancel(); throw new Error('The document exceeds the 1 MB limit.'); } chunks.push(value); }
+      const bytes = new Uint8Array(size); let offset = 0; for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.length; }
+      const parsed = parseJsonStrict(new TextDecoder('utf-8', { fatal: true }).decode(bytes));
+      const validation = validateSafe(parsed);
+      if (!validation.valid) throw new Error(`Invalid OpenAjang event: ${validation.errors[0]?.message ?? 'validation failed'}`);
+      if (current !== generation) return;
+      const event = validation.event!;
+      result.replaceChildren();
+      if (url.pathname === '/examples/pycon-davao-2026.openajang.json' && url.origin === location.origin) {
+        const notice = document.createElement('p');
+        notice.textContent = 'Illustrative fixture, not a live listing. Details were not rechecked and may be outdated.';
+        result.append(notice);
+      }
+      const heading = document.createElement('h3'); heading.textContent = event.title; result.append(heading);
+      const add = (label: string, value: string | undefined) => { if (!value) return; const p = document.createElement('p'); p.textContent = `${label}: ${value}`; result.append(p); };
+      add('Summary', event.summary); add('Status', event.status); add('Starts', event.starts_at); add('Ends', event.ends_at); add('Organizer', event.organizer?.name);
+      const source = document.createElement('p'); source.textContent = `JSON source: ${response.url || url.href}`; result.append(source);
+      try { const linkUrl = new URL(event.url); if (['http:', 'https:'].includes(linkUrl.protocol)) { const a = document.createElement('a'); a.href = linkUrl.href; a.textContent = 'Visit event page'; result.append(a); } } catch { /* no actionable URL */ }
+    } catch (error) { if (current !== generation) return; message(error instanceof TypeError ? 'Could not fetch this URL. Check the address, network, and whether the host permits CORS.' : error instanceof Error && error.name === 'AbortError' ? 'The request timed out. Try again.' : `Could not read the event: ${error instanceof Error ? error.message : 'unknown error'}`); }
+    finally { clearTimeout(timer); if (current === generation) submit.disabled = false; }
+  }
+  form.addEventListener('submit', e => { e.preventDefault(); void load(input.value); });
+  document.querySelector('#example')!.addEventListener('click', () => { input.value = new URL('/examples/pycon-davao-2026.openajang.json', location.href).href; void load(input.value); });
+  form.addEventListener('reset', () => { ++generation; controller?.abort(); submit.disabled = false; message('Enter a URL or load the example to see an event.'); });
+</script>
+<style>
+  section { margin: 2rem 0; }
+  .opening { background: var(--hero); border-bottom: 1px solid var(--line); }
+  .demo-band { background: var(--demo); border-bottom: 1px solid var(--line); }
+  .opening-inner, .demo-inner, .home-content { max-width: 56.5rem; margin: auto; padding: 0 1.25rem; }
+  .opening-inner, .demo-inner { padding-top: 2rem; padding-bottom: 2rem; }
+  .introduction { margin: 0; max-width: 70ch; }
+  .introduction h1 { margin-top: 0; }
+  .project-logo { margin-bottom: 1rem; }
+  .icon-heading { display: flex; align-items: center; gap: .6rem; }
+  .audiences .icon-heading :global(svg) { color: var(--accent); }
+  .introduction p:last-child { margin-bottom: 0; }
+  .lead { font-size: 1.2rem; font-weight: 300; line-height: 1.5; }
+  .status { color: var(--muted); font-size: .9rem; }
+  .status strong { font-weight: 500; }
+  .project-links { display: flex; flex-wrap: wrap; gap: .75rem 1.25rem; align-items: center; }
+  .prose { max-width: 70ch; }
+  .audiences { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem; margin: 2rem 0; }
+  .audiences section { margin: 0; }
+  .audiences h2 { font-size: 1.15rem; font-weight: 500; }
+  .audiences p:last-child { margin-bottom: 0; }
+  .demo { margin: 0; }
+  .demo h2 { font-size: 1.25rem; font-weight: 500; }
+  label { display: block; font-weight: 500; margin-bottom: .35rem; }
+  .fetch-row { display: flex; gap: .5rem; }
+  .fetch-row input { flex: 1; min-width: 0; font-family: ui-monospace, monospace; }
+  .demo-actions { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: .65rem; }
+  .demo-actions button { background: linear-gradient(var(--control-top), var(--control-bottom)); color: var(--fg); border-color: var(--line); font-size: .85rem; }
+  .demo-actions button:hover { background: var(--code); border-color: var(--muted); }
+  .hint { color: var(--muted); font-size: .85rem; margin: 1rem 0 .75rem; }
+  #event-result { border-top: 1px solid var(--line); padding-top: .75rem; overflow-wrap: anywhere; }
+  #event-result h3 { margin: .5rem 0; }
+  #event-result p { margin: .4rem 0; }
+  #publish { background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: 1.5rem; }
+  .publish { display: grid; grid-template-columns: 1fr 1.5fr; gap: 1.5rem; align-items: start; }
+  .publish pre { margin: 0; background: var(--bg); }
+  .feedback { background: #2b2a47; color: #eeeaf0; padding: 1.75rem; border-radius: 4px; }
+  .feedback-main { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 1.5rem; }
+  .feedback h2 { color: #fff; }
+  .feedback a { color: #ffae8f; }
+  .feedback p { max-width: 50ch; margin-bottom: 0; }
+  .feedback .feedback-action { color: #2b2a47; background: linear-gradient(#fff, #eeeaf0); border-color: #fff; font-weight: 500; justify-self: start; }
+  .feedback .feedback-action:hover { background: #eeeaf0; }
+  .feedback .feedback-action:active { background: #dddce8; }
+  .feedback-resources { --resource-icon: #ffae8f; --resource-link: #ffae8f; --resource-description: #eeeaf0; padding-top: 1.5rem; margin-top: 1.5rem; border-top: 1px solid #646079; }
+  li { margin-bottom: .5rem; }
+  @media (max-width: 780px) {
+    .feedback-main { grid-template-columns: minmax(0, 1fr); gap: 1.25rem; }
+  }
+  @media (max-width: 600px) {
+    .audiences { grid-template-columns: 1fr; }
+    .fetch-row { flex-direction: column; }
+    .publish { grid-template-columns: 1fr; }
+    #publish, .feedback { padding: 1.25rem; }
+  }
+</style>

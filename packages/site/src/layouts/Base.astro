@@ -1,0 +1,231 @@
+---
+import { readdirSync } from 'node:fs';
+import ResourceLinks from '../components/ResourceLinks.astro';
+interface Props {
+  title: string;
+  description?: string;
+  sidebar?: boolean;
+  wide?: boolean;
+  skipTarget?: string;
+}
+const { title, description = 'A small JSON format for publishing public events at a URL.', sidebar = false, wide = false, skipTarget = 'main-content' } = Astro.props;
+const examples = readdirSync(new URL('../../../../examples/', import.meta.url)).filter((f) => f.endsWith('.openajang.json'));
+const nav = [
+  { href: '/docs/', label: 'Docs' },
+  { href: '/spec/', label: 'Spec' },
+  { href: '/validator/', label: 'Validator' },
+  { href: '/examples/', label: 'Examples' },
+  { href: '/feeds/', label: 'Feeds' },
+  { href: 'https://github.com/nedpals/openajang', label: 'GitHub' }
+];
+const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://openajang.nedpals.xyz');
+const ogImageURL = new URL('/openajang-og.png', Astro.site ?? 'https://openajang.nedpals.xyz');
+---
+<!doctype html>
+<html lang="en" data-examples={examples.join(',')}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL} />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:site_name" content="OpenAjang" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImageURL} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content={canonicalURL} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageURL} />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preload" href="/fonts/MerriweatherSans.ttf" as="font" type="font/ttf" crossorigin />
+    <title>{title}</title>
+  </head>
+  <body>
+    <a class="skip-link" href={`#${skipTarget}`}>Skip to content</a>
+    <header>
+      <div class="navbar-inner">
+      <a class="brand" href="/">OpenAjang</a>
+      <nav aria-label="Main navigation">{nav.map((n) => <a href={n.href}>{n.label}</a>)}</nav>
+      </div>
+    </header>
+    <aside class="test-banner" aria-label="Working draft invitation">
+      <div class="test-banner-inner">
+        <a href="/#feedback">Help test the draft</a>
+        <span>Try the working draft and share your experience.</span>
+      </div>
+    </aside>
+    <main id="main-content" tabindex="-1" class:list={{ home: title === 'OpenAjang', 'with-sidebar': sidebar, wide }}><slot /></main>
+    <footer>
+      <nav class="footer-resources" aria-label="Project resources">
+        <ResourceLinks label="Project resources" items={[
+          { title: 'Documentation', icon: 'file', href: '/docs/', description: 'Understand the design rationale, boundaries, and publishing workflow.' },
+          { title: 'Specification', icon: 'book', href: '/spec/', description: 'Read the normative event format, discovery, and lifecycle rules.' },
+          { title: 'Issues and feedback', icon: 'message', href: 'https://github.com/nedpals/openajang/issues', description: 'Report a problem or share your experience with the draft.' },
+        ]} />
+      </nav>
+      <div class="footer-inner">
+        <div>
+          <a class="footer-brand" href="/">OpenAjang</a>
+          <p>Working draft, version 0.1.</p>
+        </div>
+        <div>
+          <p>Spec under <a href="https://github.com/nedpals/openajang/blob/master/LICENSE-docs">LICENSE-docs</a>. Code under <a href="https://github.com/nedpals/openajang/blob/master/LICENSE">Apache-2.0</a>.</p>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
+
+<style is:global>
+  @font-face {
+    font-family: 'Merriweather Sans';
+    src: url(/fonts/MerriweatherSans.ttf) format('truetype');
+    font-weight: 300 800;
+    font-display: swap;
+  }
+
+  :root {
+    color-scheme: light dark;
+    --bg: #fff;
+    --fg: #333;
+    --heading: #2b2a47;
+    --muted: #626262;
+    --line: #ddd;
+    --accent: #9b401f;
+    --code: #f5f5f5;
+    --panel: #f5f5f5;
+    --hero: #ededed;
+    --demo: #f8f8f8;
+    --bad: #a32222;
+    --good: #23633b;
+    --control-top: #fff;
+    --control-bottom: #e9e9e9;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1d1c26;
+      --fg: #eeeaf0;
+      --heading: #f2edf6;
+      --muted: #c1bac5;
+      --line: #514c58;
+      --accent: #ffae8f;
+      --code: #302d38;
+      --panel: #292731;
+      --hero: #292731;
+      --demo: #302d38;
+      --bad: #ffaaa3;
+      --good: #a4ddb3;
+      --control-top: #403c49;
+      --control-bottom: #302d38;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+    color: var(--fg);
+    font: 350 15px/1.65 'Merriweather Sans', sans-serif;
+  }
+  main, .footer-inner, .footer-resources, .navbar-inner, .test-banner-inner {
+    max-width: 48rem;
+    margin: 0 auto;
+    padding: 1rem 1.25rem;
+  }
+  main { width: 100%; flex: 1; }
+  main.home { max-width: none; padding: 0; }
+  main.with-sidebar, main.wide { max-width: 56.5rem; }
+  .footer-inner, .footer-resources, .navbar-inner, .test-banner-inner { max-width: 56.5rem; }
+  header { background: #2b2a47; }
+  .navbar-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: .25rem 1.5rem;
+    min-height: 3.5rem;
+    padding-top: .5rem;
+    padding-bottom: .5rem;
+  }
+  header nav { display: flex; flex-wrap: wrap; gap: .25rem 1.25rem; }
+  header a { color: #dddce8; font-weight: 400; text-decoration: none; padding: .35rem 0; }
+  header a:hover, header a:focus-visible { color: #fff; text-decoration: underline; }
+  .brand { font-size: 1.15rem; font-weight: 700; color: #fff; }
+  .test-banner { position: sticky; top: 0; z-index: 10; background: #d36138; color: #19182e; font-size: .85rem; }
+  .test-banner-inner { display: flex; flex-wrap: wrap; gap: .2rem .75rem; padding-top: .6rem; padding-bottom: .6rem; }
+  .test-banner a { color: inherit; font-weight: 600; }
+  .test-banner a:focus-visible { outline-color: #19182e; }
+  a { color: var(--accent); text-underline-offset: .18em; overflow-wrap: anywhere; }
+  a:hover { text-decoration-thickness: 2px; }
+  :focus-visible { outline: 3px solid #d36138; outline-offset: 3px; }
+  .skip-link { position: fixed; top: .5rem; left: .5rem; z-index: 20; padding: .65rem 1rem; background: var(--bg); transform: translateY(calc(-100% - 1rem)); }
+  .skip-link:focus { transform: translateY(0); }
+  ::selection { background: #2b2a47; color: #fff; }
+  footer {
+    border-top: 1px solid var(--line);
+    background: var(--panel);
+    color: var(--muted);
+    font-size: .8rem;
+    margin-top: 2rem;
+  }
+  .footer-resources { padding-top: 2rem; padding-bottom: 2rem; }
+  .footer-inner { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem 2rem; border-top: 1px solid var(--line); padding-top: 1.5rem; padding-bottom: 1.5rem; }
+  .footer-brand { display: inline-block; color: var(--heading); font-size: 1.1rem; font-weight: 600; text-decoration: none; margin-bottom: .25rem; }
+  footer p { margin: .5rem 0 0; }
+  [id] { scroll-margin-top: 6.5rem; }
+  pre, code { background: var(--code); border-radius: 4px; font: .9em/1.5 ui-monospace, monospace; }
+  code { padding: .1em .3em; overflow-wrap: anywhere; }
+  pre { padding: 1rem; overflow-x: auto; border: 1px solid var(--line); }
+  pre code { padding: 0; background: none; }
+  table { border-collapse: collapse; display: block; overflow-x: auto; }
+  th, td { border: 1px solid var(--line); padding: .4rem .65rem; text-align: left; }
+  strong, b { font-weight: 600; }
+  h1, h2, h3 { color: var(--heading); font-weight: 600; line-height: 1.3; }
+  h1 { font-size: 2.25rem; font-weight: 700; margin: 1rem 0; }
+  h2 { font-size: 1.5rem; margin: 0 0 .75rem; }
+  h3 { font-size: 1.15rem; font-weight: 500; }
+  p { margin: 0 0 1rem; }
+  button, .button {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    font: 400 .95rem/1.4 'Merriweather Sans', sans-serif;
+    background: linear-gradient(#444360, #2b2a47);
+    color: #fff;
+    border: 1px solid #25243e;
+    border-radius: 4px;
+    padding: .45rem .8rem;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  button:hover, .button:hover { background: #393853; text-decoration: none; }
+  button:active, .button:active { background: #25243e; }
+  button:disabled { opacity: 1; cursor: wait; }
+  button[type='submit'] { color: #fff; -webkit-text-fill-color: #fff; }
+  button[type='submit']:disabled { background: #393853; }
+  input, select, textarea {
+    font: inherit;
+    color: var(--fg);
+    background: var(--bg);
+    border: 1px solid #888;
+    border-radius: 4px;
+    padding: .45rem .6rem;
+  }
+  input::placeholder, textarea::placeholder { color: var(--muted); opacity: 1; }
+</style>

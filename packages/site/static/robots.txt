@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://openajang.nedpals.xyz/sitemap-index.xml

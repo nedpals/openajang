@@ -1,0 +1,29 @@
+---
+import { readdirSync, readFileSync } from 'node:fs';
+import Base from '../layouts/Base.astro';
+
+const dir = new URL('../../../../examples/', import.meta.url);
+const examples = readdirSync(dir)
+  .filter((f) => f.endsWith('.openajang.json'))
+  .map((file) => {
+    const e = JSON.parse(readFileSync(new URL(file, dir), 'utf8'));
+    return { file, title: e.title as string, starts: (e.starts_at ?? e.starts_on) as string | undefined };
+  });
+---
+<Base title="OpenAjang examples">
+  <h1>Examples</h1>
+  <p>
+    Fixtures based on real events, plus illustrative <a href="/examples/directory.atom">Atom</a> and
+    <a href="/examples/directory.rss">RSS</a> directory feeds. Dates and details were not rechecked against
+    organizer sites; see the <a href="/docs/reference/#example-provenance">provenance notes</a>.
+  </p>
+  <ul>
+    {examples.map((e) => (
+      <li>
+        <a href={`/examples/${e.file}`}>{e.title}</a>
+        {e.starts && <small> · {e.starts.slice(0, 10)}</small>}
+      </li>
+    ))}
+  </ul>
+  <p><a href="/validator/">Try one in the validator</a>.</p>
+</Base>

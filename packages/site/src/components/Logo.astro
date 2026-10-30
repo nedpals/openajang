@@ -1,0 +1,12 @@
+---
+import source from '../assets/openajang-logo.svg?raw';
+
+// Keep the supplied paths intact; let the navy ink follow the page's color scheme.
+const markup = source.replaceAll('fill="#2b2a47"', 'fill="currentColor"');
+---
+<span class="logo" aria-hidden="true" set:html={markup} />
+
+<style>
+  .logo { display: block; width: min(100%, 22rem); color: var(--heading); }
+  .logo :global(svg) { display: block; width: 100%; height: auto; }
+</style>

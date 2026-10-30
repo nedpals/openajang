@@ -1,0 +1,151 @@
+{
+  "format_version": "1.0",
+  "version": "1.0.0",
+  "id": "openajang-og",
+  "name": "OpenAjang Open Graph",
+  "description": "Social preview using the OpenAjang logo, palette and Merriweather Sans.",
+  "product": "custom",
+  "width": 1200,
+  "height": 630,
+  "fields": {
+    "type": "object",
+    "properties": {
+      "description": {
+        "type": "string",
+        "title": "Description",
+        "default": "A small JSON format for publishing public events at a URL."
+      },
+      "logo": {
+        "type": "string",
+        "format": "image",
+        "title": "Logo"
+      }
+    },
+    "required": [
+      "description",
+      "logo"
+    ]
+  },
+  "template_data": [
+    {
+      "name": "openajang-og",
+      "background": {
+        "id": "background",
+        "type": "rect",
+        "pos": {
+          "x": 0,
+          "y": 0
+        },
+        "size": {
+          "width": 1200,
+          "height": 630
+        },
+        "properties": {
+          "fill": "#fff"
+        }
+      },
+      "elements": [
+        {
+          "id": "logo",
+          "type": "image",
+          "pos": {
+            "x": 72,
+            "y": 56
+          },
+          "size": {
+            "width": 650,
+            "height": 200
+          },
+          "properties": {
+            "src": "{{logo}}",
+            "fit": "contain"
+          }
+        },
+        {
+          "id": "rule",
+          "type": "rect",
+          "pos": {
+            "x": 72,
+            "y": 296
+          },
+          "size": {
+            "width": 1056,
+            "height": 3
+          },
+          "properties": {
+            "fill": "#d36138"
+          }
+        },
+        {
+          "id": "description",
+          "type": "text",
+          "pos": {
+            "x": 72,
+            "y": 338
+          },
+          "size": {
+            "width": 1010,
+            "height": 132
+          },
+          "properties": {
+            "value": "{{description}}",
+            "font": {
+              "family": "Merriweather Sans",
+              "size": 48,
+              "weight": 400
+            },
+            "color": "#2b2a47",
+            "align": "left",
+            "fit": "shrink"
+          }
+        },
+        {
+          "id": "url",
+          "type": "text",
+          "pos": {
+            "x": 72,
+            "y": 536
+          },
+          "size": {
+            "width": 750,
+            "height": 40
+          },
+          "properties": {
+            "value": "openajang.nedpals.xyz",
+            "font": {
+              "family": "Merriweather Sans",
+              "size": 26,
+              "weight": 400
+            },
+            "color": "#9b401f",
+            "align": "left",
+            "fit": "shrink"
+          }
+        },
+        {
+          "id": "version",
+          "type": "text",
+          "pos": {
+            "x": 850,
+            "y": 540
+          },
+          "size": {
+            "width": 300,
+            "height": 36
+          },
+          "properties": {
+            "value": "Working draft \u00b7 0.1",
+            "font": {
+              "family": "Merriweather Sans",
+              "size": 22,
+              "weight": 400
+            },
+            "color": "#626262",
+            "align": "left",
+            "fit": "shrink"
+          }
+        }
+      ]
+    }
+  ]
+}

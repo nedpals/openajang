@@ -1,0 +1,150 @@
+---
+import { readdirSync, readFileSync } from 'node:fs';
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+
+const directory = new URL('../../../../examples/', import.meta.url);
+const schemaId = JSON.parse(readFileSync(new URL('../../../../schema/0.1/event.json', import.meta.url), 'utf8')).$id as string;
+const examples = readdirSync(directory)
+  .filter((file) => file.endsWith('.openajang.json'))
+  .map((file) => ({ file, title: JSON.parse(readFileSync(new URL(file, directory), 'utf8')).title as string }));
+---
+<Base title="OpenAjang validator" description="Validate an event document against the OpenAjang 0.1 schema and implemented specification rules." wide>
+  <div class="validator-intro">
+    <h1>Event validator</h1>
+    <p>Check an event document against the OpenAjang 0.1 working draft. Paste JSON, open a local file, or load an example. Validation runs in your browser; your document is not uploaded.</p>
+    <p class="reference-links"><a href="/spec/">Read the specification</a><a href="/schema/0.1/event.json">Event schema, version 0.1</a></p>
+  </div>
+
+  <noscript><p>This tool needs JavaScript. You can still read the <a href="/spec/">specification</a> and <a href="/schema/0.1/event.json">download the schema</a>.</p></noscript>
+
+  <form id="form" class="editor" aria-label="Event document validation">
+    <div class="editor-toolbar">
+      <div class="example-picker">
+        <label for="sample">Load an example</label>
+        <select id="sample">
+          <option value="">Choose an event…</option>
+          {examples.map((example) => <option value={example.file}>{example.title}</option>)}
+        </select>
+      </div>
+      <button type="button" id="open-file" class="secondary"><Icon name="file" size={18} />Open JSON file</button>
+      <input id="file-input" type="file" accept=".json,application/json,application/vnd.openajang+json" hidden />
+    </div>
+    <div class="editor-body">
+      <div class="input-heading"><label for="input">Event JSON</label><span id="input-meta">0 lines · 0 bytes</span></div>
+      <textarea id="input" rows="12" spellcheck="false" autocomplete="off" autocapitalize="off" aria-describedby="input-help source-note" placeholder="Paste one OpenAjang event object here."></textarea>
+      <p id="input-help" class="hint">Paste or open UTF-8 JSON. This browser tool accepts up to 1 MiB. Use Ctrl+Enter (⌘+Enter on Mac) to validate while editing.</p>
+      <p id="source-note" class="hint">Examples are illustrative fixtures; event details have not been rechecked.</p>
+      <div class="actions">
+        <button type="submit" id="validate"><Icon name="check" size={18} />Validate</button>
+        <button type="button" id="format" class="secondary">Format JSON</button>
+        <button type="reset" class="secondary">Clear</button>
+      </div>
+    </div>
+  </form>
+
+  <section id="result" class="results" aria-labelledby="result-heading" tabindex="-1" data-state="ready">
+    <h2 id="result-heading">Validation results</h2>
+    <p id="result-status" role="status" aria-live="polite" aria-atomic="true">No document checked yet. Add JSON above, then validate.</p>
+    <dl class="check-stages" aria-label="Validation stages">
+      <div><dt>Strict JSON parsing</dt><dd id="parse-status" data-state="idle">Not checked</dd></div>
+      <div><dt>Schema and document rules</dt><dd id="document-status" data-state="idle">Not checked</dd></div>
+    </dl>
+    <div id="diagnostics"></div>
+    <dl id="document-summary" class="document-summary" hidden></dl>
+  </section>
+
+  <div class="validation-guide">
+    <section aria-labelledby="checks-heading">
+      <h2 id="checks-heading">What gets checked</h2>
+      <ul>
+        <li><strong>JSON:</strong> syntax, duplicate property names, and invalid Unicode.</li>
+        <li><strong>Document shape:</strong> the supported schema identifier, required fields, types, and allowed values.</li>
+        <li><strong>Values and relationships:</strong> date/time precision and ordering, rescheduling history, duplicate ticket IDs and tags, and the other checks implemented by <a href="https://github.com/nedpals/openajang/tree/master/packages/core"><code>@openajang/core</code></a>.</li>
+      </ul>
+      <p class="hint">Uses the bundled <a href="/schema/0.1/event.json">0.1 schema</a>; arbitrary schema URLs are not fetched. Unknown fields are generally ignored, with exceptions such as the reserved <code>schedule</code> field.</p>
+    </section>
+    <section aria-labelledby="scope-heading">
+      <h2 id="scope-heading">What a pass means</h2>
+      <p>A pass means the document meets this implementation’s checks. It does not test your hosted endpoint, HTML discovery link, or network retrieval security.</p>
+      <p>It also does not verify an organizer, guarantee directory inclusion, or confirm that registration is currently available. Those require separate checks.</p>
+      <p><a href="/spec/#9-extensions-versions-and-conformance">Conformance capabilities</a> · <a href="/docs/sdks-and-tools/">SDK limits</a></p>
+    </section>
+  </div>
+  <details class="diagnostic-help">
+    <summary>Reading diagnostics and implementation limits</summary>
+    <p>Locations use JSON Pointer notation: <code>/registration/url</code> refers to the registration URL. <em>(document)</em> means the root or a check without a more specific location. Reference links point to the relevant specification section.</p>
+    <p>Schema validation can report several problems. Procedural checks may stop at the first error, so fix the reported problems and validate again.</p>
+    <p>Time-zone checks use your browser’s <code>Intl</code> support. Parsing and formatting use JavaScript number precision, so very large numbers may lose precision. Cross-language validation equivalence is still work in progress; see the SDK limits above.</p>
+    <p>Bundled schema identifier: <code>{schemaId}</code></p>
+  </details>
+</Base>
+
+<script>
+  import '../scripts/validator';
+</script>
+
+<style>
+  .validator-intro { max-width: 72ch; margin-bottom: 1.5rem; }
+  .reference-links { display: flex; flex-wrap: wrap; gap: .5rem 1.5rem; font-size: .9rem; }
+  .editor { border: 1px solid var(--line); border-radius: 4px; }
+  .editor-toolbar { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 1rem; padding: 1rem; background: var(--panel); border-bottom: 1px solid var(--line); }
+  .example-picker { flex: 1; min-width: 0; }
+  label { display: block; font-weight: 500; }
+  .example-picker label { font-size: .85rem; margin-bottom: .35rem; }
+  select { width: 100%; max-width: 100%; }
+  .editor-body { padding: 1rem; }
+  .input-heading { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .25rem 1rem; margin-bottom: .5rem; }
+  #input-meta { color: var(--muted); font-size: .8rem; font-variant-numeric: tabular-nums; }
+  textarea { display: block; width: 100%; resize: vertical; min-height: 14rem; font: 400 .85rem/1.6 ui-monospace, monospace; background: var(--bg); color: var(--fg); border: 1px solid var(--muted); border-radius: 3px; padding: .75rem; tab-size: 2; }
+  .hint { font-size: .85rem; color: var(--muted); margin: .65rem 0; }
+  .actions { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1rem; }
+  .secondary { background: linear-gradient(var(--control-top), var(--control-bottom)); color: var(--fg); border-color: var(--line); }
+  .secondary:hover { background: var(--code); border-color: var(--muted); }
+  button:disabled { cursor: wait; opacity: .7; }
+  .results { margin: 2rem 0; }
+  .results h2 { font-size: 1.35rem; }
+  #result-status { font-weight: 500; }
+  .results[data-state='valid'] #result-status { color: var(--good); }
+  .results[data-state='invalid'] #result-status, .results[data-state='error'] #result-status { color: var(--bad); }
+  .check-stages { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--line); border-radius: 4px; margin: 1rem 0; background: var(--panel); }
+  .check-stages > div { padding: .75rem 1rem; }
+  .check-stages > div + div { border-left: 1px solid var(--line); }
+  dt { font-weight: 500; }
+  dd { margin: .25rem 0 0; color: var(--muted); }
+  dd[data-state='passed'] { color: var(--good); }
+  dd[data-state='failed'] { color: var(--bad); }
+  .document-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; overflow-wrap: anywhere; }
+  .document-summary[hidden] { display: none; }
+  .document-summary :global(dt) { font-weight: 500; }
+  .document-summary :global(dd) { margin: .25rem 0 0; color: var(--muted); }
+  .validation-guide { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; border-top: 1px solid var(--line); padding-top: 1.5rem; }
+  .validation-guide h2 { font-size: 1.15rem; }
+  .validation-guide ul { padding-left: 1.25rem; }
+  .validation-guide li { margin-bottom: .5rem; }
+  .diagnostic-help { border-top: 1px solid var(--line); padding-top: 1rem; margin: 1rem 0; font-size: .9rem; }
+  summary { cursor: pointer; color: var(--accent); font-weight: 500; margin-bottom: .75rem; }
+  @media (max-width: 600px) {
+    .editor-toolbar { align-items: stretch; }
+    .example-picker { flex-basis: 100%; }
+    .check-stages, .document-summary, .validation-guide { grid-template-columns: 1fr; }
+    .check-stages > div + div { border-left: 0; border-top: 1px solid var(--line); }
+    .validation-guide { gap: 1rem; }
+  }
+</style>
+
+<style is:global>
+  .diagnostic-overflow-hint { display: none; color: var(--muted); font-size: .85rem; }
+  .diagnostic-scroll { overflow-x: auto; }
+  .diagnostic-table { display: table; width: 100%; min-width: 34rem; margin-top: 1rem; }
+  .diagnostic-table th, .diagnostic-table td { vertical-align: top; padding: .65rem; }
+  .diagnostic-table th { font-weight: 500; }
+  .diagnostic-table thead { background: var(--panel); }
+  .diagnostic-table p { margin: 0; overflow-wrap: anywhere; }
+  .diagnostic-table small { display: block; margin-top: .3rem; color: var(--muted); }
+  .diagnostic-table th[scope='row'] { width: 22%; font-weight: 400; overflow-wrap: anywhere; }
+  .diagnostic-table td:last-child { width: 25%; }
+  @media (max-width: 600px) {
+    .diagnostic-overflow-hint { display: block; }
+  }
+</style>

@@ -1,0 +1,32 @@
+{
+  "name": "@openajang/site",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "sync": "node scripts/sync-public.mjs && pnpm run og:generate",
+    "dev": "pnpm run sync && astro dev",
+    "build": "pnpm --filter @openajang/core run build && pnpm run sync && astro build",
+    "preview": "astro preview",
+    "typecheck": "astro check",
+    "check:docs": "node scripts/check-docs.mjs",
+    "og:generate": "node scripts/render-open-graph.mjs"
+  },
+  "dependencies": {
+    "@lucide/astro": "^1.63.0",
+    "@openajang/core": "workspace:*",
+    "astro": "^5.14.0",
+    "buffer": "^6.0.3",
+    "mermaid": "^12.2.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.4",
+    "@astrojs/sitemap": "^3.7.4",
+    "@freshcoat-js/coatfile": "^0.5.0",
+    "@freshcoat-js/engine": "^0.5.0",
+    "typescript": "5.9.3"
+  },
+  "engines": {
+    "node": ">=22.18"
+  }
+}

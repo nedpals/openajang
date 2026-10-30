@@ -1,6 +1,10 @@
+.DS_Store
 .venv/
 __pycache__/
 *.py[cod]
 node_modules/
 dist/
+packages/site/.impeccable/
+packages/site/DESIGN.md
 packages/core/src/schema.ts
+docs/superpowers/
