@@ -1,6 +1,6 @@
 ---
 import { readdirSync } from 'node:fs';
-import Icon from '../components/Icon.astro';
+import ResourceLinks from '../components/ResourceLinks.astro';
 interface Props {
   title: string;
   description?: string;
@@ -33,19 +33,27 @@ const nav = [
       <nav>{nav.map((n) => <a href={n.href}>{n.label}</a>)}</nav>
       </div>
     </header>
+    <aside class="test-banner" aria-label="Working draft invitation">
+      <div class="test-banner-inner">
+        <a href="/#feedback">Help test the idea</a>
+        <span>Try the working draft and share your experience.</span>
+      </div>
+    </aside>
     <main class:list={{ home: title === 'OpenAjang', 'with-sidebar': sidebar }}><slot /></main>
     <footer>
+      <nav class="footer-resources" aria-label="Project resources">
+        <ResourceLinks label="Project resources" items={[
+          { title: 'Specification', icon: 'book', href: '/spec/', description: 'Read the event format, discovery, and lifecycle rules.' },
+          { title: 'Source code', icon: 'code', href: 'https://github.com/nedpals/openajang', description: 'Explore the SDKs, examples, and tools in the repository.' },
+          { title: 'Issues and feedback', icon: 'message', href: 'https://github.com/nedpals/openajang/issues', description: 'Report a problem or share your experience with the draft.' },
+        ]} />
+      </nav>
       <div class="footer-inner">
         <div>
           <a class="footer-brand" href="/">OpenAjang</a>
           <p>Working draft, version 0.1.</p>
         </div>
         <div>
-          <nav aria-label="Project links">
-            <a href="/spec/"><Icon name="book" size={15} />Specification</a>
-            <a href="https://github.com/nedpals/openajang"><Icon name="code" size={15} />Source code</a>
-            <a href="https://github.com/nedpals/openajang/issues"><Icon name="message" size={15} />Issues and feedback</a>
-          </nav>
           <p>Spec under <a href="https://github.com/nedpals/openajang/blob/master/LICENSE-docs">LICENSE-docs</a>. Code under <a href="https://github.com/nedpals/openajang/blob/master/LICENSE">Apache-2.0</a>.</p>
         </div>
       </div>
@@ -71,6 +79,8 @@ const nav = [
     --accent: #9b401f;
     --code: #f5f5f5;
     --panel: #f5f5f5;
+    --hero: #ededed;
+    --demo: #f8f8f8;
     --bad: #a32222;
     --good: #23633b;
     --control-top: #fff;
@@ -87,6 +97,8 @@ const nav = [
       --accent: #ffae8f;
       --code: #302d38;
       --panel: #292731;
+      --hero: #292731;
+      --demo: #302d38;
       --bad: #ffaaa3;
       --good: #a4ddb3;
       --control-top: #403c49;
@@ -104,7 +116,7 @@ const nav = [
     color: var(--fg);
     font: 350 15px/1.65 'Merriweather Sans', sans-serif;
   }
-  main, .footer-inner, .navbar-inner {
+  main, .footer-inner, .footer-resources, .navbar-inner, .test-banner-inner {
     max-width: 48rem;
     margin: 0 auto;
     padding: 1rem 1.25rem;
@@ -112,7 +124,7 @@ const nav = [
   main { width: 100%; flex: 1; }
   main.home { max-width: none; padding: 0; }
   main.with-sidebar { max-width: 56.5rem; }
-  .footer-inner, .navbar-inner { max-width: 56.5rem; }
+  .footer-inner, .footer-resources, .navbar-inner, .test-banner-inner { max-width: 56.5rem; }
   header { background: #2b2a47; }
   .navbar-inner {
     display: flex;
@@ -128,6 +140,10 @@ const nav = [
   header a { color: #dddce8; font-weight: 400; text-decoration: none; padding: .35rem 0; }
   header a:hover, header a:focus-visible { color: #fff; text-decoration: underline; }
   .brand { font-size: 1.15rem; font-weight: 700; color: #fff; }
+  .test-banner { position: sticky; top: 0; z-index: 10; background: #d36138; color: #19182e; font-size: .85rem; }
+  .test-banner-inner { display: flex; flex-wrap: wrap; gap: .2rem .75rem; padding-top: .6rem; padding-bottom: .6rem; }
+  .test-banner a { color: inherit; font-weight: 600; }
+  .test-banner a:focus-visible { outline-color: #19182e; }
   a { color: var(--accent); text-underline-offset: .18em; overflow-wrap: anywhere; }
   a:hover { text-decoration-thickness: 2px; }
   :focus-visible { outline: 3px solid #d36138; outline-offset: 3px; }
@@ -139,12 +155,11 @@ const nav = [
     font-size: .8rem;
     margin-top: 2rem;
   }
-  .footer-inner { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem 2rem; padding-top: 1.75rem; padding-bottom: 1.75rem; }
+  .footer-resources { padding-top: 2rem; padding-bottom: 2rem; }
+  .footer-inner { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem 2rem; border-top: 1px solid var(--line); padding-top: 1.5rem; padding-bottom: 1.5rem; }
   .footer-brand { display: inline-block; color: var(--heading); font-size: 1.1rem; font-weight: 600; text-decoration: none; margin-bottom: .25rem; }
   footer p { margin: .5rem 0 0; }
-  footer nav { display: flex; flex-wrap: wrap; gap: .5rem 1.25rem; }
-  footer nav a { display: inline-flex; align-items: center; gap: .35rem; }
-  [id] { scroll-margin-top: 1rem; }
+  [id] { scroll-margin-top: 6.5rem; }
   pre, code { background: var(--code); border-radius: 4px; font: .9em/1.5 ui-monospace, monospace; }
   code { padding: .1em .3em; overflow-wrap: anywhere; }
   pre { padding: 1rem; overflow-x: auto; border: 1px solid var(--line); }

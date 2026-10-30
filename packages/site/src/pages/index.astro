@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import Logo from '../components/Logo.astro';
 import Icon from '../components/Icon.astro';
+import ResourceLinks from '../components/ResourceLinks.astro';
 ---
 <Base title="OpenAjang">
   <div class="opening">
@@ -10,10 +11,14 @@ import Icon from '../components/Icon.astro';
     <h1 class="project-logo" aria-label="OpenAjang"><Logo /></h1>
     <p class="lead">A small JSON format for publishing public events at a URL.</p>
     <p>Publish an event file on your own website and link to your existing registration form. Compatible apps and directories can read the document, display the event, and check for changes.</p>
-    <p class="status"><strong>Working draft, version 0.1.</strong> Available for experimentation. No central OpenAjang account is required.</p>
+    <p class="status"><strong>Working draft, version 0.1.</strong> Available for experimentation.</p>
     <p class="project-links"><a class="button" href="/spec/"><Icon name="book" size={18} />Read the specification</a> <a href="/validator/">Validator</a> <a href="https://github.com/nedpals/openajang">Source on GitHub</a></p>
   </section>
+    </div>
+  </div>
 
+  <div class="demo-band">
+    <div class="demo-inner">
   <section id="try" class="demo">
     <h2 class="icon-heading"><Icon name="link" />Read an event from a URL</h2>
     <p>Paste a direct link to an OpenAjang JSON document to see its event details, or load an example.</p>
@@ -50,8 +55,9 @@ import Icon from '../components/Icon.astro';
 
   <section class="prose">
     <h2>Why this exists</h2>
-    <p>While building <a href="https://naonao.ph">Naonao.ph</a>, I found that useful event-platform features weren’t enough to convince organizers to maintain another listing. In Davao’s tech community, announcements still lived across community websites, Facebook, and other services. Participants had another account and another place to check.</p>
-    <p>OpenAjang explores a smaller piece of that problem: publish structured event information where the organizer already works, so people can follow it through compatible tools. Publishers must expose that data; OpenAjang does not automatically extract events from existing platforms.</p>
+    <p>In Davao’s tech community, I’ve seen organizations build their own event platforms while announcements remain spread across Facebook, community websites, and other services. Organizers have reasons for choosing those places: audience reach, control, cost, or what their volunteers can maintain. Participants have to piece the information together across them.</p>
+    <p>I ran into this while building <a href="https://naonao.ph">Naonao.ph</a>, an event platform for our small startup. We built useful features, but asking organizers to maintain another listing was still difficult. For participants, another account, onboarding flow, and place to remember added friction too.</p>
+    <p>That raised a question: could an event stay where its organizer already works, while people follow it through the tools they choose? OpenAjang explores that through structured documents at stable URLs, discovery links, and optional feeds. Publishers must expose compatible data; it does not automatically extract events from existing platforms.</p>
   </section>
   <section class="prose">
     <h2>How it works</h2>
@@ -61,9 +67,10 @@ import Icon from '../components/Icon.astro';
       <li><strong>Feed discovery:</strong> follow a directory’s feed. The app uses its links to retrieve event documents from their publishers.</li>
     </ul>
     <p>Directories are optional. Consumers can keep refreshing saved events from their source after they leave a feed. Registration takes place with the organizer’s chosen provider.</p>
+    <p>OpenAjang itself has no central account. Hosting, registration providers, and consumer services may have their own accounts and policies.</p>
   </section>
   <section id="publish">
-    <h2 class="icon-heading"><Icon name="upload" size={24} />Publish your first event</h2>
+    <h2>Publish your first event</h2>
     <div class="publish">
       <div>
         <ol>
@@ -95,7 +102,7 @@ import Icon from '../components/Icon.astro';
     <p><a href="https://schema.org/Event">Schema.org Event</a>, <a href="https://www.rfc-editor.org/rfc/rfc5545">iCalendar</a>, and <a href="https://www.rfc-editor.org/rfc/rfc8984">JSCalendar</a> already cover much of this information. OpenAjang experiments with one prescribed document shape, explicit registration fields, and a predictable URL-import contract.</p>
     <p>The aim is less publishing and integration work. Whether that makes authoring simpler needs testing with organizers; another copy of the same event to maintain would defeat the purpose.</p>
   </section>
-  <section class="feedback">
+  <section id="feedback" class="feedback">
     <div class="feedback-main">
       <div>
         <h2>Try it and give feedback</h2>
@@ -103,11 +110,13 @@ import Icon from '../components/Icon.astro';
       </div>
       <a class="button feedback-action" href="https://github.com/nedpals/openajang/issues"><Icon name="message" size={18} />Share feedback on GitHub</a>
     </div>
-    <ul class="feedback-resources" aria-label="Tools to try the draft">
-      <li><a href="/examples/"><Icon name="file" size={18} />Browse examples</a></li>
-      <li><a href="/validator/"><Icon name="check" size={18} />Validate a document</a></li>
-      <li><a href="https://github.com/nedpals/openajang/tree/master/packages/core"><Icon name="code" size={18} />Try the TypeScript SDK</a></li>
-    </ul>
+    <div class="feedback-resources">
+      <ResourceLinks label="Tools to try the draft" items={[
+        { title: 'Browse examples', icon: 'file', href: '/examples/', description: 'See how event documents describe different kinds of events.' },
+        { title: 'Validate a document', icon: 'check', href: '/validator/', description: 'Check your JSON against the draft’s schema and validation rules.' },
+        { title: 'Try the TypeScript SDK', icon: 'code', href: 'https://github.com/nedpals/openajang/tree/master/packages/core', description: 'Parse and validate event documents in your own tools.' },
+      ]} />
+    </div>
   </section>
   </div>
 </Base>
@@ -163,10 +172,11 @@ import Icon from '../components/Icon.astro';
 </script>
 <style>
   section { margin: 2rem 0; }
-  .opening { background: var(--panel); border-bottom: 1px solid var(--line); }
-  .opening-inner, .home-content { max-width: 56.5rem; margin: auto; padding: 0 1.25rem; }
-  .opening-inner { padding-top: 2rem; padding-bottom: 2rem; }
-  .introduction { margin: 0 0 1.75rem; max-width: 70ch; }
+  .opening { background: var(--hero); border-bottom: 1px solid var(--line); }
+  .demo-band { background: var(--demo); border-bottom: 1px solid var(--line); }
+  .opening-inner, .demo-inner, .home-content { max-width: 56.5rem; margin: auto; padding: 0 1.25rem; }
+  .opening-inner, .demo-inner { padding-top: 2rem; padding-bottom: 2rem; }
+  .introduction { margin: 0; max-width: 70ch; }
   .introduction h1 { margin-top: 0; }
   .project-logo { margin-bottom: 1rem; }
   .icon-heading { display: flex; align-items: center; gap: .6rem; }
@@ -181,7 +191,7 @@ import Icon from '../components/Icon.astro';
   .audiences section { margin: 0; }
   .audiences h2 { font-size: 1.15rem; font-weight: 500; }
   .audiences p:last-child { margin-bottom: 0; }
-  .demo { border-top: 1px solid var(--line); padding-top: 1.5rem; margin: 0; }
+  .demo { margin: 0; }
   .demo h2 { font-size: 1.25rem; font-weight: 500; }
   label { display: block; font-weight: 500; margin-bottom: .35rem; }
   .fetch-row { display: flex; gap: .5rem; }
@@ -204,9 +214,7 @@ import Icon from '../components/Icon.astro';
   .feedback .feedback-action { color: #2b2a47; background: linear-gradient(#fff, #eeeaf0); border-color: #fff; font-weight: 500; justify-self: start; }
   .feedback .feedback-action:hover { background: #eeeaf0; }
   .feedback .feedback-action:active { background: #dddce8; }
-  .feedback-resources { display: flex; flex-wrap: wrap; gap: .75rem 1.5rem; list-style: none; padding: 1.25rem 0 0; margin: 1.5rem 0 0; border-top: 1px solid #646079; }
-  .feedback-resources li { margin: 0; }
-  .feedback-resources a { display: inline-flex; align-items: center; gap: .5rem; }
+  .feedback-resources { --resource-icon: #ffae8f; --resource-link: #ffae8f; --resource-description: #eeeaf0; padding-top: 1.5rem; margin-top: 1.5rem; border-top: 1px solid #646079; }
   li { margin-bottom: .5rem; }
   .publish ol { margin-top: 0; padding-left: 1.25rem; }
   @media (max-width: 780px) {
