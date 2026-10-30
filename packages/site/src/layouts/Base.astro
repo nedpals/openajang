@@ -10,6 +10,7 @@ interface Props {
 const { title, description = 'A small JSON format for publishing public events at a URL.', sidebar = false, wide = false } = Astro.props;
 const examples = readdirSync(new URL('../../../../examples/', import.meta.url)).filter((f) => f.endsWith('.openajang.json'));
 const nav = [
+  { href: '/docs/', label: 'Docs' },
   { href: '/spec/', label: 'Spec' },
   { href: '/validator/', label: 'Validator' },
   { href: '/examples/', label: 'Examples' },
@@ -44,8 +45,8 @@ const nav = [
     <footer>
       <nav class="footer-resources" aria-label="Project resources">
         <ResourceLinks label="Project resources" items={[
-          { title: 'Specification', icon: 'book', href: '/spec/', description: 'Read the event format, discovery, and lifecycle rules.' },
-          { title: 'Source code', icon: 'code', href: 'https://github.com/nedpals/openajang', description: 'Explore the SDKs, examples, and tools in the repository.' },
+          { title: 'Documentation', icon: 'file', href: '/docs/', description: 'Understand the design rationale, boundaries, and publishing workflow.' },
+          { title: 'Specification', icon: 'book', href: '/spec/', description: 'Read the normative event format, discovery, and lifecycle rules.' },
           { title: 'Issues and feedback', icon: 'message', href: 'https://github.com/nedpals/openajang/issues', description: 'Report a problem or share your experience with the draft.' },
         ]} />
       </nav>

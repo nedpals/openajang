@@ -4,13 +4,14 @@ import Icon from '../components/Icon.astro';
 
 interface Props {
   title: string;
+  description?: string;
   headings: { depth: number; slug: string; text: string }[];
 }
 
-const { title, headings } = Astro.props;
+const { title, description, headings } = Astro.props;
 const contents = headings.filter((heading) => heading.depth === 2);
 ---
-<Base title={title} sidebar>
+<Base title={title} description={description} sidebar>
   <div class="document-layout">
     <nav class="contents" aria-label="Table of contents">
       <p class="contents-label"><Icon name="list" size={16} /><strong>Contents</strong></p>
