@@ -1,0 +1,15 @@
+/schema/*
+  Content-Type: application/schema+json; charset=utf-8
+  Access-Control-Allow-Origin: *
+
+/examples/*.openajang.json
+  Content-Type: application/json; charset=utf-8
+  Access-Control-Allow-Origin: *
+
+/examples/*.atom
+  Content-Type: application/atom+xml; charset=utf-8
+  Access-Control-Allow-Origin: *
+
+/examples/*.rss
+  Content-Type: application/rss+xml; charset=utf-8
+  Access-Control-Allow-Origin: *

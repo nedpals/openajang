@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 
 const root = new URL('../../../', import.meta.url);
 const pub = new URL('../public/', import.meta.url);
+const stat = new URL('../static/', import.meta.url);
 
 await rm(pub, { recursive: true, force: true });
 await mkdir(pub, { recursive: true });
@@ -14,4 +15,5 @@ for (const name of ['schema', 'examples', 'generated', 'CNAME']) {
   await cp(fileURLToPath(new URL(name, root)), fileURLToPath(new URL(name, pub)), { recursive: true });
 }
 
+await cp(fileURLToPath(stat), fileURLToPath(pub), { recursive: true });
 await cp(fileURLToPath(new URL('../src/assets/fonts/', import.meta.url)), fileURLToPath(new URL('fonts/', pub)), { recursive: true });
