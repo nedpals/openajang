@@ -1,0 +1,36 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import ResourceLinks from '../components/ResourceLinks.astro';
+---
+<Base title="Page not found · OpenAjang" description="The requested page could not be found.">
+  <div class="not-found">
+    <h1>Page not found</h1>
+    <p class="lead">The page you were looking for doesn't exist or may have been moved.</p>
+    <p class="actions">
+      <a class="button" href="/"><Icon name="calendar" size={18} />Return to home</a>
+      <a href="/docs/">Read the guides</a>
+      <a href="/validator/">Open validator</a>
+    </p>
+
+    <div class="quick-links">
+      <h2>Explore OpenAjang</h2>
+      <ResourceLinks
+        label="Explore resources"
+        items={[
+          { title: 'Documentation', icon: 'file', href: '/docs/', description: 'Explore guides for organizers, developers, and consumers.' },
+          { title: 'Specification', icon: 'book', href: '/spec/', description: 'Read the normative event format, discovery, and lifecycle rules.' },
+          { title: 'Validator', icon: 'check', href: '/validator/', description: 'Validate your event JSON against the 0.1 working draft schema.' }
+        ]}
+      />
+    </div>
+  </div>
+</Base>
+
+<style>
+  .not-found { padding: 2rem 0; }
+  .lead { font-size: 1.15rem; color: var(--muted); margin-bottom: 1.5rem; }
+  .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.5rem; margin-bottom: 2.5rem; }
+  .quick-links { border-top: 1px solid var(--line); padding-top: 2rem; }
+  .quick-links h2 { font-size: 1.25rem; margin-bottom: 1.25rem; }
+</style>
