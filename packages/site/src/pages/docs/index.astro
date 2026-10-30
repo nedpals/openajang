@@ -9,3 +9,20 @@ const { Content, headings } = await render(guide);
   <h1>Documentation</h1>
   <Content />
 </GuideLayout>
+<script is:inline>
+  // The old single-page handbook used these anchors; send visitors to the page that now holds each topic.
+  const moved = {
+    'publish-your-first-event': '/docs/publish-your-first-event/',
+    'refresh-and-provenance': '/docs/store-and-refresh-events/',
+    'occurrence-boundaries': '/docs/recurring-annual-and-multi-day-events/',
+    'conservative-interpretation': '/docs/display-an-imported-event/',
+    'what-openajang-does-not-do': '/docs/why-openajang/',
+    'why-another-format': '/docs/why-openajang/',
+    'extensions': '/docs/extensions/',
+    'sdk-and-local-tools': '/docs/sdks-and-tools/',
+    'example-provenance-and-testing': '/docs/reference/#example-provenance',
+    'faq': '/docs/keep-an-event-current/'
+  };
+  const target = moved[location.hash.slice(1)];
+  if (target) location.replace(target);
+</script>
