@@ -3,5 +3,6 @@ __pycache__/
 *.py[cod]
 node_modules/
 dist/
-packages/site/.impeccable/review/
+packages/site/.impeccable/
+packages/site/DESIGN.md
 packages/core/src/schema.ts
