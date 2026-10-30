@@ -2,14 +2,14 @@
 import Document from '../layouts/Document.astro';
 
 const headings = [
-  { depth: 2, slug: 'publish-your-first-event', text: 'Publishing and discovery in practice' },
-  { depth: 2, slug: 'refresh-and-provenance', text: 'Provenance, feeds, and refreshing saved events' },
+  { depth: 2, slug: 'publish-your-first-event', text: 'Publish your first event' },
+  { depth: 2, slug: 'refresh-and-provenance', text: 'Feeds, provenance, and refresh' },
   { depth: 2, slug: 'occurrence-boundaries', text: 'Occurrence boundaries' },
   { depth: 2, slug: 'conservative-interpretation', text: 'Conservative interpretation' },
-  { depth: 2, slug: 'what-openajang-does-not-do', text: 'What OpenAjang does not do' },
   { depth: 2, slug: 'why-another-format', text: 'Why another format?' },
+  { depth: 2, slug: 'what-openajang-does-not-do', text: 'What OpenAjang does not do' },
   { depth: 2, slug: 'extensions', text: 'Extensions and core fallbacks' },
-  { depth: 2, slug: 'sdk-and-local-tools', text: 'SDKs, tools, and example provenance' },
+  { depth: 2, slug: 'sdk-and-local-tools', text: 'SDKs, tools, and examples' },
   { depth: 2, slug: 'faq', text: 'Frequently asked questions' },
 ];
 ---
@@ -21,32 +21,38 @@ const headings = [
   <div class="docs-article">
     <h1>Documentation</h1>
     <p class="lead">
-      The <a href="/spec/">specification</a> defines normative requirements; this handbook explains
-      their practical application: how to publish and link an event file, how consumers handle
-      feeds, provenance, and missing information, and where the <code>0.1</code> working draft draws
-      its boundaries.
+      The <a href="/spec/">specification</a> sets the normative requirements. This handbook shows
+      how to apply them: how to publish and link an event file, how apps handle feeds, provenance,
+      and missing information, and where the <code>0.1</code> working draft stops.
     </p>
-    <p class="companion-links" aria-label="Start by task or reference">
-      <strong>Jump to:</strong>
+    <nav class="companion-links" aria-label="Start by task or reference">
+      <strong>On this page:</strong>
       <a href="#publish-your-first-event">Publish an event</a>
-      <a href="#refresh-and-provenance">Consume events &amp; feeds</a>
+      <a href="#refresh-and-provenance">Feeds and refresh</a>
       <a href="#why-another-format">Evaluate the design</a>
       <span class="companion-sep" aria-hidden="true">·</span>
+      <strong>Elsewhere:</strong>
       <a href="/spec/">Specification</a>
       <a href="/feeds/">Atom feed profile</a>
       <a href="/conversions/">Conversion guide</a>
       <a href="/validator/">Validator</a>
       <a href="/examples/">Examples</a>
-    </p>
+    </nav>
 
-    <h2 id="publish-your-first-event">Publishing and discovery in practice</h2>
+    <h2 id="publish-your-first-event">Publish your first event</h2>
+    <p class="audience">For organizers and publishers</p>
 
-    <h3>1. Author a valid event document</h3>
+    <h3>1. Write the event document</h3>
     <p>
-      Save your event as a UTF-8 JSON file (for example, <code>event.openajang.json</code>). Every
-      document must declare the exact <code>$schema</code> URL for version <code>0.1</code>,
-      include the required core fields, and omit unknown optional fields rather than setting them
-      to <code>null</code> or empty strings:
+      Save your event as a UTF-8 JSON file (for example, <code>event.openajang.json</code>). The
+      required fields are <code>$schema</code>, <code>type</code>, <code>url</code>,
+      <code>title</code>, <code>status</code>, <code>starts_at</code>, <code>location</code>,
+      <code>organizer</code>, and <code>updated_at</code>
+      (<a href="/spec/#32-core-properties">Spec §3.2</a>). Use the exact <code>$schema</code> URL
+      for version <code>0.1</code>, and leave out optional fields you do not have instead of
+      setting them to <code>null</code> or empty strings. The sample also includes the optional
+      <code>id</code>, <code>summary</code>, <code>ends_at</code>, <code>time_zone</code>, and
+      <code>registration</code> fields:
     </p>
     <pre><code>{`{
   "$schema": "https://openajang.nedpals.xyz/schema/0.1/event.json",
@@ -77,17 +83,27 @@ const headings = [
 }`}</code></pre>
     <p>
       Here, <code>url</code> is the canonical human-readable event page (such as your website or a
-      repository README), while the JSON file itself can be hosted at a separate Document URL.
-      Publish only public event information: keep attendee details, credentials, personalized ticket
-      links, and private meeting access URLs out of the document. Check your file in the
-      <a href="/validator/">browser validator</a> before publishing.
+      repository README), while the JSON file itself can be hosted at a separate
+      <a href="/spec/#2-terminology">Document URL</a>. Publish only public event information: keep
+      attendee details, credentials, personalized ticket links, and private meeting access URLs out
+      of the document. Check your file in the <a href="/validator/">browser validator</a> before
+      publishing.
+    </p>
+    <p>
+      The <code>id</code> is optional. Without one, <code>url</code> identifies the event, so it
+      has to stay stable. Generate a UUID once and set <code>id</code> if <code>url</code> is a
+      homepage, a mutable slug, or a third-party page that may move
+      (<a href="/spec/#51-identity">Spec §5.1</a>). Never reuse an <code>id</code> for another
+      occurrence.
     </p>
 
     <h3>2. Host with an accepted JSON media type</h3>
     <p>
       Serve the file over HTTPS with <code>Content-Type: application/vnd.openajang+json</code> or
       <code>application/json</code> (parameters such as <code>charset=utf-8</code> are allowed).
-      Check that the published response uses an accepted JSON media type.
+      Confirm what your host actually sends, for example with
+      <code>curl -I https://example.org/event.openajang.json</code>. The validator checks the
+      document, not the hosted response.
     </p>
     <div class="callout">
       <p>
@@ -121,82 +137,82 @@ const headings = [
       <li>The linked URL must return the JSON document directly; recursive HTML-to-HTML discovery is forbidden.</li>
     </ul>
 
-    <h3>4. Maintain identity across updates, reschedules, and cancellations</h3>
+    <h3>4. Keep the event’s identity stable</h3>
     <p>
-      Consumers track an event using its <strong>Effective Event ID</strong>: the explicit
+      Apps track an event by its <a href="/spec/#2-terminology">Effective Event ID</a>: the
       <code>id</code> field if present, or <code>url</code> when <code>id</code> is omitted.
     </p>
     <ul>
       <li>
-        <strong>Moving an existing event without <code>id</code>:</strong> If you previously
-        published an event without an <code>id</code> and later need to move its webpage to a new
-        <code>url</code>, set <code>id</code> to the <em>previous <code>url</code></em> (its prior
-        effective ID), not a freshly generated UUID. That preserves continuity for everyone who
-        already saved the event.
+        If you published without an <code>id</code> and later move the event page to a new
+        <code>url</code>, set <code>id</code> to the <em>previous <code>url</code></em>, not a
+        freshly generated UUID. That keeps the event continuous for everyone who already saved it.
       </li>
       <li>
-        <strong>Postponing vs. rescheduling:</strong> When an event is delayed and the new time is
-        not yet confirmed, set <code>status</code> to <code>"postponed"</code>, keep the old
-        <code>starts_at</code>, and explain the situation in <code>status_note</code>. Once a new
-        time is confirmed, set <code>status</code> to <code>"rescheduled"</code>, update
-        <code>starts_at</code> / <code>ends_at</code>, and append the replaced start time to
-        <code>previous_starts_at</code> in the order revisions occurred.
+        When an event is delayed and the new time is not yet confirmed, set <code>status</code> to
+        <code>"postponed"</code>, keep the old <code>starts_at</code>, and explain in
+        <code>status_note</code>. Once a new time is confirmed, set <code>status</code> to
+        <code>"rescheduled"</code>, update <code>starts_at</code> and <code>ends_at</code>, and
+        append the replaced start time to <code>previous_starts_at</code> in the order the changes
+        happened.
       </li>
       <li>
-        <strong>Cancelling vs. removing a document:</strong> When an event is cancelled, keep the
-        JSON endpoint live returning HTTP <code>200 OK</code> with <code>status: "cancelled"</code>
-        and an updated <code>updated_at</code> timestamp so saved-event consumers receive the
-        cancellation notice. Returning HTTP <code>410 Gone</code> means the document itself was
-        intentionally removed, which consumers do not treat as proof that the event was cancelled.
+        When an event is cancelled, keep the JSON endpoint live and return HTTP
+        <code>200 OK</code> with <code>status: "cancelled"</code> and a newer
+        <code>updated_at</code>, so people who saved the event see the cancellation. HTTP
+        <code>410 Gone</code> means you removed the document itself, and apps do not read that as a
+        cancellation.
       </li>
     </ul>
 
-    <h2 id="refresh-and-provenance">Provenance, feeds, and refreshing saved events</h2>
+    <h2 id="refresh-and-provenance">Feeds, provenance, and refresh</h2>
+    <p class="audience">For app and directory developers</p>
     <p>
-      Participants can bring events into a compatible consumer either by pasting a URL directly or
-      by subscribing to a directory’s <a href="/feeds/">Atom feed</a>. In both cases, the consumer
-      keeps track of where each claim came from:
+      People can bring events into a compatible app either by pasting a URL or by subscribing to a
+      directory’s <a href="/feeds/">Atom feed</a>. In both cases the app keeps track of where each
+      claim came from:
     </p>
     <ul>
-      <li><strong>Supplied and final fetched URL:</strong> The URL given to the resolver and its final target after redirects.</li>
-      <li><strong>Document URL:</strong> The HTTPS endpoint where the JSON representation was retrieved.</li>
-      <li><strong>Declared Event URL (<code>url</code>):</strong> The human-facing page claimed inside the JSON document.</li>
+      <li><strong>Supplied and final fetched URL:</strong> the URL given to the resolver and its final target after redirects.</li>
+      <li><strong>Document URL:</strong> the HTTPS endpoint where the JSON was retrieved.</li>
+      <li><strong>Declared Event URL (<code>url</code>):</strong> the human-facing page claimed inside the JSON document.</li>
     </ul>
     <p>
       When discovery starts from an HTML Event URL, the linked JSON’s <code>url</code> should match
-      that HTML page (or its canonical head link). When a JSON URL is imported directly or linked
-      from a third-party directory feed, its declared <code>url</code> on another origin is an
-      unverified claim unless the HTML page at <code>url</code> also links back to that JSON.
-      Consumers must retain directory provenance separately from publisher provenance and must never
-      allow an unrelated host that copied an Event ID to overwrite a known event.
+      that page (or its canonical head link). When a JSON URL is imported directly or linked from a
+      third-party directory feed, a declared <code>url</code> on another origin is an unverified
+      claim unless the page at <code>url</code> also links back to that JSON. Apps should keep
+      directory provenance separate from publisher provenance, and should not let an unrelated host
+      that copied an Event ID overwrite a known event
+      (<a href="/spec/#51-identity">Spec §5.1</a>,
+      <a href="/spec/#83-redirects-caching-and-refresh">§8.3</a>).
     </p>
 
     <h3>Following directory feeds</h3>
     <p>
-      A directory feed distributes links to publisher-hosted event documents rather than replacing
-      them (<a href="/feeds/">Atom feed profile</a>). Feed-aware consumers must handle four
-      feed-specific boundaries:
+      A directory feed links to publisher-hosted event documents instead of replacing them. The
+      <a href="/feeds/">Atom feed profile</a> sets four rules for apps that follow one:
     </p>
     <ul>
       <li>
-        <strong>Entry and document identity must match:</strong> After fetching the linked
-        <code>application/vnd.openajang+json</code> document, the consumer must verify that the
-        document’s Effective Event ID equals the Atom entry <code>&lt;id&gt;</code> byte-for-byte.
+        <strong>Entry and document identity must match:</strong> after fetching the linked
+        <code>application/vnd.openajang+json</code> document, the app checks that the document’s
+        Effective Event ID exactly equals the Atom entry <code>&lt;id&gt;</code>.
       </li>
       <li>
-        <strong>Feed omission is not cancellation or deletion:</strong> Directories may cap feed
+        <strong>Feed omission is not cancellation or deletion:</strong> directories may cap feed
         length, filter by topic, or age out older listings. When an event disappears from a feed,
-        consumers keep the saved event and continue refreshing its Document URL directly.
+        the app keeps the saved event and keeps refreshing its Document URL directly.
       </li>
       <li>
-        <strong>Bounded feeds cannot guarantee cancellation delivery:</strong> Because an entry may
-        leave a bounded feed before it is cancelled, saved-event consumers rely on direct Document
-        URL refreshes to learn about late changes or cancellations.
+        <strong>Bounded feeds cannot guarantee cancellation delivery:</strong> an entry may leave a
+        bounded feed before it is cancelled, so apps rely on direct Document URL refreshes to learn
+        about late changes and cancellations.
       </li>
       <li>
-        <strong>Three distinct clocks:</strong> The Atom entry <code>&lt;updated&gt;</code>
-        timestamp, the event document’s <code>updated_at</code> revision timestamp, and the
-        consumer’s HTTP retrieval time measure different events and must not be conflated.
+        <strong>Three distinct clocks:</strong> the Atom entry <code>&lt;updated&gt;</code>
+        timestamp, the document’s <code>updated_at</code>, and the app’s own HTTP retrieval time
+        measure different things and are not interchangeable.
       </li>
     </ul>
 
@@ -205,17 +221,17 @@ const headings = [
       <thead>
         <tr>
           <th scope="col">Refresh outcome</th>
-          <th scope="col">Storing consumer behavior (<a href="/spec/#83-redirects-caching-and-refresh">Spec §8.3</a>)</th>
+          <th scope="col">What an app that stores events does (<a href="/spec/#83-redirects-caching-and-refresh">Spec §8.3</a>)</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <th scope="row">HTTP <code>200</code>, valid JSON, same ID &amp; verified source continuity</th>
-          <td>Replace stored representation and record retrieval time. Warn if content changed without advancing <code>updated_at</code>.</td>
+          <th scope="row">HTTP <code>200</code>, valid JSON, same ID, and the source is still the one the event came from</th>
+          <td>Replace the stored representation and record the retrieval time. Warn if the content changed without advancing <code>updated_at</code>.</td>
         </tr>
         <tr>
           <th scope="row">HTTP <code>304 Not Modified</code></th>
-          <td>Retain existing valid representation and update freshness check time.</td>
+          <td>Keep the existing valid representation.</td>
         </tr>
         <tr>
           <th scope="row">HTTP <code>200</code>, invalid JSON or validation error</th>
@@ -241,51 +257,46 @@ const headings = [
     </table>
 
     <h2 id="occurrence-boundaries">Occurrence boundaries</h2>
+    <p class="audience">For publishers and app developers</p>
     <p>
       Every OpenAjang document represents a single identified event occurrence (such as a monthly
       community meetup) or one overall event edition (such as an annual three-day conference or a
-      four-month museum exhibition). Understanding what that boundary means avoids both authoring
-      confusion and misleading consumer displays:
+      four-month museum exhibition). In practice:
     </p>
     <ul>
       <li>
-        <strong>Date ranges mark the edition’s overall date range, not continuous activity:</strong>
-        When a multi-day conference or exhibition publishes <code>starts_at</code> and
-        <code>ends_at</code> across several days or months, that range marks the edition’s overall
-        date range (its outer calendar envelope). Activity need not occur continuously on every
-        calendar day or for 24 hours a day. Specific visiting hours or daily schedules belong in
-        <code>description</code> or <code>instructions</code>.
+        A date range is the edition’s outer calendar envelope, not a claim of continuous activity.
+        A multi-day conference or exhibition need not run every day or around the clock. Put
+        visiting hours and daily schedules in <code>description</code> or
+        <code>instructions</code>.
       </li>
       <li>
-        <strong>Hybrid means both modes exist somewhere in the edition:</strong> Setting
-        <code>location.type</code> to <code>"hybrid"</code> indicates that both physical and
-        virtual participation exist within the event. It does not guarantee that every day, workshop,
-        or ticket tier offers both modes. Important attendance limits must be stated in core text
-        fields even when an extension supplies extra structure.
+        <code>location.type</code> set to <code>"hybrid"</code> means physical and virtual
+        participation both exist somewhere in the event, not that every day, workshop, or ticket
+        tier offers both. State important attendance limits in core text fields even when an
+        extension adds structure.
       </li>
       <li>
-        <strong>Recordings alone do not make an event virtual:</strong> An in-person conference that
-        posts video recordings afterward remains <code>"physical"</code> in the core location
-        model unless live remote participation is part of the event.
+        An in-person conference that posts recordings afterward stays <code>"physical"</code>
+        unless live remote participation is part of the event.
       </li>
       <li>
-        <strong>Sub-events and independently admitted components:</strong> Workshops, hackathons,
-        or side events within a larger edition can be listed as plain-text ticket options on the
-        overall document, or published as separate OpenAjang documents with their own distinct
-        Effective Event IDs. An overall listing and a component document are not duplicates merely
-        because their dates overlap, and sharing a <code>series</code> object does not imply shared
-        admission coverage.
+        Workshops, hackathons, or side events within a larger edition can be listed as plain-text
+        ticket options on the overall document, or published as separate documents with their own
+        Event IDs. An overall listing and a component are not duplicates just because their dates
+        overlap, and sharing a <code>series</code> object does not imply shared admission.
       </li>
       <li>
-        <strong>Annual editions need distinct identities:</strong> If a conference reuses the same
-        homepage URL every year (for example, <code>https://example.org/conf</code>), each year’s
-        edition must have its own permanent <code>id</code> (such as a UUID URN or year-specific
-        URI). Reusing the same effective identity for next year’s event would cause consumers to
-        overwrite the previous edition as if it had been rescheduled.
+        If a conference reuses the same homepage URL every year (for example,
+        <code>https://example.org/conf</code>), give each edition its own permanent
+        <code>id</code>, such as a UUID URN or a year-specific URI
+        (<a href="/spec/#51-identity">Spec §5.1</a>). Reusing one identity makes apps overwrite last
+        year’s edition as if it had been rescheduled.
       </li>
     </ul>
 
     <h2 id="conservative-interpretation">Conservative interpretation</h2>
+    <p class="audience">For app developers</p>
     <p>
       A core design rule in <a href="/spec/#11-occurrence-boundaries-and-conservative-interpretation">Section 1.1 of the specification</a>
       is that consumers must never invent precision, availability, or permissions that the
@@ -319,8 +330,8 @@ const headings = [
         </tr>
         <tr>
           <th scope="row"><code>registration.status</code> values</th>
-          <td>Show <strong>Register</strong> only for <code>"open"</code>, <strong>Join waitlist</strong> for <code>"waitlist"</code>, and <strong>View registration</strong> for <code>"unknown"</code> or omitted status.</td>
-          <td>Do not encourage registration when status is <code>"closed"</code> or <code>"not_yet_open"</code>, or when the event is <code>cancelled</code>, <code>postponed</code>, or <code>completed</code>.</td>
+          <td>When a registration <code>url</code> exists, show <strong>Register</strong> only for <code>"open"</code>, <strong>Join waitlist</strong> for <code>"waitlist"</code>, and <strong>View registration</strong> for <code>"unknown"</code> or omitted status.</td>
+          <td>Do not encourage registration when status is <code>"closed"</code> or <code>"not_yet_open"</code> (show that state instead; a plain source link may stay), or when the event is <code>cancelled</code>, <code>postponed</code>, or <code>completed</code>.</td>
         </tr>
         <tr>
           <th scope="row"><code>tickets</code> and <code>price</code></th>
@@ -335,11 +346,67 @@ const headings = [
       </tbody>
     </table>
 
-    <h2 id="what-openajang-does-not-do">What OpenAjang does not do</h2>
+    <h2 id="why-another-format">Why another format?</h2>
+    <p class="audience">For anyone evaluating the design</p>
     <p>
-      Because OpenAjang focuses on a small contract between independent publishers and consumers,
-      several things that full event platforms or calendar suites handle are intentionally out of
-      scope:
+      <a href="https://schema.org/Event">Schema.org Event</a>,
+      <a href="https://www.rfc-editor.org/rfc/rfc5545">iCalendar (RFC 5545)</a>, and
+      <a href="https://www.rfc-editor.org/rfc/rfc8984">JSCalendar (RFC 8984)</a> already cover much
+      of this information. OpenAjang tests a smaller prescribed authoring and URL-import contract:
+      one JSON object shape for a single public event occurrence, explicit registration fields, and
+      strict rules for HTML discovery and saved-event refresh.
+    </p>
+    <p>
+      Simpler authoring is a hypothesis to test with organizers. Publishing tools should generate
+      the event page and compatibility outputs from one record, not ask organizers to maintain a
+      second copy.
+    </p>
+
+    <h3>How OpenAjang relates to existing formats</h3>
+    <p>
+      OpenAjang is designed as the editable source document. Compatible consumers and directories
+      read OpenAjang JSON directly; they do not need to convert it into Schema.org or JSCalendar
+      before importing or distributing it. When compatibility outputs are generated, semantic
+      differences and losses are reported explicitly rather than hidden.
+    </p>
+
+    <table class="doc-table">
+      <thead>
+        <tr>
+          <th scope="col">Format</th>
+          <th scope="col">Role in an OpenAjang workflow</th>
+          <th scope="col">Key trade-offs and conversion boundaries</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">OpenAjang (<code>event.openajang.json</code>)</th>
+          <td>Editable source published at a stable URL for direct import and directory refresh.</td>
+          <td>Prescribes one JSON object shape, explicit registration states, and occurrence lifecycle rules. Does not model recurring rules or room-by-room session schedules.</td>
+        </tr>
+        <tr>
+          <th scope="row">Schema.org Event (JSON-LD)</th>
+          <td>Generated output for web pages and search indexing (<a href="/conversions/#1-schemaorg-json-ld">mapping rules</a>).</td>
+          <td>Preserves date or date-time precision. Registration maps to a documented <code>potentialAction</code> convention rather than a universal protocol; <code>completed</code> has no exact lifecycle match; generated markup does not guarantee search engine eligibility.</td>
+        </tr>
+        <tr>
+          <th scope="row">JSCalendar (RFC 8984)</th>
+          <td>Generated output for timed calendar events (<a href="/conversions/#2-jscalendar">mapping rules</a>).</td>
+          <td>Normalizes timed instants to UTC and computes exact elapsed duration across offset transitions. Conversions are <strong>explicitly declined</strong> when clock times are unpublished (date-only events), when <code>ends_at</code> is omitted, or when an event is <code>postponed</code>.</td>
+        </tr>
+        <tr>
+          <th scope="row">iCalendar (<code>.ics</code>, RFC 5545)</th>
+          <td>Not generated by the <code>0.1</code> reference tools (<a href="/conversions/#3-icalendar-and-reminders">notes</a>).</td>
+          <td>A user-created calendar reminder for a date-only event is a separate user action and must never be advertised as a lossless event export.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2 id="what-openajang-does-not-do">What OpenAjang does not do</h2>
+    <p class="audience">For anyone evaluating the design</p>
+    <p>
+      OpenAjang is a small contract between independent publishers and consumers, so several things
+      that full event platforms or calendar suites handle are intentionally out of scope:
     </p>
     <dl class="boundary-list">
       <div>
@@ -347,7 +414,7 @@ const headings = [
         <dd>
           Compatibility requires publishers to expose an OpenAjang JSON document. It does not
           automatically extract events from Facebook, Meetup, Eventbrite, or arbitrary HTML pages,
-          and an invalid JSON response is an error—not an invitation to scrape the page.
+          and an invalid JSON response is an error, not an invitation to scrape the page.
         </dd>
       </div>
       <div>
@@ -395,61 +462,6 @@ const headings = [
       </div>
     </dl>
 
-    <h2 id="why-another-format">Why another format?</h2>
-    <p>
-      <a href="https://schema.org/Event">Schema.org Event</a>,
-      <a href="https://www.rfc-editor.org/rfc/rfc5545">iCalendar (RFC 5545)</a>, and
-      <a href="https://www.rfc-editor.org/rfc/rfc8984">JSCalendar (RFC 8984)</a> already cover much
-      of this information. OpenAjang tests a smaller prescribed authoring and URL-import contract:
-      one JSON object shape for a single public event occurrence, explicit registration fields, and
-      strict rules for HTML discovery and saved-event refresh.
-    </p>
-    <p>
-      Simpler authoring remains a hypothesis to test with organizers. Publishing tools should
-      generate the event page and compatibility outputs from one record rather than asking
-      organizers to maintain another separate copy.
-    </p>
-
-    <h3>How OpenAjang relates to existing formats</h3>
-    <p>
-      OpenAjang is designed as the editable source document. Compatible consumers and directories
-      read OpenAjang JSON directly; they do not need to convert it into Schema.org or JSCalendar
-      before importing or distributing it. When compatibility outputs are generated, semantic
-      differences and losses are reported explicitly rather than hidden.
-    </p>
-
-    <table class="doc-table">
-      <thead>
-        <tr>
-          <th scope="col">Format</th>
-          <th scope="col">Role in an OpenAjang workflow</th>
-          <th scope="col">Key trade-offs and conversion boundaries</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <th scope="row">OpenAjang (<code>event.openajang.json</code>)</th>
-          <td>Editable source published at a stable URL for direct import and directory refresh.</td>
-          <td>Prescribes one JSON object shape, explicit registration states, and occurrence lifecycle rules. Does not model recurring rules or room-by-room session schedules.</td>
-        </tr>
-        <tr>
-          <th scope="row">Schema.org Event (JSON-LD)</th>
-          <td>Generated output for web pages and search indexing (<a href="/conversions/#1-schemaorg-json-ld">mapping rules</a>).</td>
-          <td>Preserves date or date-time precision. Registration maps to a documented <code>potentialAction</code> convention rather than a universal protocol; <code>completed</code> has no exact lifecycle match; generated markup does not guarantee search engine eligibility.</td>
-        </tr>
-        <tr>
-          <th scope="row">JSCalendar (RFC 8984)</th>
-          <td>Generated output for timed calendar events (<a href="/conversions/#2-jscalendar">mapping rules</a>).</td>
-          <td>Normalizes timed instants to UTC and computes exact elapsed duration across offset transitions. Conversions are <strong>explicitly declined</strong> when clock times are unpublished (date-only events), when <code>ends_at</code> is omitted, or when an event is <code>postponed</code>.</td>
-        </tr>
-        <tr>
-          <th scope="row">iCalendar (<code>.ics</code>, RFC 5545)</th>
-          <td>Not generated by the <code>0.1</code> reference tools (<a href="/conversions/#3-icalendar-and-reminders">notes</a>).</td>
-          <td>A user-created calendar reminder for a date-only event is a separate user action and must never be advertised as a lossless event export.</td>
-        </tr>
-      </tbody>
-    </table>
-
     <h2 id="extensions">Extensions and core fallbacks</h2>
     <p>
       Publishers can include custom or experimental data inside the top-level
@@ -459,13 +471,13 @@ const headings = [
       OpenAjang experiments.
     </p>
     <p>
-      The governing rule for every extension is that <strong>stripping all extensions must leave an
-      accurate, useful core listing</strong>. An extension may add structured detail for specialized
-      tools, but it must never contradict core fields or be required to prevent a false impression.
-      Any extension intended for broad implementation requires a separately reviewed contract and
-      schema, and generic validators must not require support for specific extension keys. The
-      <a href="/examples/">eight example fixtures</a> illustrate five experimental keys documented
-      in <a href="https://github.com/nedpals/openajang/blob/master/experimental-extensions.md"><code>experimental-extensions.md</code></a>:
+      The governing rule is that <strong>stripping all extensions must leave an accurate, useful
+      core listing</strong>. An extension can add structured detail for specialized tools, but it
+      cannot contradict core fields, and the listing cannot depend on it to avoid a false
+      impression. Broad implementation of an extension needs a separately reviewed contract and
+      schema, and no generic validator may require support for specific extension keys. The
+      <a href="/examples/">eight example fixtures</a> use five experimental keys, documented in
+      <a href="https://github.com/nedpals/openajang/blob/master/experimental-extensions.md"><code>experimental-extensions.md</code></a>:
     </p>
 
     <table class="doc-table">
@@ -505,11 +517,12 @@ const headings = [
       </tbody>
     </table>
 
-    <h2 id="sdk-and-local-tools">SDKs, tools, and example provenance</h2>
+    <h2 id="sdk-and-local-tools">SDKs, tools, and examples</h2>
+    <p class="audience">For app developers</p>
     <p>
-      You do not need to install any OpenAjang package to publish or consume event documents—any
+      You do not need to install any OpenAjang package to publish or consume event documents. Any
       strict JSON parser, schema validator, and HTTP client that implements the specification rules
-      is sufficient. For JavaScript/TypeScript developers and local testing, the repository ships
+      is enough. For JavaScript and TypeScript work and for local testing, the repository ships
       optional packages and Python reference tools.
     </p>
 
@@ -550,14 +563,14 @@ const { event, provenance, relationshipWarnings } = await resolveOpenAjang(
 );`}</code></pre>
     <ul>
       <li>
-        <strong>Known SDK limits:</strong> The schema uses custom <code>oa-*</code> format
-        annotations that generic JSON Schema tools ignore unless paired with procedural checks.
-        Time-zone checks in <code>@openajang/core</code> rely on the runtime’s JavaScript
-        <code>Intl</code> data, JSON numbers use IEEE 754 precision, and full validation equivalence
-        between the Python reference validator and TypeScript SDK remains work in progress.
-        <code>@openajang/resolver</code> performs one-shot retrieval; applications that store
-        events must implement conditional caching, source continuity checks across revisions, and
-        additional production SSRF/network isolation testing.
+        Known SDK limits: the schema uses custom <code>oa-*</code> format annotations that generic
+        JSON Schema tools ignore unless paired with procedural checks. Time-zone checks in
+        <code>@openajang/core</code> rely on the runtime’s JavaScript <code>Intl</code> data, JSON
+        numbers use IEEE 754 precision, and full validation equivalence between the Python
+        reference validator and the TypeScript SDK is still work in progress.
+        <code>@openajang/resolver</code> performs one-shot retrieval, so applications that store
+        events need to add conditional caching, source continuity checks across revisions, and
+        their own production SSRF and network isolation testing.
       </li>
     </ul>
 
@@ -577,36 +590,39 @@ python -m unittest discover -s tests -v`}</code></pre>
     <h3 id="example-provenance-and-testing">Example provenance and test coverage</h3>
     <p>
       The eight event files in <a href="/examples/">Examples</a> and the sample Atom and RSS feeds
-      are illustrative snapshots constructed for conformance testing
-      (<a href="https://github.com/nedpals/openajang/blob/master/TEST-REPORT.md"><code>TEST-REPORT.md</code></a>):
+      are illustrative snapshots built from supplied real-event data for conformance testing. See
+      <a href="https://github.com/nedpals/openajang/blob/master/PUBLISHING.md"><code>PUBLISHING.md</code></a>
+      for provenance and
+      <a href="https://github.com/nedpals/openajang/blob/master/TEST-REPORT.md"><code>TEST-REPORT.md</code></a>
+      for test results.
     </p>
     <ul>
       <li>
-        <strong>Snapshot provenance:</strong> Event names, dates, URLs, and ticket tiers were built
-        from supplied snapshot data and have not been rechecked against live organizer websites.
-        They do not demonstrate organizer authorization or live OpenAjang discovery support on those
-        event websites. Each fixture names <code>Example fixture publisher</code> with a fixed
-        revision instant of <code>2026-10-29T08:00:00Z</code>, and feed document URLs use
-        <code>example.org</code> placeholders.
+        Event names, dates, URLs, and ticket tiers have not been rechecked against live organizer
+        websites, and the fixtures do not show that any organizer authorized the listing or
+        supports OpenAjang discovery. Each fixture names <code>Example fixture publisher</code>
+        with a fixed revision instant of <code>2026-10-29T08:00:00Z</code>, and feed document URLs
+        use <code>example.org</code> placeholders.
       </li>
       <li>
-        <strong>Deliberate edge cases and local regression scope:</strong> Past events in the
-        fixture set intentionally retain <code>status: "scheduled"</code> to verify that consumers
-        classify past events by date. Five of the eight fixtures use date-only envelopes and are
-        explicitly declined by the JSCalendar converter, with per-file notes recorded in
+        Past events in the fixture set keep <code>status: "scheduled"</code> on purpose, to test
+        that apps classify past events by date. Five of the eight fixtures use date-only envelopes
+        and the JSCalendar converter declines them, with per-file notes in
         <a href="/generated/conversion-diagnostics.json"><code>conversion-diagnostics.json</code></a>.
-        Passing the repository’s conformance suite verifies local reference behavior; it is not
-        independent third-party interoperability or target-validator certification.
+        Passing the repository’s conformance suite verifies local reference behavior. It is not
+        independent interoperability testing or certification by a target validator.
       </li>
     </ul>
 
     <h2 id="faq">Frequently asked questions</h2>
+    <p class="audience">Mostly for organizers and publishers</p>
     <div class="faq-list">
       <details>
         <summary>Do I need to run a server or install the SDK to publish an event?</summary>
         <p>
           No. Any static <code>.json</code> file served over HTTPS with an accepted JSON media type
-          is a complete Basic Publisher (<a href="#publish-your-first-event">see publishing steps</a>).
+          is a complete <a href="/spec/#9-extensions-versions-and-conformance">Basic Publisher</a>
+          (<a href="#publish-your-first-event">see publishing steps</a>).
         </p>
       </details>
       <details>
@@ -670,6 +686,11 @@ python -m unittest discover -s tests -v`}</code></pre>
     margin-bottom: 2rem;
   }
   .companion-sep {
+    color: var(--muted);
+  }
+  .audience {
+    margin: -.25rem 0 .75rem;
+    font-size: .8125rem;
     color: var(--muted);
   }
   h2 {

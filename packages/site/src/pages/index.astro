@@ -12,7 +12,7 @@ import ResourceLinks from '../components/ResourceLinks.astro';
     <p class="lead">A small JSON format for publishing public events at a URL.</p>
     <p>Publish an event file on your own website and link to your existing registration form. Compatible apps and directories can read the document, display the event, and check for changes.</p>
     <p class="status"><strong>Working draft, version 0.1.</strong> Available for experimentation.</p>
-    <p class="project-links"><a class="button" href="/docs/#publish-your-first-event"><Icon name="calendar" size={18} />Publish an event</a> <a href="/spec/">Read the specification</a> <a href="/docs/">Documentation</a> <a href="/validator/">Validator</a> <a href="https://github.com/nedpals/openajang">Source on GitHub</a></p>
+    <p class="project-links"><a class="button" href="/docs/#publish-your-first-event"><Icon name="calendar" size={18} />Publish an event</a> <a href="/spec/">Read the specification</a> <a href="/validator/">Validator</a> <a href="https://github.com/nedpals/openajang">Source on GitHub</a></p>
   </section>
     </div>
   </div>
@@ -57,7 +57,7 @@ import ResourceLinks from '../components/ResourceLinks.astro';
     <h2>Why this exists</h2>
     <p>In Davao’s tech community, I’ve seen organizations build their own event platforms while announcements remain spread across Facebook, community websites, and other services. Organizers have reasons for choosing those places: audience reach, control, cost, or what their volunteers can maintain. Participants have to piece the information together across them.</p>
     <p>I ran into this while building <a href="https://naonao.ph">Naonao.ph</a>, an event platform for our small startup. We built useful features, but asking organizers to maintain another listing was still difficult. For participants, another account, onboarding flow, and place to remember added friction too.</p>
-    <p>That raised a question: could an event stay where its organizer already works, while people follow it through the tools they choose? Publishers must expose compatible data—OpenAjang does not automatically extract events from existing platforms. Read more on <a href="/docs/#why-another-format">why this draft tests a smaller prescribed contract</a> alongside Schema.org, iCalendar, and JSCalendar.</p>
+    <p>That raised a question: could an event stay where its organizer already works, while people follow it through the tools they choose? Publishers must expose compatible data, and OpenAjang does not automatically extract events from existing platforms. See <a href="/docs/#why-another-format">how it compares</a> with Schema.org, iCalendar, and JSCalendar.</p>
   </section>
   <section class="prose">
     <h2>How it works</h2>
@@ -66,13 +66,14 @@ import ResourceLinks from '../components/ResourceLinks.astro';
       <li><strong>Direct import:</strong> give the app a JSON URL, or an event page that links to the document.</li>
       <li><strong>Feed discovery:</strong> follow a directory’s feed. The app uses its links to retrieve event documents from their publishers.</li>
     </ul>
-    <p>Directories are optional, registration stays with the organizer’s chosen provider, and OpenAjang itself requires no central account (<a href="/docs/#refresh-and-provenance">how provenance and refresh work</a>).</p>
+    <p>Directories are optional. Consumers can keep refreshing saved events from their source after they leave a feed (<a href="/docs/#refresh-and-provenance">how refresh works</a>). Registration takes place with the organizer’s chosen provider.</p>
+    <p>OpenAjang itself has no central account. Hosting, registration providers, and consumer services may have their own accounts and policies.</p>
   </section>
   <section id="publish">
     <h2>Publish your first event</h2>
     <div class="publish">
       <div>
-        <p>Host a single UTF-8 JSON file on your website or static host (such as GitHub Pages) and point <code>registration.url</code> at the form or ticket page you already use.</p>
+        <p>The JSON here is illustrative. Host a single UTF-8 JSON file on your website or static host (such as GitHub Pages) and point <code>registration.url</code> at the form or ticket page you already use.</p>
         <p>When details change, update the file and its <code>updated_at</code> timestamp so apps that saved your event can refresh it from the source.</p>
         <p><a href="/docs/#publish-your-first-event">Read the publishing walkthrough</a> or <a href="/validator/">check a file in the validator</a>.</p>
       </div>
