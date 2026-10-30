@@ -13,3 +13,5 @@ await mkdir(pub, { recursive: true });
 for (const name of ['schema', 'examples', 'generated', 'CNAME']) {
   await cp(fileURLToPath(new URL(name, root)), fileURLToPath(new URL(name, pub)), { recursive: true });
 }
+
+await cp(fileURLToPath(new URL('../src/assets/fonts/', import.meta.url)), fileURLToPath(new URL('fonts/', pub)), { recursive: true });

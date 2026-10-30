@@ -67,6 +67,9 @@ importers:
       astro:
         specifier: ^5.14.0
         version: 5.18.2(@types/node@24.0.7)(rollup@4.66.0)(typescript@5.9.3)(yaml@2.9.1)
+      buffer:
+        specifier: ^6.0.3
+        version: 6.0.3
     devDependencies:
       '@astrojs/check':
         specifier: ^0.9.4
@@ -959,6 +962,9 @@ packages:
   base-64@1.0.0:
     resolution: {integrity: sha512-kwDPIFCGx0NZHog36dj+tHiwP4QMzsZ3AgMViUBKI0+V5n4U0ufTCUMhnQ04diaRI8EX/QcPfql7zlhZ7j4zgg==}
 
+  base64-js@1.5.1:
+    resolution: {integrity: sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==}
+
   bcp-47@2.1.2:
     resolution: {integrity: sha512-wsv86UuNFuPnVieKLyECTT+CP1WSAHeoIg5P3xu2kA9Z+7fVPoKt7dxzSeEhtJel0AI+NW3fIW3KtTKQKUCngg==}
 
@@ -968,6 +974,9 @@ packages:
   boxen@8.0.1:
     resolution: {integrity: sha512-F3PH5k5juxom4xktynS7MoFY+NUWH5LC4CnH11YB8NPew+HLpmBLCybSAEyb2F+4pRXhuhWqFesoQd6DAyc2hw==}
     engines: {node: '>=18'}
+
+  buffer@6.0.3:
+    resolution: {integrity: sha512-FTiCpNxtwiZZHEZbcbTIcZjERVICn9yq/pDFkTl95/AxzD1naBctN7YO68riM/gLSDY7sdrMby8hofADYuuqOA==}
 
   camelcase@8.0.0:
     resolution: {integrity: sha512-8WB3Jcas3swSvjIeA2yvCJ+Miyz5l1ZmB6HFb9R1317dt9LCQoswg/BGrmAmkWVEszSrrg4RwmO46qIm2OEnSA==}
@@ -1246,6 +1255,9 @@ packages:
 
   http-cache-semantics@4.3.0:
     resolution: {integrity: sha512-M5t5LlJpS1UHMjvwRQVdFHvPISGeLAxNcrWuJkeGh0KxsqCHZ1O3NXZU/8x7cD0BDcGW8kapxMKTvwlqrNkHkA==}
+
+  ieee754@1.2.1:
+    resolution: {integrity: sha512-dcyqhDvX1C46lXZcVqCpK+FtMRQVdIMN6/Df5js2zouUsqG7I6sFxitIC+7KYK29KdXOLHdu9zL4sFnoVQnqaA==}
 
   import-meta-resolve@4.2.0:
     resolution: {integrity: sha512-Iqv2fzaTQN28s/FwZAoFq0ZSs/7hMAHJVX+w8PZl3cY19Pxk6jFFalxQoIfW2826i/fDLXv8IiEZRIT0lDuWcg==}
@@ -2858,6 +2870,8 @@ snapshots:
 
   base-64@1.0.0: {}
 
+  base64-js@1.5.1: {}
+
   bcp-47@2.1.2:
     dependencies:
       is-alphabetical: 2.0.1
@@ -2876,6 +2890,11 @@ snapshots:
       type-fest: 4.41.0
       widest-line: 5.0.0
       wrap-ansi: 9.0.2
+
+  buffer@6.0.3:
+    dependencies:
+      base64-js: 1.5.1
+      ieee754: 1.2.1
 
   camelcase@8.0.0: {}
 
@@ -3214,6 +3233,8 @@ snapshots:
       entities: 4.5.0
 
   http-cache-semantics@4.3.0: {}
+
+  ieee754@1.2.1: {}
 
   import-meta-resolve@4.2.0: {}
 

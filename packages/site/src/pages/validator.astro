@@ -22,6 +22,8 @@ import Base from '../layouts/Base.astro';
 </Base>
 
 <script>
+  import { Buffer } from 'buffer';
+  globalThis.Buffer = Buffer;
   import { parseJsonStrict, validateSafe, OpenAjangValidationError } from '@openajang/core';
 
   const input = document.getElementById('input') as HTMLTextAreaElement;
