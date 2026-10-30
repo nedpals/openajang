@@ -2,16 +2,16 @@
 import Base from '../layouts/Base.astro';
 ---
 <Base title="OpenAjang">
-  <section class="hero">
-    <h1>Events published on your terms.</h1>
-    <p class="status">Version 0.1 · Working draft</p>
-    <p class="lead">OpenAjang is a small JSON format for publishing public events at a URL.</p>
-    <p>Organizers can keep event information on their own website and registration with their chosen provider. Compatible apps and directories can read the same published document.</p>
-    <a class="button" href="#try">Try an event URL</a> <a class="hero-link" href="/spec/">Read the specification</a>
+  <section class="introduction">
+    <h1>OpenAjang</h1>
+    <p class="lead">A small JSON format for publishing public events at a URL.</p>
+    <p>Write an event file, link to your registration form, and host it on your own website or a static host such as GitHub Pages. Compatible apps and directories can read it, display it, and check for changes.</p>
+    <p class="status"><strong>Working draft, version 0.1.</strong> The format, examples, and local tools are available for experimentation. There is no requirement to join a central OpenAjang service.</p>
+    <p class="project-links"><a class="button" href="/spec/">Read the specification</a> <a href="/validator/">Validator</a> <a href="https://github.com/nedpals/openajang">Source on GitHub</a></p>
   </section>
 
   <section id="try" class="demo">
-    <h2>See an event document</h2>
+    <h2>Try an event document</h2>
     <p>Fetch a direct JSON URL in your browser, or load the bundled illustrative fixture. Its details were not rechecked and may be outdated; it is not a live listing.</p>
     <form id="fetch-form">
       <label for="event-url">Event JSON URL</label>
@@ -23,14 +23,22 @@ import Base from '../layouts/Base.astro';
     <div id="event-result" aria-live="polite"><p>Enter a URL or load the example to see an event.</p></div>
   </section>
 
-  <section class="prose"><h2>Why OpenAjang?</h2>
-    <p>In Davao’s tech community, events appear across community websites, Facebook and event services. While building <a href="https://naonao.ph">Naonao.ph</a>, its creator found that asking organizers and participants to maintain yet another listing or account added friction.</p>
-    <p>Could an event be published where its organizer already works, while people follow it through the tools they choose? OpenAjang explores that idea through ordinary web publishing. It requires publishers to expose compatible data; it does not automatically extract events from existing platforms.</p>
+  <section class="prose">
+    <h2>Why this exists</h2>
+    <p>In my local tech community in Davao, I've seen organizations build their own event platforms while events continue to be announced across Facebook, community websites, and other event services. Each organizer has reasons for choosing where to publish: audience reach, control, cost, or simply what their volunteers can maintain.</p>
+    <p>I ran into this while building <a href="https://naonao.ph">Naonao.ph</a>, an event platform for our small startup. We built useful features, but convincing organizers to maintain another event listing was still difficult. For participants, another account, another onboarding flow, and another place to remember created friction too.</p>
+    <p>Could an event be published where its organizer already works, while people follow it through the tools they choose?</p>
+    <p>OpenAjang explores that approach using ordinary web publishing: structured information at stable URLs, links between representations, and feeds for discovery. This depends on publishers exposing compatible data. It does not automatically extract events from Facebook or make an existing platform compatible.</p>
   </section>
-  <section class="prose"><h2>How it works</h2>
-    <p><strong>Independent publisher</strong> → <strong>Direct URL</strong> or <strong>optional directory feed</strong> → <strong>compatible consumer</strong></p>
-    <p>The directory collects links to documents from multiple publishers. Registration takes place with the organizer’s chosen provider.</p>
-    <p><a href="/feeds/">Learn about directory feeds</a></p>
+  <section class="prose">
+    <h2>How it works</h2>
+    <p>Each website publishes its own event documents. A participant can discover them through either route in the same compatible consumer:</p>
+    <ul>
+      <li><strong>Direct import:</strong> paste an event page or JSON URL into the app. The app retrieves the event from its publisher.</li>
+      <li><strong>Feed discovery:</strong> subscribe to a directory's feed. The directory collects and refreshes events from multiple publishers; the app follows the feed's document links to retrieve structured event information.</li>
+    </ul>
+    <p>Directories are optional. Registration takes participants to the organizer's chosen provider.</p>
+    <p><a href="/feeds/">Read the feed guidance</a></p>
   </section>
   <section><h2>Publish your first event</h2><div class="publish">
     <div><ol><li><strong>Write</strong> an event JSON document.</li><li><strong>Host</strong> it at a public URL.</li><li><strong>Share</strong> the URL with compatible consumers or a directory.</li><li><strong>Maintain</strong> the source as details change.</li></ol><p>This example is illustrative; replace its details with your own.</p><a href="https://github.com/nedpals/openajang#publish-your-first-event">Full publishing guidance</a></div>
@@ -49,8 +57,11 @@ import Base from '../layouts/Base.astro';
   "updated_at": "2026-10-29T08:00:00Z"
 }`}</code></pre>
   </div></section>
-  <section class="prose"><h2>Why another format?</h2>
-    <p>OpenAjang tests a hypothesis: one prescribed document, direct registration fields, predictable URL import, and updates from the source may reduce authoring and integration work. This is a goal to test, not a proven advantage. There is meaningful overlap with <a href="https://opentechevents.org/">OpenTechEvents</a>, an open specification and discovery ecosystem for tech community events, and <a href="https://evnt.directory/">Open Evnt</a>, which describes events and discovery in a richer range of cases.</p>
+  <section class="prose">
+    <h2>Why another format?</h2>
+    <p>The <a href="https://xkcd.com/927/">xkcd standards problem</a> is a fair concern. <a href="https://schema.org/Event">Schema.org Event</a>, <a href="https://www.rfc-editor.org/rfc/rfc5545">iCalendar</a>, and <a href="https://www.rfc-editor.org/rfc/rfc8984">JSCalendar</a> already represent much of this information. Their capabilities are not the missing ingredient.</p>
+    <p>The hypothesis behind OpenAjang is narrower: a volunteer organizer or developer may find it easier to maintain one small, prescribed event document with direct registration fields and a predictable URL-import contract. It chooses one shape for common information and keeps specialized features outside the core.</p>
+    <p>A simpler authoring experience is a design goal that needs testing with organizers, not a proven adoption advantage. The project earns its place only if it reduces publishing and integration work.</p>
   </section>
   <section class="prose"><h2>Try the draft</h2><p>Experiment with the <a href="/validator/">validator</a>, <a href="/spec/">specification</a>, and <a href="/examples/">examples</a>. The optional <a href="https://github.com/nedpals/openajang/tree/master/packages/core">TypeScript SDK</a> and <a href="https://github.com/nedpals/openajang/issues">feedback on GitHub</a> are open to everyone.</p></section>
 </Base>
@@ -105,5 +116,31 @@ import Base from '../layouts/Base.astro';
   form.addEventListener('reset', () => { ++generation; controller?.abort(); submit.disabled = false; message('Enter a URL or load the example to see an event.'); });
 </script>
 <style>
-  section { margin:4rem 0; } .hero { margin:3.5rem 0; max-width:68ch; } .hero h1 { margin:.5rem 0 1rem; } .status { color:var(--accent); font-weight:700; font-size:.85rem; } .lead { font-size:1.3rem; line-height:1.5; } .hero-link { margin-left:1rem; } .prose { max-width:68ch; } .demo { background:var(--panel); padding:clamp(1.2rem,3vw,2rem); border-top:3px solid #d36138; } .demo h2 { margin-top:0; } label { display:block; font-weight:700; margin-bottom:.35rem; } .fetch-row { display:flex; gap:.5rem; } .fetch-row input { flex:1; min-width:0; font-family:ui-monospace,monospace; } .demo-actions { display:flex; gap:.75rem; flex-wrap:wrap; margin-top:.75rem; } .demo-actions button { font-size:.85rem; } .reset { background:transparent; color:var(--heading); border-color:var(--line); } .reset:hover { background:var(--code); } .hint { color:var(--muted); font-size:.85rem; } #event-result { border-top:1px solid var(--line); margin-top:1.25rem; padding-top:.5rem; overflow-wrap:anywhere; } #event-result h3 { margin-bottom:.5rem; } #event-result p { margin:.4rem 0; } .publish { display:grid; grid-template-columns:1fr 1fr; gap:2rem; align-items:start; } .publish pre { margin:0; } @media(max-width:600px) { .fetch-row { flex-direction:column; } .publish { grid-template-columns:1fr; } .hero-link { display:inline-block; margin:.8rem 0 0 1rem; } section { margin:3rem 0; } }
+  section { margin: 2rem 0; }
+  .introduction { margin: .5rem 0 1.75rem; max-width: 70ch; }
+  .lead { font-size: 1.2rem; line-height: 1.5; }
+  .status { color: var(--muted); font-size: .9rem; }
+  .project-links { display: flex; flex-wrap: wrap; gap: .75rem 1.25rem; align-items: center; }
+  .prose { max-width: 70ch; }
+  .demo { background: var(--panel); padding: 1.25rem; border: 1px solid var(--line); border-radius: 4px; }
+  .demo h2 { font-size: 1.25rem; }
+  label { display: block; font-weight: 600; margin-bottom: .35rem; }
+  .fetch-row { display: flex; gap: .5rem; }
+  .fetch-row input { flex: 1; min-width: 0; font-family: ui-monospace, monospace; }
+  .demo-actions { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: .65rem; }
+  .demo-actions button { background: linear-gradient(var(--control-top), var(--control-bottom)); color: var(--fg); border-color: var(--line); font-size: .85rem; }
+  .demo-actions button:hover { background: var(--code); border-color: var(--muted); }
+  .hint { color: var(--muted); font-size: .85rem; margin: 1rem 0 .75rem; }
+  #event-result { border-top: 1px solid var(--line); padding-top: .75rem; overflow-wrap: anywhere; }
+  #event-result h3 { margin: .5rem 0; }
+  #event-result p { margin: .4rem 0; }
+  .publish { display: grid; grid-template-columns: 1fr 1.5fr; gap: 1.5rem; align-items: start; }
+  .publish pre { margin: 0; }
+  li { margin-bottom: .5rem; }
+  .publish ol { margin-top: 0; padding-left: 1.25rem; }
+  @media (max-width: 600px) {
+    .fetch-row { flex-direction: column; }
+    .publish { grid-template-columns: 1fr; }
+    .demo { padding: 1rem; }
+  }
 </style>
