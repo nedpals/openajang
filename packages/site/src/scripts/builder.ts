@@ -70,7 +70,7 @@ function render(event: RecordObject): string {
 }
 function refresh() {
   const event = record(); preview.innerHTML = render(event);
-  for (const input of inputs) { input.removeAttribute('aria-invalid'); input.parentElement?.querySelector('.field-error')?.remove(); }
+  for (const input of inputs) { input.removeAttribute('aria-invalid'); input.parentElement?.querySelectorAll('.field-error').forEach(error => error.remove()); }
   errors.replaceChildren();
   let result;
   try { result = validateSafe(event); } catch { result = {valid:false, errors:[{path:'', message:'Validation could not complete.', code:'validation'}]}; }
