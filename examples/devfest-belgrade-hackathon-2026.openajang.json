@@ -45,17 +45,17 @@
   },
   "updated_at": "2026-10-29T08:00:00Z",
   "extensions": {
-    "unstable:eligibility": {
+    "openajang:eligibility-unstable": {
       "minimum_age": 18,
       "maximum_age": 26
     },
-    "unstable:participation": {
+    "openajang:participation-unstable": {
       "minimum_team_size": 3,
       "maximum_team_size": 4,
       "individual_matching_available": true,
       "prerequisite": "Attendance at the DevFest Conference on October 9, 2026"
     },
-    "unstable:event_languages": {
+    "openajang:event-languages-unstable": {
       "working": [
         "sr"
       ],

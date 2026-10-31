@@ -15,8 +15,9 @@ Every key has the form `namespace:name`. Each side must be nonempty and use only
 
 Two naming rules apply to the namespace:
 
-- Third-party namespaces should use a reverse domain that the author controls, such as `org.example:streaming`.
-- `unstable` is reserved for documented OpenAjang experiments. Do not use it for your own keys.
+- Third-party namespaces should use a reverse domain that the author controls, such as `org.example:streaming-v1`.
+- `openajang` is a dotless namespace reserved for extensions the OpenAjang project maintains. Do not use it for your own keys.
+- End the name with a version, either `-v1` and so on or `-unstable` for an experiment, as in `org.example:streaming-v1`. [Extension profiles](/extension-profiles/#identity-and-versioning) explain what each suffix promises.
 
 Here is a complete document with one third-party extension. The core fields already say everything a reader needs, including the limit on the livestream.
 
@@ -37,7 +38,7 @@ Here is a complete document with one third-party extension. The core fields alre
   },
   "updated_at": "2026-10-29T08:00:00Z",
   "extensions": {
-    "org.example:streaming": {
+    "org.example:streaming-v1": {
       "main_room_only": true,
       "chat_enabled": false
     }
@@ -45,7 +46,7 @@ Here is a complete document with one third-party extension. The core fields alre
 }
 ```
 
-A tool that understands `org.example:streaming` can read the two flags directly. Every other tool still sees a hybrid event and a description that states the limit.
+A tool that understands `org.example:streaming-v1` can read the two flags directly. Every other tool still sees a hybrid event and a description that states the limit.
 
 ## The rule that governs every extension
 
@@ -68,23 +69,23 @@ An extension that many tools should implement needs more than a key name. [Exten
 
 ## The five experimental keys
 
-The `unstable:` keys below are documented in [`experimental-extensions.md`](https://github.com/nedpals/openajang/blob/master/experimental-extensions.md) only for the included [examples](/examples/). They are not core requirements, and they are not an API for programs, eligibility or admission selection. Shapes are illustrative.
+The `-unstable` keys below are documented in [`experimental-extensions.md`](https://github.com/nedpals/openajang/blob/master/experimental-extensions.md) only for the included [examples](/examples/). They are not core requirements, and they are not an API for programs, eligibility or admission selection. Shapes are illustrative.
 
 | Key | Illustrative shape | Core fallback |
 | --- | --- | --- |
-| `unstable:components` | Array of objects with `name`, `starts_at` and a location-shaped `location`. Dates keep their original precision. | The overall description and the registration or venue instructions say which days have which attendance modes. No ticket coverage is inferred. |
-| `unstable:eligibility` | Object with integer `minimum_age` and `maximum_age`. | The registration instructions state the age range. |
-| `unstable:participation` | Object with integer `minimum_team_size` and `maximum_team_size`, boolean `individual_matching_available` and text `prerequisite`. | The registration instructions state team sizes, individual matching and the prerequisite. |
-| `unstable:event_languages` | Object with arrays `working` and `presentations` of language tags. | The description names the spoken and presentation languages. The document `language` field stays the language of the document text, not of the event. |
-| `unstable:broadcast` | Object with URL `recordings_url` and boolean `counts_as_attendance`. | The description says recordings remain available. The core `location` stays physical. |
+| `openajang:components-unstable` | Array of objects with `name`, `starts_at` and a location-shaped `location`. Dates keep their original precision. | The overall description and the registration or venue instructions say which days have which attendance modes. No ticket coverage is inferred. |
+| `openajang:eligibility-unstable` | Object with integer `minimum_age` and `maximum_age`. | The registration instructions state the age range. |
+| `openajang:participation-unstable` | Object with integer `minimum_team_size` and `maximum_team_size`, boolean `individual_matching_available` and text `prerequisite`. | The registration instructions state team sizes, individual matching and the prerequisite. |
+| `openajang:event-languages-unstable` | Object with arrays `working` and `presentations` of language tags. | The description names the spoken and presentation languages. The document `language` field stays the language of the document text, not of the event. |
+| `openajang:broadcast-unstable` | Object with URL `recordings_url` and boolean `counts_as_attendance`. | The description says recordings remain available. The core `location` stays physical. |
 
-In each row the core fallback carries the full meaning. The extension only repeats it as structure. A recording alone does not make an event virtual or hybrid ([spec §6.2](/spec/#62-location)), which is why `unstable:broadcast` leaves the core location alone.
+In each row the core fallback carries the full meaning. The extension only repeats it as structure. A recording alone does not make an event virtual or hybrid ([spec §6.2](/spec/#62-location)), which is why `openajang:broadcast-unstable` leaves the core location alone.
 
 ## Guidance for publishers
 
 1. Write the core text first. Fill in the required fields, then use `description` and the registration or venue `instructions` for anything a person must know before attending: limits, restrictions, which days use which mode.
 2. Add an extension only if a specific tool you know of needs structure that the core does not give it.
-3. Put the key in a namespace you control: you should use a reverse domain you control. Do not use `unstable:`.
+3. Put the key in a namespace you control: you should use a reverse domain you control. Do not use the `openajang` namespace.
 4. Check the result by stripping the extension in your head, or in a copy of the file. If the listing is now wrong or missing something a person needs, move that information into the core text.
 5. Do not use an extension to patch a mistake in a core field. Correct the core field.
 

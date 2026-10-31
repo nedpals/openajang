@@ -38,7 +38,7 @@
   ],
   "updated_at": "2026-10-29T08:00:00Z",
   "extensions": {
-    "unstable:broadcast": {
+    "openajang:broadcast-unstable": {
       "recordings_url": "https://video.fosdem.org/2026/",
       "counts_as_attendance": false
     }

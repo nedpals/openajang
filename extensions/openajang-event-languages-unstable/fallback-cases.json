@@ -1,0 +1,24 @@
+[
+  {
+    "name": "belgrade states both languages in core text",
+    "example": "examples/devfest-belgrade-hackathon-2026.openajang.json",
+    "claims": [
+      { "tag": "sr", "term": "Serbian", "field": "description" },
+      { "tag": "en", "term": "English", "field": "description" }
+    ],
+    "fallbackAdequate": true
+  },
+  {
+    "name": "extension alone carries the language, core text is silent",
+    "inline": {
+      "description": "A two-day hackathon for teams.",
+      "extensions": { "openajang:event-languages-unstable": { "working": ["sr"], "presentations": ["en"] } }
+    },
+    "claims": [
+      { "tag": "sr", "term": "Serbian", "field": "description" },
+      { "tag": "en", "term": "English", "field": "description" }
+    ],
+    "fallbackAdequate": false,
+    "review": "A core-only reader cannot tell which language the event runs in. The publisher must add it to the description."
+  }
+]
