@@ -6,7 +6,7 @@
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
-import { join, relative } from 'node:path';
+import { join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const site = fileURLToPath(new URL('..', import.meta.url));
@@ -29,6 +29,8 @@ if (!existsSync(dist)) {
   process.exit(1);
 }
 const pages = [...walk(dist)].filter((file) => file.endsWith('.html'));
+// Example publisher pages model a separate site, so their root-relative links are not ours.
+const isExampleSite = (file) => relative(dist, file).startsWith('examples' + sep);
 const idsByPage = new Map();
 for (const file of pages) {
   const html = readFileSync(file, 'utf8');
@@ -42,7 +44,9 @@ const targetFile = (pathname) => {
   return existsSync(index) ? index : undefined;
 };
 for (const file of pages) {
-  const html = readFileSync(file, 'utf8');
+  if (isExampleSite(file)) continue;
+  // Markup quoted inside code is documentation, not a link.
+  const html = readFileSync(file, 'utf8').replace(/<(pre|code)\b[\s\S]*?<\/\1>/g, '');
   const from = '/' + relative(dist, file).replace(/index\.html$/, '');
   for (const match of html.matchAll(/\shref="([^"]*)"/g)) {
     const href = match[1].replaceAll('&amp;', '&');
