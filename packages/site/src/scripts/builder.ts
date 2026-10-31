@@ -1,3 +1,4 @@
+import { schemaOrgForPage } from './schema-org';
 import { candidates } from './time-zone';
 import { Buffer } from 'buffer';
 import { eventId, parseJsonStrict, SCHEMA_ID, validateSafe, type OpenAjangEvent } from '@openajang/core';
@@ -167,7 +168,7 @@ function exportRecord(): RecordObject | null {
   return event;
 }
 function download(blob: Blob, name: string) { const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); }
-function html(event: RecordObject): string { return `<!doctype html>\n<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${escape(event.title)}</title><link rel="alternate" type="application/vnd.openajang+json" href="event.openajang.json"><style>body{font:1rem/1.6 system-ui,sans-serif;color:#29283d;background:#faf9f6;margin:0}main{max-width:45rem;margin:3rem auto;padding:0 1.25rem}h1{font-size:2rem}h3{font-size:1.6rem}.event-image{display:block;max-width:100%;max-height:24rem;object-fit:contain}a{color:#873816}p{overflow-wrap:anywhere}</style></head><body><main>${render(event)}</main></body></html>\n`; }
+function html(event: RecordObject, jsonLd: string): string { return `<!doctype html>\n<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${escape(event.title)}</title><link rel="alternate" type="application/vnd.openajang+json" href="event.openajang.json"><script type="application/ld+json">${jsonLd}</script><style>body{font:1rem/1.6 system-ui,sans-serif;color:#29283d;background:#faf9f6;margin:0}main{max-width:45rem;margin:3rem auto;padding:0 1.25rem}h1{font-size:2rem}h3{font-size:1.6rem}.event-image{display:block;max-width:100%;max-height:24rem;object-fit:contain}a{color:#873816}p{overflow-wrap:anywhere}</style></head><body><main>${render(event)}</main></body></html>\n`; }
 function renderTickets() {
   const list = document.querySelector<HTMLElement>('#ticket-list')!; list.replaceChildren();
   tickets.forEach((ticket, index) => {
@@ -218,5 +219,5 @@ document.querySelector<HTMLInputElement>('#import')!.addEventListener('change', 
   input.value = '';
 });
 jsonButton.addEventListener('click', () => { const event = exportRecord(); if (event) download(new Blob([JSON.stringify(event, null, 2) + '\n'], {type:'application/vnd.openajang+json'}), 'event.openajang.json'); });
-zipButton.addEventListener('click', () => { const event = exportRecord(); if (!event) return; const json = JSON.stringify(event, null, 2) + '\n'; const readme = 'Publish these files together in the same directory on your website.\nOpen index.html to view the event. Its discovery link points to event.openajang.json.\nSet the event URL to the public page URL and upload both files over HTTPS.\n'; const zip = zipSync({'index.html':strToU8(html(event)), 'event.openajang.json':strToU8(json), 'README.txt':strToU8(readme)}); download(new Blob([zip as BlobPart], {type:'application/zip'}), 'openajang-publishing-kit.zip'); });
+zipButton.addEventListener('click', () => { const event = exportRecord(); if (!event) return; const json = JSON.stringify(event, null, 2) + '\n'; const structured = schemaOrgForPage(event as OpenAjangEvent); const readme = 'Publish these files together in the same directory on your website.\nOpen index.html to view the event. Its discovery link points to event.openajang.json.\nThe page includes a Schema.org Event in JSON-LD as a demonstration. OpenAjang JSON is the authoritative record; some information cannot be represented in the Schema.org mapping.\nSet the event URL to the public page URL and upload both files over HTTPS.\n\nConversion notes:\n' + structured.diagnostics.map(note => `- ${note}`).join('\n') + '\n'; const zip = zipSync({'index.html':strToU8(html(event, structured.json)), 'event.openajang.json':strToU8(json), 'README.txt':strToU8(readme)}); download(new Blob([zip as BlobPart], {type:'application/zip'}), 'openajang-publishing-kit.zip'); });
 load(fresh());
