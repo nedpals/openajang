@@ -51,7 +51,7 @@ for (const name of (Intl as any).supportedValuesOf?.('timeZone') ?? []) {
 const zoneSuggestion = document.querySelector<HTMLElement>('#zone-suggestion')!;
 const useZone = document.querySelector<HTMLButtonElement>('#use-zone')!;
 if (detectedZone) {
-  zoneSuggestion.textContent = `Your browser suggests ${detectedZone}. Check that this is the time zone you want to use for this event.`;
+  zoneSuggestion.textContent = `Your browser reports ${detectedZone}. Use it only if the event happens in that zone.`;
   useZone.hidden = false;
 }
 const dateFields = ['start', 'end', 'registration-opens', 'registration-closes'];
@@ -193,7 +193,7 @@ function load(value: RecordObject) {
 function refresh() {
   const event = record();
   for (const context of document.querySelectorAll<HTMLElement>('[data-time-zone-context]')) {
-    context.textContent = zone.value ? `Time zone for edits: ${zone.value}.` : 'Choose the shared time zone before entering a time.';
+    context.textContent = zone.value ? `Time zone for edits: ${zone.value}.` : 'Set the time zone above before entering a time.';
   }
   generatedJson.value = JSON.stringify(event, null, 2);
   for (const input of [
@@ -242,7 +242,7 @@ function refresh() {
   if (dateErrors.size) result.valid = false;
   document.querySelector<HTMLElement>('#export-notice')!.textContent = '';
   const statusHelp = document.querySelector<HTMLElement>('#status-help')!;
-  statusHelp.textContent = event.status === 'postponed' ? 'Keep the last scheduled start until the replacement date is confirmed.' : event.status === 'rescheduled' ? 'Enter the new start and add earlier starts in revision order below.' : 'Use the status that describes the event now. Keep its identity when the status changes.';
+  statusHelp.textContent = event.status === 'postponed' ? 'Postponed: keep the last scheduled start until the new date is confirmed.' : event.status === 'rescheduled' ? 'Rescheduled: enter the new start, then list the earlier starts below.' : 'Pick the status that describes the event today. It stays the same event when the status changes.';
   result.errors = normalizeDiagnostics(result.errors, event).filter((error) =>
     !(dateErrors.has(error.path.slice(1).replaceAll('/', '.')) && error.code !== 'date'));
 
@@ -250,7 +250,7 @@ function refresh() {
     ? '(ready)'
     : `(${result.errors.length} to fix)`;
   clearTimeout(validationTimer);
-  const message = result.valid ? 'This event passes the bundled OpenAjang checks.' : `${result.errors.length} problem(s) to fix before export.`;
+  const message = result.valid ? 'This event passes validation. You can download it.' : `${result.errors.length} ${result.errors.length === 1 ? 'problem' : 'problems'} to fix before you can download.`;
   validationTimer = window.setTimeout(() => { validation.textContent = message; }, 500);
   const shownFields = new Set<HTMLElement>();
   for (const error of result.errors) {
@@ -456,7 +456,7 @@ function renderHistory() {
     const prefix = `history-${index}`;
     const group = document.createElement('fieldset');
     group.className = 'history-editor';
-    group.innerHTML = `<legend>Previous start ${index + 1}</legend><input type="hidden" id="${prefix}-value"><label>Date <input type="date" id="${prefix}-date"></label><label>Time (optional) <input type="time" step="1" id="${prefix}-time"></label><div id="${prefix}-offset-group" hidden><label>Choose offset <select id="${prefix}-offset"></select></label></div><p class="hint" id="${prefix}-zone-context" data-time-zone-context></p><p class="hint" id="${prefix}-time-help"></p><button type="button" class="secondary">Remove previous start</button>`;
+    group.innerHTML = `<legend>Earlier start ${index + 1}</legend><input type="hidden" id="${prefix}-value"><label>Date <input type="date" id="${prefix}-date"></label><label>Time (optional) <input type="time" step="1" id="${prefix}-time"></label><div id="${prefix}-offset-group" hidden><label>Choose offset <select id="${prefix}-offset"></select></label></div><p class="hint" id="${prefix}-zone-context" data-time-zone-context></p><p class="hint" id="${prefix}-time-help"></p><button type="button" class="secondary">Remove earlier start</button>`;
     list.append(group);
     for (const suffix of ['date', 'time', 'offset']) dateElement(prefix, suffix).setAttribute('aria-describedby', `${prefix}-time-help ${prefix}-zone-context`);
     dateElement(prefix, 'value').value = item.value;

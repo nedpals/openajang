@@ -27,14 +27,14 @@ export function normalizeDiagnostics(errors: Diagnostic[], value: unknown): Diag
       else if (path === '/location/virtual') normalized.push(authoring('/location/virtual/url', 'Enter the online event URL.'));
       else if (path === '/registration/required') normalized.push(authoring(path, 'Choose whether registration is required when adding registration details.'));
       else if (/\/price\/(amount|currency)$/.test(path)) normalized.push(authoring(path, 'Price needs both an amount and a currency code.'));
-      else normalized.push(authoring(path, path === '/previous_starts_at' ? 'Add at least one previous start for a rescheduled event.' : 'This field is required.'));
+      else normalized.push(authoring(path, path === '/previous_starts_at' ? 'Add at least one earlier start for a rescheduled event.' : 'This field is required.'));
       continue;
     }
     if (error.code === 'invalid') {
       if (error.message === 'Event end does not follow start') { normalized.push(authoring('/ends_at', 'Choose an end after the start time, or the same or a later date for dates without times.')); continue; }
       if (error.message.includes('mixed start/end date-time precision')) { normalized.push(authoring('/ends_at', 'Start and end must both include times, or both be dates only.')); continue; }
       if (error.message === 'closes_at must follow opens_at') { normalized.push(authoring('/registration/closes_at', 'Registration must close after it opens.')); continue; }
-      if (error.message === 'History contains current start') { normalized.push(authoring('/previous_starts_at', 'Previous starts must differ from the current start.')); continue; }
+      if (error.message === 'History contains current start') { normalized.push(authoring('/previous_starts_at', 'Earlier starts must differ from the current start.')); continue; }
       if (error.message === 'sales_end must follow sales_start') {
         // The SDK reports this relationship without the ticket index.
         normalized.push(authoring('/tickets', 'Each ticket’s sales end must follow its sales start.'));

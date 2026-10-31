@@ -7,7 +7,7 @@ export type TemporalControl = 'date' | 'time' | 'offset' | 'zone';
 export function resolveTemporal(state: TemporalState, zone: string, timestampOnly = false, required = false) {
   const { date, time, offset } = state;
   const failure = (message: string, control: TemporalControl) => ({ value: date, choices: [] as ReturnType<typeof candidates>, message, control });
-  if (!date && (time || required)) return failure(time ? 'Choose a date for this time.' : 'Choose a date for this previous start.', 'date');
+  if (!date && (time || required)) return failure(time ? 'Choose a date for this time.' : 'Choose a date for this earlier start.', 'date');
   if (!date && !time) return { value: '', choices: [], message: '', control: 'date' as const };
   if (!time) return timestampOnly ? failure('Choose a time for this date.', 'time') : { value: date, choices: [], message: '', control: 'date' as const };
   if (!zone) return failure('Choose the event time zone before entering a time.', 'zone');
