@@ -17,6 +17,8 @@ let original: RecordObject;
 let edited = new Set<string>();
 const touched = new Set<string>();
 let identity: string;
+let tickets: RecordObject[] = [];
+let ticketsEdited = false;
 let removedLocations = new Set<string>();
 const zone = form.elements.namedItem('time_zone') as HTMLInputElement;
 const detectedZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -65,8 +67,8 @@ function set(obj: RecordObject, path: string, value: string) {
     if (!target[part] || typeof target[part] !== 'object' || Array.isArray(target[part])) target[part] = {};
     target = target[part];
   }
-  if (value === '') delete target[last];
-  else target[last] = path === 'registration.required' ? value === 'true' : path === 'previous_starts_at' ? value.split('\n').map(v => v.trim()).filter(Boolean) : value;
+  if (value === '' || ((path === 'tags' || path === 'previous_starts_at') && !value.trim())) delete target[last];
+  else target[last] = path === 'registration.required' ? value === 'true' : (path === 'previous_starts_at' || path === 'tags') ? value.split('\n').map(v => v.trim()).filter(Boolean) : value;
   // Remove only empty containers; preserve all unexposed properties.
   function prune(node: RecordObject, keys: string[]) {
     const key = keys.shift(); if (!key || !node[key] || typeof node[key] !== 'object') return;
@@ -77,6 +79,7 @@ function set(obj: RecordObject, path: string, value: string) {
 }
 function record(): RecordObject {
   const result = structuredClone(original);
+  if (ticketsEdited) { if (tickets.length) result.tickets = structuredClone(tickets); else delete result.tickets; }
   for (const key of removedLocations) if (result.location) delete result.location[key];
   for (const input of inputs) if (edited.has(input.name)) set(result, input.name, input.value);
   if (result.location?.type === 'virtual' && result.location.physical && !Object.keys(result.location.physical).length) delete result.location.physical;
@@ -86,6 +89,7 @@ function record(): RecordObject {
 }
 function load(value: RecordObject) {
   original = structuredClone(value); edited = new Set(); removedLocations = new Set(); dateDirty.clear(); dateErrors.clear(); touched.clear();
+  tickets = structuredClone(value.tickets || []); ticketsEdited = false; renderTickets();
   identity = typeof value.url === 'string' ? eventId(value as OpenAjangEvent) : '';
   for (const input of inputs) { const v = get(value, input.name); input.value = v == null ? '' : Array.isArray(v) ? v.join('\n') : String(v); }
   for (const prefix of dateFields) {
@@ -102,18 +106,21 @@ function safeUrl(value: unknown): string | null {
   try { const url = new URL(value); return ['http:', 'https:'].includes(url.protocol) ? url.href : null; } catch { return null; }
 }
 function link(value: unknown, label: string): string { const url = safeUrl(value); return url ? `<a href="${escape(url)}" rel="noopener noreferrer">${escape(label)}</a>` : ''; }
-function render(event: RecordObject): string {
+function render(event: RecordObject, showImage = true): string {
+  const imageUrl = showImage ? safeUrl(event.image?.url) : null;
+  const image = imageUrl ? `<img class="event-image" src="${escape(imageUrl)}" alt="${escape(event.image?.alt || '')}" referrerpolicy="no-referrer" loading="lazy">` : '';
+  const ticketText = Array.isArray(event.tickets) && event.tickets.length ? `<h4>Tickets</h4><ul>${event.tickets.map((ticket: RecordObject) => `<li>${escape(ticket.name || 'Ticket')}${ticket.price ? ` — ${escape(ticket.price.amount)} ${escape(ticket.price.currency)}` : ''}${ticket.availability ? ` · ${escape(String(ticket.availability).replaceAll('_', ' '))}` : ''}${link(ticket.url, 'Ticket details') ? ` · ${link(ticket.url, 'Ticket details')}` : ''}</li>`).join('')}</ul>` : '';
   const location = event.location || {}; const physical = location.physical || {}; const virtual = location.virtual || {}; const registration = event.registration;
-  const venue = [physical.name, physical.address?.locality].filter(Boolean).map(escape).join(', ');
+  const venue = [physical.name, physical.address?.street, physical.address?.locality, physical.address?.region, physical.address?.postal_code, physical.address?.country].filter(Boolean).map(escape).join(', ');
   const venueStatus = physical.status === 'tentative' ? ' (tentative)' : physical.status === 'to_be_announced' && venue ? ' (to be announced)' : '';
   const where = [location.type !== 'virtual' ? `${venue || 'Venue to be announced'}${venueStatus}` : '', location.type !== 'physical' ? (link(virtual.url, virtual.platform || 'Online event') || 'Online details to be announced') : ''].filter(Boolean).join(' · ');
   const date = event.starts_at ? escape(event.starts_at) + (event.ends_at ? ` – ${escape(event.ends_at)}` : '') + (/^\d{4}-\d\d-\d\d$/.test(event.starts_at) ? ' (time not specified)' : '') : 'Date to be announced';
   const reg = registration ? `${registration.required === true ? 'Registration required' : registration.required === false ? 'Registration not required' : 'Registration details'}${registration.status ? ` · ${escape(String(registration.status).replaceAll('_', ' '))}` : ''}${registration.instructions ? `<br>${escape(registration.instructions)}` : ''}${link(registration.url, 'Registration details') ? `<br>${link(registration.url, 'Registration details')}` : ''}` : 'Registration details not specified';
-  return `<h3>${escape(event.title || 'Untitled event')}</h3>${event.summary ? `<p>${escape(event.summary)}</p>` : ''}<p><strong>Status:</strong> ${escape(event.status || 'Not specified')}${event.status_note ? ` — ${escape(event.status_note)}` : ''}</p><p><strong>When:</strong> ${date}${event.time_zone ? ` · ${escape(event.time_zone)}` : ''}</p><p><strong>Where:</strong> ${where || 'Location to be announced'}</p><p><strong>Organizer:</strong> ${escape(event.organizer?.name || 'Not specified')}</p><p><strong>Registration:</strong> ${reg}</p>${link(event.url, 'Event website') ? `<p>${link(event.url, 'Event website')}</p>` : ''}`;
+  return `${image}<h3>${escape(event.title || 'Untitled event')}</h3>${event.summary ? `<p>${escape(event.summary)}</p>` : ''}${event.description ? `<p style="white-space:pre-wrap">${escape(event.description)}</p>` : ''}<p><strong>Status:</strong> ${escape(event.status || 'Not specified')}${event.status_note ? ` — ${escape(event.status_note)}` : ''}</p><p><strong>When:</strong> ${date}${event.time_zone ? ` · ${escape(event.time_zone)}` : ''}</p><p><strong>Where:</strong> ${where || 'Location to be announced'}</p><p><strong>Organizer:</strong> ${escape(event.organizer?.name || 'Not specified')}</p><p><strong>Registration:</strong> ${reg}</p>${physical.instructions && location.type !== 'virtual' ? `<p>${escape(physical.instructions)}</p>` : ''}${virtual.instructions && location.type !== 'physical' ? `<p>${escape(virtual.instructions)}</p>` : ''}${ticketText}${link(event.url, 'Event website') ? `<p>${link(event.url, 'Event website')}</p>` : ''}`;
 }
 function refresh() {
-  const event = record(); preview.innerHTML = render(event);
-  for (const input of [...inputs, ...dateFields.map(prefix => dateElement(prefix, 'date'))]) { input.removeAttribute('aria-invalid'); if (input.getAttribute('aria-describedby')?.startsWith('error-')) input.removeAttribute('aria-describedby'); input.parentElement?.querySelectorAll('.field-error').forEach(error => error.remove()); }
+  const event = record(); preview.innerHTML = render(event, document.activeElement !== form.elements.namedItem('image.url'));
+  for (const input of [...inputs, ...dateFields.map(prefix => dateElement(prefix, 'date')), ...document.querySelectorAll<HTMLInputElement>('#ticket-list input, #ticket-list select')]) { input.removeAttribute('aria-invalid'); if (input.getAttribute('aria-describedby')?.startsWith('error-')) input.removeAttribute('aria-describedby'); input.parentElement?.querySelectorAll('.field-error').forEach(error => error.remove()); }
   errors.replaceChildren();
   let result;
   try { result = validateSafe(event); } catch { result = {valid:false, errors:[{path:'', message:'Validation could not complete.', code:'validation'}]}; }
@@ -126,7 +133,8 @@ function refresh() {
     let path = error.path.replace(/^\//, '').replaceAll('/', '.');
     const missing = error.message.match(/required property '([^']+)'/);
     if (missing) path = [path, missing[1]].filter(Boolean).join('.');
-    const input = path === 'starts_at' ? dateElement('start', 'date') : path === 'ends_at' ? dateElement('end', 'date') : inputs.find(i => i.name === path);
+    const ticketPath = /^tickets\.(\d+)\.(.+)$/.exec(path);
+    const input = path === 'starts_at' ? dateElement('start', 'date') : path === 'ends_at' ? dateElement('end', 'date') : ticketPath ? document.querySelector<HTMLInputElement>(`#ticket-${ticketPath[1]}-${ticketPath[2].replaceAll('.', '-')}`) : inputs.find(i => i.name === path);
     const friendly = error.code === 'required' ? 'This field is required.' : error.code === 'pattern' ? 'Enter a value that is not blank.' : error.code === 'format' ? 'Enter a valid value in the requested format.' : error.code === 'oneOf' ? 'Enter a valid date or date and time.' : error.message;
     if (input) { if (!input.id) input.id = `field-${input.name.replaceAll('.', '-')}`; const link = document.createElement('a'); link.href = `#${input.id}`; link.textContent = `${input.closest('label')?.textContent?.trim() || path}: ${friendly}`; li.append(link); } else li.textContent = `${error.path || 'Document'}: ${friendly}`;
     if (input && touched.has(input.name || input.id)) { input.setAttribute('aria-invalid', 'true'); const hint = document.createElement('span'); hint.className = 'field-error'; hint.textContent = friendly; hint.id = `error-${input.name || input.id}`; input.setAttribute('aria-describedby', hint.id); input.parentElement?.append(hint); }
@@ -151,11 +159,33 @@ function exportRecord(): RecordObject | null {
   if (!same(event, original)) event.updated_at = new Date(Math.max(Date.now(), Date.parse(original.updated_at) + 1 || 0)).toISOString();
   if (!validateSafe(event).valid) { notice.textContent = 'The updated event did not pass validation.'; return null; }
   // Subsequent downloads of the same revision use the same timestamp and record.
-  original = structuredClone(event); edited.clear(); removedLocations.clear();
+  original = structuredClone(event); edited.clear(); removedLocations.clear(); ticketsEdited = false;
   return event;
 }
 function download(blob: Blob, name: string) { const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); }
-function html(event: RecordObject): string { return `<!doctype html>\n<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${escape(event.title)}</title><link rel="alternate" type="application/vnd.openajang+json" href="event.openajang.json"><style>body{font:1rem/1.6 system-ui,sans-serif;color:#29283d;background:#faf9f6;margin:0}main{max-width:45rem;margin:3rem auto;padding:0 1.25rem}h1{font-size:2rem}h3{font-size:1.6rem}a{color:#873816}p{overflow-wrap:anywhere}</style></head><body><main>${render(event)}</main></body></html>\n`; }
+function html(event: RecordObject): string { return `<!doctype html>\n<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${escape(event.title)}</title><link rel="alternate" type="application/vnd.openajang+json" href="event.openajang.json"><style>body{font:1rem/1.6 system-ui,sans-serif;color:#29283d;background:#faf9f6;margin:0}main{max-width:45rem;margin:3rem auto;padding:0 1.25rem}h1{font-size:2rem}h3{font-size:1.6rem}.event-image{display:block;max-width:100%;max-height:24rem;object-fit:contain}a{color:#873816}p{overflow-wrap:anywhere}</style></head><body><main>${render(event)}</main></body></html>\n`; }
+function renderTickets() {
+  const list = document.querySelector<HTMLElement>('#ticket-list')!; list.replaceChildren();
+  tickets.forEach((ticket, index) => {
+    const group = document.createElement('div'); group.className = 'ticket-editor';
+    const heading = document.createElement('h3'); heading.textContent = `Ticket ${index + 1}`; group.append(heading);
+    const fields: [string, string, string][] = [['name','Ticket name','text'], ['description','Description','text'], ['url','Ticket URL','url'], ['price.amount','Price amount','text'], ['price.currency','Currency code (e.g. USD)','text'], ['availability','Availability','select']];
+    for (const [path, title, type] of fields) {
+      const label = document.createElement('label'); label.textContent = title;
+      const control = type === 'select' ? document.createElement('select') : document.createElement('input');
+      if (control instanceof HTMLSelectElement) for (const [value, text] of [['','Not specified'],['available','Available'],['limited','Limited'],['sold_out','Sold out'],['unavailable','Unavailable'],['unknown','Unknown']]) control.add(new Option(text, value));
+      else control.type = type;
+      control.value = String(get(ticket, path) ?? ''); control.id = `ticket-${index}-${path.replaceAll('.', '-')}`;
+      control.addEventListener('input', () => { set(ticket, path, control.value); ticketsEdited = true; refresh(); });
+      control.addEventListener('change', () => { set(ticket, path, control.value); ticketsEdited = true; refresh(); });
+      label.append(control); group.append(label);
+    }
+    const remove = document.createElement('button'); remove.type = 'button'; remove.className = 'secondary'; remove.textContent = 'Remove ticket';
+    remove.addEventListener('click', () => { if (!confirm(`Remove ticket ${ticket.name || index + 1}, including any imported details?`)) return; tickets.splice(index, 1); ticketsEdited = true; renderTickets(); refresh(); });
+    group.append(remove); list.append(group);
+  });
+}
+document.querySelector('#add-ticket')!.addEventListener('click', () => { tickets.push({id: crypto.randomUUID(), name: ''}); ticketsEdited = true; renderTickets(); refresh(); });
 for (const prefix of dateFields) for (const suffix of ['date', 'time', 'offset']) dateElement(prefix, suffix).addEventListener('change', () => { if (suffix !== 'offset') dateElement(prefix, 'offset').value = ''; dateDirty.add(prefix); syncDate(prefix); refresh(); });
 useZone.addEventListener('click', () => { zone.value = detectedZone; edited.add('time_zone'); for (const prefix of dateDirty) syncDate(prefix); refresh(); });
 zone.addEventListener('change', () => { for (const prefix of dateDirty) { dateElement(prefix, 'offset').value = ''; syncDate(prefix); } refresh(); });
