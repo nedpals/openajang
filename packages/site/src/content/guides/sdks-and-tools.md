@@ -16,7 +16,7 @@ You do not need a specialized library to publish or read OpenAjang events. Any s
 
 ## TypeScript packages
 
-`@openajang/core` and `@openajang/resolver` are release candidates published for testing and feedback. Their APIs and validation behavior may change before `0.1.0`. Both packages support Node.js 22.18 or newer. The repository's `package.json` files currently say `0.1.0-rc.2`; release candidates are published under the `next` tag.
+`@openajang/core` and `@openajang/resolver` are release candidates published for testing and feedback. Their APIs and validation behavior may change before `0.1.0`. Both packages support Node.js 22.18 or newer. The repository's `package.json` files currently say `0.1.0-rc.3`; release candidates are published under the `next` tag.
 
 ```sh
 npm install @openajang/core@next @openajang/resolver@next
@@ -32,7 +32,16 @@ The two packages share a version number, and that number is separate from the sc
 - Schema validation plus the procedural checks the specification describes, using the bundled schema.
 - Optional Schema.org, JSCalendar and single-event iCalendar adapters, imported from `@openajang/core/adapters`.
 
-`validate` throws on an invalid document. `validateSafe` returns a result instead:
+`validate` throws on an invalid document. `validateSafe` returns a result instead, with every problem found in `errors`. Each entry has a `code`, a `path` (a JSON Pointer to the offending value), a `message` and, for schema problems, `params`. Schema problems use the JSON Schema keyword as the code (`required`, `format`, `type`). Rule checks that the schema cannot express use stable codes: `end-before-start`, `end-precision-mismatch`, `registration-close-before-open`, `ticket-sales-end-before-start`, `ticket-id-duplicate`, `tag-duplicate`, `history-contains-current-start` and `placeholder-venue`. Key your own wording on `code` and fall back to `message` for codes you do not recognize, because the message text may change. Rule checks run on every value the schema accepted, so one bad field does not hide problems in the others.
+
+```ts
+import { parseJsonStrict, validateSafe } from '@openajang/core';
+
+const { valid, errors } = validateSafe(parseJsonStrict(json));
+// errors: [{ code: 'end-before-start', path: '/ends_at', message: 'Event end does not follow start' }]
+```
+
+`validate` returns the event or throws:
 
 ```ts
 import { parseJsonStrict, validate } from '@openajang/core';
