@@ -1,6 +1,7 @@
 import ipaddr from 'ipaddr.js';
 import { parse as parseLanguageTag } from 'bcp-47';
 import isEmail from 'isemail';
+import type { Diagnostic } from './types.js';
 
 /**
  * Standard media type for OpenAjang documents.
@@ -8,7 +9,7 @@ import isEmail from 'isemail';
 export const MEDIA_TYPE = 'application/vnd.openajang+json';
 
 export class OpenAjangValidationError extends Error {
-  constructor(message: string, public readonly diagnostics: { code: string; path: string; message: string }[] = [{ code: 'invalid', path: '', message }]) {
+  constructor(message: string, public readonly diagnostics: Diagnostic[] = [{ code: 'invalid', path: '', message }]) {
     super(message);
     this.name = 'OpenAjangValidationError';
   }

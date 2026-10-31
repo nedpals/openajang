@@ -1,7 +1,19 @@
-export type Diagnostic = { code: string; path: string; message: string };
+export type Diagnostic = { code: string; path: string; message: string; params?: Record<string, unknown> };
 type JsonObject = Record<string, any>;
 const object = (value: unknown): value is JsonObject => value !== null && typeof value === 'object' && !Array.isArray(value);
 const authoring = (path: string, message: string): Diagnostic => ({ code: 'authoring', path, message });
+
+/** Page copy for the SDK's procedural rule codes; unknown codes fall back to the SDK message. */
+const PROCEDURAL_COPY: Record<string, string> = {
+  'end-before-start': 'Choose an end after the start time, or the same or a later date for dates without times.',
+  'end-precision-mismatch': 'Start and end must both include times, or both be dates only.',
+  'registration-close-before-open': 'Registration must close after it opens.',
+  'history-contains-current-start': 'Earlier starts must differ from the current start.',
+  'ticket-sales-end-before-start': 'A ticket’s sales end must follow its sales start.',
+  'ticket-id-duplicate': 'Give each ticket a different ID.',
+  'tag-duplicate': 'Remove the repeated tag; tags that differ only by case count as the same.',
+  'placeholder-venue': 'Choose “To be announced” for the venue status instead of entering a placeholder name.',
+};
 
 /** Keep validator semantics, but present one concrete recovery action per issue. */
 export function normalizeDiagnostics(errors: Diagnostic[], value: unknown): Diagnostic[] {
@@ -10,7 +22,8 @@ export function normalizeDiagnostics(errors: Diagnostic[], value: unknown): Diag
   const normalized: Diagnostic[] = [];
   for (const error of errors) {
     if (error.code === 'if') continue;
-    const missing = error.code === 'required' ? error.message.match(/required property '([^']+)'/)?.[1] : undefined;
+    const missingProperty = error.code === 'required' ? error.params?.missingProperty : undefined;
+    const missing = typeof missingProperty === 'string' ? missingProperty : undefined;
     const path = missing ? `${error.path}/${missing}` : error.path;
     if (path === '/previous_starts_at' && missing && event.status !== 'rescheduled') continue;
     if (error.path === '/location' && error.code === 'not') {
@@ -30,17 +43,7 @@ export function normalizeDiagnostics(errors: Diagnostic[], value: unknown): Diag
       else normalized.push(authoring(path, path === '/previous_starts_at' ? 'Add at least one earlier start for a rescheduled event.' : 'This field is required.'));
       continue;
     }
-    if (error.code === 'invalid') {
-      if (error.message === 'Event end does not follow start') { normalized.push(authoring('/ends_at', 'Choose an end after the start time, or the same or a later date for dates without times.')); continue; }
-      if (error.message.includes('mixed start/end date-time precision')) { normalized.push(authoring('/ends_at', 'Start and end must both include times, or both be dates only.')); continue; }
-      if (error.message === 'closes_at must follow opens_at') { normalized.push(authoring('/registration/closes_at', 'Registration must close after it opens.')); continue; }
-      if (error.message === 'History contains current start') { normalized.push(authoring('/previous_starts_at', 'Earlier starts must differ from the current start.')); continue; }
-      if (error.message === 'sales_end must follow sales_start') {
-        // The SDK reports this relationship without the ticket index.
-        normalized.push(authoring('/tickets', 'Each ticket’s sales end must follow its sales start.'));
-        continue;
-      }
-    }
+    if (PROCEDURAL_COPY[error.code]) { normalized.push(authoring(path, PROCEDURAL_COPY[error.code])); continue; }
     const dateUnion = /^\/(starts_at|ends_at|previous_starts_at\/\d+)$/.test(path);
     if (dateUnion && error.code === 'format' && errors.some(other => other.path === error.path && other.code === 'oneOf')) continue;
     if (dateUnion && error.code === 'oneOf') { normalized.push(authoring(path, 'Choose a valid date, with a time if known.')); continue; }

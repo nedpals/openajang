@@ -16,6 +16,7 @@ export type {
   Ticket,
   EventImage,
   Series,
+  Diagnostic,
   ValidationResult
 } from './types.js';
 

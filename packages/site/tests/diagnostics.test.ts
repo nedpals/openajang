@@ -37,3 +37,10 @@ test('price, currency and registration dependency errors give relevant guidance'
   assert.ok(errors.some(error => /uppercase currency/.test(error.message)));
   assert.ok(errors.some(error => error.path === '/registration/required' && /whether/.test(error.message)));
 });
+
+test('procedural rule codes map to page copy at the exact path', () => {
+  const event = { ...example(), tags: ['a', 'A'], tickets: [{ id: 'x', name: 'X' }, { id: 'x', name: 'Y' }] };
+  const errors = diagnostics(event);
+  assert.ok(errors.some(error => error.path === '/tags/1' && /repeated tag/.test(error.message)));
+  assert.ok(errors.some(error => error.path === '/tickets/1/id' && /different ID/.test(error.message)));
+});
