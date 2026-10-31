@@ -1,13 +1,13 @@
-# unstable:event_languages (worked candidate)
+# openajang:event-languages-unstable (worked candidate)
 
 A worked example of the [graduation checklist](../../EXTENSIONS.md#graduation-checklist).
-It is a candidate, not a standard. The key stays in the reserved `unstable`
-namespace, and a graduated profile would take a new versioned key that this
-document does not choose.
+It is a candidate, not a standard. The key carries the `-unstable` version. A
+graduated profile would take the same name with `-v1`, which is
+`openajang:event-languages-v1`.
 
 | Element | Value |
 | --- | --- |
-| Key | `unstable:event_languages` |
+| Key | `openajang:event-languages-unstable` |
 | Steward | OpenAjang repository |
 | Status | `experimental` |
 | Value schema | [schema.json](schema.json) |

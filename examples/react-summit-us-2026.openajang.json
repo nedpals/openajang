@@ -79,7 +79,7 @@
   ],
   "updated_at": "2026-10-29T08:00:00Z",
   "extensions": {
-    "unstable:components": [
+    "openajang:components-unstable": [
       {
         "name": "In-person and streamed day",
         "starts_at": "2026-11-17",

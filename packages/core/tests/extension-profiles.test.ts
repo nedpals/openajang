@@ -25,8 +25,8 @@ const profiles: Profile[] = [
     extraRules: v => v.minimum_age === undefined || v.maximum_age === undefined || v.maximum_age >= v.minimum_age
   },
   {
-    key: 'unstable:event_languages',
-    dir: 'extensions/unstable-event_languages/',
+    key: 'openajang:event-languages-unstable',
+    dir: 'extensions/openajang-event-languages-unstable/',
     extraRules: v => [...(v.working ?? []), ...(v.presentations ?? [])].every(isValidLanguageTag)
   }
 ];
@@ -78,7 +78,7 @@ interface FallbackCase {
 }
 
 test('fallback cases: core text carries what the extension carries', () => {
-  const cases: FallbackCase[] = read('extensions/unstable-event_languages/fallback-cases.json');
+  const cases: FallbackCase[] = read('extensions/openajang-event-languages-unstable/fallback-cases.json');
   assert.ok(cases.some(c => c.fallbackAdequate));
   assert.ok(cases.some(c => !c.fallbackAdequate));
   for (const c of cases) {
@@ -86,7 +86,7 @@ test('fallback cases: core text carries what the extension carries', () => {
     const stripped = structuredClone(doc);
     delete stripped.extensions;
     assert.doesNotThrow(() => validate(stripped), c.name);
-    const declared = new Set<string>(Object.values(doc.extensions?.['unstable:event_languages'] ?? {}).flat() as string[]);
+    const declared = new Set<string>(Object.values(doc.extensions?.['openajang:event-languages-unstable'] ?? {}).flat() as string[]);
     const adequate = c.claims.every(claim => declared.has(claim.tag) && String(stripped[claim.field]).includes(claim.term));
     assert.equal(adequate, c.fallbackAdequate, c.name);
     if (!c.fallbackAdequate) assert.ok(c.review, `${c.name} needs a human review note`);

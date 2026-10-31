@@ -12,7 +12,7 @@
     "name": "extension alone carries the language, core text is silent",
     "inline": {
       "description": "A two-day hackathon for teams.",
-      "extensions": { "unstable:event_languages": { "working": ["sr"], "presentations": ["en"] } }
+      "extensions": { "openajang:event-languages-unstable": { "working": ["sr"], "presentations": ["en"] } }
     },
     "claims": [
       { "tag": "sr", "term": "Serbian", "field": "description" },

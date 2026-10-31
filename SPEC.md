@@ -431,9 +431,10 @@ SHOULD continue to refresh directly even after leaving a feed window.
 
 Extension keys MUST match `namespace:name`, with nonempty ASCII letters/digits,
 dots, underscores or hyphens on each side. Third-party namespaces SHOULD use a
-reverse domain controlled by the author. `unstable` is reserved for documented
-OpenAjang experiments; the included [experimental notes](experimental-extensions.md)
-document the supplied examples without making them required capabilities.
+reverse domain controlled by the author. The dotless namespace `openajang` is
+reserved for extensions the OpenAjang project maintains; the included
+[experimental notes](experimental-extensions.md) document the supplied
+`-unstable` examples without making them required capabilities.
 Extension values are arbitrary valid JSON, including `null`. They MUST NOT alter
 core meanings. Core descriptions and instructions must remain useful when all
 extensions are removed.
@@ -441,7 +442,8 @@ extensions are removed.
 A key that other tools are meant to implement MAY be described by an extension
 profile, defined in [EXTENSIONS.md](EXTENSIONS.md). A profile fixes the key, value
 schema, scope, core fallback, consumer behavior, fixtures, and lifecycle status. The
-version is a `-vN` suffix on the name part, and a breaking change MUST use a new key
+name part of the key ends in a `-vN` version or the special version `-unstable`,
+which marks an experiment. A breaking change to a `-vN` key MUST use a new key
 rather than reuse the old one. Profiles are optional. A publisher, validator, or
 consumer is conforming without supporting any profile, and a consumer MUST NOT fetch
 a profile schema from a document.
