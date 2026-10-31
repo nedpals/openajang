@@ -197,4 +197,41 @@ class Outputs(unittest.TestCase):
  def test_museum_date_envelope(self):
   museum=oa.loads((ROOT/'examples/chasing-clouds-2026.openajang.json').read_text());self.assertEqual(museum['ends_at'],'2027-02-28');self.assertNotIn('schedule',museum)
 
+class PublisherFeed(unittest.TestCase):
+ NS={'a':'http://www.w3.org/2005/Atom'}
+ PUB=ROOT/'examples/publisher'
+ def entries(self,name):
+  feed=ET.parse(self.PUB/name).getroot()
+  return feed,{e.find('a:id',self.NS).text:e for e in feed.findall('a:entry',self.NS)}
+ def doc(self,entry):
+  href=[x for x in entry.findall('a:link',self.NS) if x.get('type')==oa.MEDIA]
+  self.assertEqual(len(href),1);return oa.loads((self.PUB/href[0].get('href').rsplit('/',1)[1]).read_text())
+ def test_entries_match_validated_documents(self):
+  _,entries=self.entries('events.atom');self.assertEqual(len(entries),3)
+  for eid,e in entries.items():
+   d=oa.validate(self.doc(e));self.assertEqual(oa.event_id(d),eid)
+   self.assertTrue(any(x.get('type')=='text/html' and x.get('href')==d['url'] for x in e.findall('a:link',self.NS)))
+ def test_new_changed_and_cancelled_keep_identity(self):
+  bf,before=self.entries('events-before.atom');af,after=self.entries('events.atom')
+  new=set(after)-set(before);self.assertEqual(new,{'https://community.example.org/events/meetup-2027-01'})
+  self.assertEqual(set(before)-set(after),set())
+  venue=after['https://community.example.org/events/build-night-2026-11'];self.assertIn('Venue changed',venue.find('a:summary',self.NS).text)
+  cancelled=after['https://community.example.org/events/hack-day-2026-12'];self.assertEqual(self.doc(cancelled)['status'],'cancelled')
+  self.assertTrue(cancelled.find('a:title',self.NS).text.startswith('Cancelled'))
+  for eid in before:
+   self.assertGreater(after[eid].find('a:updated',self.NS).text,before[eid].find('a:updated',self.NS).text)
+   self.assertEqual(after[eid].find('a:published',self.NS).text,before[eid].find('a:published',self.NS).text)
+  self.assertGreater(af.find('a:updated',self.NS).text,bf.find('a:updated',self.NS).text)
+ def test_entries_ordered_by_update(self):
+  _,entries=self.entries('events.atom');stamps=[e.find('a:updated',self.NS).text for e in entries.values()]
+  self.assertEqual(stamps,sorted(stamps,reverse=True))
+ def test_html_autodiscovery_of_feed(self):
+  parser=oa.HeadLinks();parser.feed((self.PUB/'index.html').read_text())
+  feeds=[a for a in parser.links if a.get('type')=='application/atom+xml' and 'alternate' in a.get('rel','').split()]
+  self.assertEqual([a['href'] for a in feeds],['/events.atom'])
+ def test_missing_entry_is_not_cancellation(self):
+  # A refresh of a saved event whose source still serves it is decided by the document, not feed membership.
+  d=oa.loads((self.PUB/'hack-day-2026-12.openajang.json').read_text())
+  self.assertEqual(oa.refresh_decision(200,d,d),'replace');self.assertEqual(d['status'],'cancelled')
+
 if __name__=='__main__':unittest.main(verbosity=2)

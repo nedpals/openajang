@@ -25,6 +25,7 @@ The OpenAjang project includes normative specifications, formal schemas, develop
 - [Examples](/examples/): the eight example event documents.
 - [Example directory feed (Atom)](/examples/directory.atom): a sample directory feed that follows the feed profile.
 - [Example directory feed (RSS)](/examples/directory.rss): the same listings as an RSS feed.
+- [Example publisher feed (Atom)](/examples/publisher/events.atom): a static-hosted organizer feed. [An earlier poll of the same feed](/examples/publisher/events-before.atom) shows a new event, a venue change and a cancellation between the two.
 - [Conversion diagnostics](/generated/conversion-diagnostics.json): per-file notes from generating Schema.org and JSCalendar output, including the conversions that were declined.
 - [Test report](https://github.com/nedpals/openajang/blob/master/TEST-REPORT.md): what the repository's tests cover and how they came out.
 

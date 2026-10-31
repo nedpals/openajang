@@ -131,6 +131,10 @@ The profile defers two optional capabilities: RFC 6721 tombstones and RFC 5005 p
 
 The profile describes an RSS 2.0 form as informative. Use a stable `guid` with `isPermaLink="false"` equal to the Event ID, a human `<link>`, a useful `<description>`, and an Atom-namespaced typed JSON `atom:link` in each item. This is an OpenAjang convention, and ordinary RSS readers are not guaranteed to treat it any particular way. `pubDate` records publication, not the event start, and `lastBuildDate` tracks channel changes, not per-item modification. Do not rewrite `pubDate` on every edit, and do not create a new GUID to force a notification ([§5 RSS alternative](/feeds/#5-rss-alternative-informative)).
 
+## Publisher feeds
+
+An organizer can publish its own feed, such as `/events.atom` on static hosting, with the same entry contract. Advertise it from pages you control with `<link rel="alternate" type="application/atom+xml" href="/events.atom" title="Events">`. An indexer polls it conditionally and validates each linked document. It still refreshes saved events at their source, because a bounded feed can drop entries. A cancellation is an entry update, and an unchanged rebuild must not advance `updated` ([§6 Publisher feeds](/feeds/#6-publisher-feeds)).
+
 ## Atom Service checklist
 
 Atom Service is one of the optional companion capabilities, reported separately from the core roles ([spec §9](/spec/#9-extensions-versions-and-conformance)). The Atom profile is normative only for services that explicitly claim it ([spec §11](/spec/#11-references-and-companion-status)). The items below restate the profile's requirements, except those marked as recommended, which the profile words as "should".

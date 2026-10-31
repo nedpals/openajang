@@ -122,12 +122,14 @@ python -m pip install -r requirements.txt
 python tools/openajang.py validate examples/*.openajang.json
 python tools/openajang.py generate
 python tools/generate_example_feeds.py
+python tools/generate_publisher_feed.py
 python -m unittest discover -s tests -v
 ```
 
 - `validate` checks the documents you name.
 - `generate` validates the fixtures first, then writes the derived Schema.org and supported JSCalendar outputs under `generated/` and records declined conversions in `generated/conversion-diagnostics.json` ([conversion guide, generation and testing](/conversions/#4-generation-and-testing)).
 - `generate_example_feeds.py` regenerates the sample Atom and RSS feeds with fixed illustrative timestamps. It is not a live publisher's timestamp implementation.
+- `generate_publisher_feed.py` regenerates the `examples/publisher/` feeds, `events-before.atom` and `events.atom`, with fixed illustrative timestamps.
 - `unittest` runs the offline regression suite.
 
 The validator does not fetch remote schemas or make network calls. The bounded HTML discovery helper is not a complete HTML5 parser, and the local tools are not a production network resolver. [PUBLISHING.md](https://github.com/nedpals/openajang/blob/master/PUBLISHING.md) lists the operational limits.

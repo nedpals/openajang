@@ -1,0 +1,34 @@
+{
+  "$schema": "https://openajang.nedpals.xyz/schema/0.1/event.json",
+  "type": "event",
+  "id": "https://community.example.org/events/hack-day-2026-12",
+  "url": "https://community.example.org/events/hack-day-2026-12",
+  "title": "Community Hack Day, December 2026",
+  "summary": "A full-day community hack day.",
+  "status": "cancelled",
+  "starts_at": "2026-12-05T09:00:00+08:00",
+  "ends_at": "2026-12-05T17:00:00+08:00",
+  "organizer": {
+    "name": "Example Community",
+    "url": "https://community.example.org/"
+  },
+  "location": {
+    "type": "physical",
+    "physical": {
+      "name": "Example Co-working Space",
+      "address": {
+        "locality": "Davao City",
+        "country": "PH"
+      }
+    }
+  },
+  "registration": {
+    "required": true,
+    "status": "closed",
+    "url": "https://community.example.org/events/hack-day-2026-12/register"
+  },
+  "updated_at": "2026-10-30T07:30:00Z",
+  "publisher": {
+    "name": "Example Community"
+  }
+}

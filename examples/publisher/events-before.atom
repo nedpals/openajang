@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='utf-8'?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <id>https://community.example.org/feeds/events</id>
+  <title>Example Community events</title>
+  <updated>2026-10-22T09:00:00Z</updated>
+  <author>
+    <name>Example Community</name>
+  </author>
+  <link rel="self" type="application/atom+xml" href="https://community.example.org/events.atom" />
+  <link rel="alternate" type="text/html" href="https://community.example.org/events" />
+  <entry>
+    <id>https://community.example.org/events/build-night-2026-11</id>
+    <title>Community Build Night, November 2026</title>
+    <published>2026-10-20T09:00:00Z</published>
+    <updated>2026-10-20T09:00:00Z</updated>
+    <link rel="alternate" type="text/html" href="https://community.example.org/events/build-night-2026-11" />
+    <link rel="alternate" type="application/vnd.openajang+json" href="https://community.example.org/events/build-night-2026-11.openajang.json" />
+    <summary type="text">2026-11-14, 18:00 to 20:00 (+08:00). In person at Example Community Room, Davao City. Registration is open.</summary>
+  </entry>
+  <entry>
+    <id>https://community.example.org/events/hack-day-2026-12</id>
+    <title>Community Hack Day, December 2026</title>
+    <published>2026-10-22T09:00:00Z</published>
+    <updated>2026-10-22T09:00:00Z</updated>
+    <link rel="alternate" type="text/html" href="https://community.example.org/events/hack-day-2026-12" />
+    <link rel="alternate" type="application/vnd.openajang+json" href="https://community.example.org/events/hack-day-2026-12.openajang.json" />
+    <summary type="text">2026-12-05, 09:00 to 17:00 (+08:00). In person at Example Co-working Space, Davao City. Registration is open.</summary>
+  </entry>
+</feed>

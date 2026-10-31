@@ -85,7 +85,8 @@ the organizer's event status or authorize deleting copies from other sources.
 
 The package includes `examples/directory.atom` and `examples/directory.rss`.
 Their `example.org` Document URLs illustrate future public hosting and are not
-live endpoints. Core event documents remain separate from the feed.
+live endpoints. Core event documents remain separate from the feed. Section 6
+describes `examples/publisher/`, a static-hosted publisher feed.
 
 ## 5. RSS alternative (informative)
 
@@ -97,9 +98,79 @@ ordinary RSS-reader behavior. RSS `pubDate` records publication, not event start
 rewrite `pubDate` on every event edit or generate a new GUID to force notification.
 A dedicated consumer can refresh source documents despite this limitation.
 
+## 6. Publisher feeds
+
+An organizer or platform MAY publish its own Atom feed, conventionally at
+`/events.atom`, using this profile. Submitting an Event URL or JSON Document URL
+remains valid without one, and a static host such as GitHub Pages can serve both
+the feed and the documents it links. An indexer uses the feed to learn that a new
+event exists or that an event changed. The event documents stay the authority for
+dates, location, registration, and status.
+
+A publisher feed and a directory feed share the entry contract in section 1 and
+differ in role. A publisher feed lists one publisher's events, and a document
+reached through it is as authoritative as that publisher's own site establishes.
+A directory feed aggregates many publishers and carries directory provenance
+(section 2). A consumer SHOULD record which kind of feed it learned an event from.
+
+### 6.1 Discovery
+
+A publisher-controlled HTML page SHOULD advertise the feed with standard
+autodiscovery:
+
+```html
+<link rel="alternate" type="application/atom+xml" href="/events.atom" title="Events">
+```
+
+An indexer MAY also accept a feed URL registered manually. A feed found on a page
+is established only for that page's origin and gives it no authority over other
+organizations' events. This is separate from the core's OpenAjang JSON link, which
+is how a page points to its own event document.
+
+### 6.2 Indexer behavior
+
+An indexer subscribing to a publisher feed:
+
+1. Polls with conditional requests (`ETag`, `Last-Modified`) and honors HTTP
+   caching and backoff.
+2. Fetches the typed JSON link of each new or changed entry, validates the
+   document, and verifies that its effective Event ID equals the entry `id`
+   (section 2).
+3. Keeps the Event ID and source provenance on an update. A copied ID is no proof
+   of authority.
+4. Treats cancellation as an update to `status: "cancelled"` and never as removal
+   of an entry (section 3).
+5. Revalidates saved events at their source, even after they leave the feed window.
+   Absence from the feed means neither cancellation nor deletion.
+
+### 6.3 Publisher behavior
+
+Feed `updated` and entry `updated` advance only on significant changes. An
+unchanged rebuild, common with static site generators, MUST NOT advance them, and
+SHOULD produce identical output where practical so conditional requests succeed. A
+publisher SHOULD keep recently changed and cancelled events listed for its intended
+polling audience and document that window.
+
+### 6.4 Limits
+
+The feed is bounded. An indexer offline for longer than the retention window can
+miss new events and changes, and the feed gives it no way to notice. It is a
+discovery and change-notification surface. It cannot serve as a complete
+inventory, a lossless change log, or a queryable index. To recover, read the
+publisher's event pages or documents again.
+
+### 6.5 Example
+
+`examples/publisher/` holds `events.atom`, three event documents, an `index.html`
+with autodiscovery, and `events-before.atom`, the same feed at an earlier poll.
+Comparing the two shows a new event, a venue change, and a cancellation. Each
+keeps its entry `id` and Event ID, and only the changed entries advance `updated`.
+The `example.org` URLs are illustrative.
+
 ## References
 
 - Atom: https://www.rfc-editor.org/rfc/rfc4287
+- Feed autodiscovery: https://www.rssboard.org/rss-autodiscovery
 - Paging/archives: https://www.rfc-editor.org/rfc/rfc5005
 - Tombstones: https://www.rfc-editor.org/rfc/rfc6721
 - RSS: https://www.rssboard.org/rss-specification
