@@ -98,6 +98,11 @@ reassigned.
 - Consumers treat values as untrusted data ([SPEC.md §10](SPEC.md#10-security-and-operational-requirements)).
 - A malformed value means the consumer ignores the extension. The core listing
   stays valid.
+- The profile states what a supporting consumer does on a conflict with core data.
+  It cannot let the extension override the core reading.
+
+Consumers follow the processing rules in
+[SPEC.md §9.1](SPEC.md#91-processing-supported-extensions).
 
 ## Graduation checklist
 
