@@ -41,6 +41,30 @@ import Icon from '../components/Icon.astro';
   <div class="builder">
     <form id="builder-form" novalidate>
       <p class="hint">Required fields are marked. Other fields are optional unless a condition is stated beside them.</p>
+      <fieldset id="time-zone-settings">
+        <legend>Time zone for dates and times</legend>
+        <label>
+          Shared time zone
+          <input
+            name="time_zone"
+            list="time-zones"
+            autocomplete="off"
+            placeholder="e.g. Asia/Manila"
+            aria-describedby="zone-help"
+          />
+        </label>
+        <datalist id="time-zones"></datalist>
+        <p class="hint" id="zone-help">
+          Use this zone for event times, registration opening and closing times, and previous starts.
+          Choose a zone when entering a time; dates without times do not need one.
+          Changing it recalculates times you have edited here. Imported timestamps stay unchanged
+          until you edit their date or time.
+        </p>
+        <p id="zone-suggestion" class="hint"></p>
+        <button type="button" id="use-zone" class="secondary" hidden>
+          Use my detected time zone
+        </button>
+      </fieldset>
       <fieldset>
         <legend>Event details</legend>
         <label>
@@ -136,25 +160,6 @@ import Icon from '../components/Icon.astro';
           Choose a date. Leave the time blank if it is not yet known; a date alone does not mean an
           all-day event.
         </p>
-        <label>
-          Event time zone{' '}
-          <input
-            name="time_zone"
-            list="time-zones"
-            autocomplete="off"
-            placeholder="Search a city or time zone"
-            aria-describedby="zone-help"
-          />
-        </label>
-        <datalist id="time-zones"></datalist>
-        <p class="hint" id="zone-help">
-          Use the event’s time zone, which may differ from yours. Required when entering a time.
-          Changing the zone does not alter imported timestamps until you edit their dates or times.
-        </p>
-        <p id="zone-suggestion" class="hint"></p>
-        <button type="button" id="use-zone" class="secondary" hidden>
-          Use my detected time zone
-        </button>
         <input type="hidden" name="starts_at" />
         <input type="hidden" name="ends_at" />
         <div class="date-controls">
@@ -169,6 +174,7 @@ import Icon from '../components/Icon.astro';
               Choose start time offset <select id="start-offset"></select>
             </label>
           </div>
+          <p id="start-zone-context" class="hint" data-time-zone-context></p>
           <p id="start-time-help" class="hint"></p>
         </div>
         <div class="date-controls">
@@ -183,6 +189,7 @@ import Icon from '../components/Icon.astro';
               Choose end time offset <select id="end-offset"></select>
             </label>
           </div>
+          <p id="end-zone-context" class="hint" data-time-zone-context></p>
           <p id="end-time-help" class="hint"></p>
         </div>
         <p class="hint">Start and end must both include times, or both be dates only.</p>
@@ -305,13 +312,14 @@ import Icon from '../components/Icon.astro';
             Registration URL <input name="registration.url" type="url" />
           </label>
           <p class="hint">Opening and closing times are optional. Enter both a date and a time for each one you add.
-            These use the event time zone selected above.</p>
+            These use the shared time zone selected at the top of the form.</p>
           {['opens', 'closes'].map((boundary) => (
             <div class="date-controls">
               <input type="hidden" name={`registration.${boundary}_at`} />
               <label>Registration {boundary} date <input type="date" id={`registration-${boundary}-date`} /></label>
               <label>Registration {boundary} time <input type="time" step="1" id={`registration-${boundary}-time`} aria-describedby={`registration-${boundary}-time-help`} /></label>
               <div id={`registration-${boundary}-offset-group`} hidden><label>Choose offset <select id={`registration-${boundary}-offset`}></select></label></div>
+              <p class="hint" id={`registration-${boundary}-zone-context`} data-time-zone-context></p>
               <p class="hint" id={`registration-${boundary}-time-help`}></p>
             </div>
           ))}

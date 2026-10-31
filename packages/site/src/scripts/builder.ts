@@ -51,7 +51,7 @@ for (const name of (Intl as any).supportedValuesOf?.('timeZone') ?? []) {
 const zoneSuggestion = document.querySelector<HTMLElement>('#zone-suggestion')!;
 const useZone = document.querySelector<HTMLButtonElement>('#use-zone')!;
 if (detectedZone) {
-  zoneSuggestion.textContent = `Your browser suggests ${detectedZone}. Confirm that this is the event’s time zone.`;
+  zoneSuggestion.textContent = `Your browser suggests ${detectedZone}. Check that this is the time zone you want to use for this event.`;
   useZone.hidden = false;
 }
 const dateFields = ['start', 'end', 'registration-opens', 'registration-closes'];
@@ -179,7 +179,7 @@ function load(value: RecordObject) {
   for (const prefix of dateFields) {
     const stamp = get(value, datePath(prefix)) || '';
     const match = /^(\d{4}-\d{2}-\d{2})(?:T(\d{2}:\d{2}(?::\d{2})?))?/.exec(stamp);
-    for (const suffix of ['date', 'time', 'offset']) dateElement(prefix, suffix).setAttribute('aria-describedby', `${prefix}-time-help`);
+    for (const suffix of ['date', 'time', 'offset']) dateElement(prefix, suffix).setAttribute('aria-describedby', `${prefix}-time-help ${prefix}-zone-context`);
     dateElement(prefix, 'date').value = match?.[1] || '';
     dateElement(prefix, 'time').value = match?.[2] || '';
     document.querySelector<HTMLElement>(`#${prefix}-offset-group`)!.hidden = true;
@@ -192,6 +192,9 @@ function load(value: RecordObject) {
 }
 function refresh() {
   const event = record();
+  for (const context of document.querySelectorAll<HTMLElement>('[data-time-zone-context]')) {
+    context.textContent = zone.value ? `Time zone for edits: ${zone.value}.` : 'Choose the shared time zone before entering a time.';
+  }
   generatedJson.value = JSON.stringify(event, null, 2);
   for (const input of [
     ...inputs,
@@ -453,9 +456,9 @@ function renderHistory() {
     const prefix = `history-${index}`;
     const group = document.createElement('fieldset');
     group.className = 'history-editor';
-    group.innerHTML = `<legend>Previous start ${index + 1}</legend><input type="hidden" id="${prefix}-value"><label>Date <input type="date" id="${prefix}-date"></label><label>Time (optional) <input type="time" step="1" id="${prefix}-time"></label><div id="${prefix}-offset-group" hidden><label>Choose offset <select id="${prefix}-offset"></select></label></div><p class="hint" id="${prefix}-time-help"></p><button type="button" class="secondary">Remove previous start</button>`;
+    group.innerHTML = `<legend>Previous start ${index + 1}</legend><input type="hidden" id="${prefix}-value"><label>Date <input type="date" id="${prefix}-date"></label><label>Time (optional) <input type="time" step="1" id="${prefix}-time"></label><div id="${prefix}-offset-group" hidden><label>Choose offset <select id="${prefix}-offset"></select></label></div><p class="hint" id="${prefix}-zone-context" data-time-zone-context></p><p class="hint" id="${prefix}-time-help"></p><button type="button" class="secondary">Remove previous start</button>`;
     list.append(group);
-    for (const suffix of ['date', 'time', 'offset']) dateElement(prefix, suffix).setAttribute('aria-describedby', `${prefix}-time-help`);
+    for (const suffix of ['date', 'time', 'offset']) dateElement(prefix, suffix).setAttribute('aria-describedby', `${prefix}-time-help ${prefix}-zone-context`);
     dateElement(prefix, 'value').value = item.value;
     dateElement(prefix, 'date').value = item.date;
     dateElement(prefix, 'time').value = item.time;
@@ -561,21 +564,25 @@ for (const prefix of dateFields)
       syncDate(prefix);
       refresh();
     });
-useZone.addEventListener('click', () => {
-  zone.value = detectedZone;
-  edited.add('time_zone');
-  for (const prefix of dateDirty) syncDate(prefix);
-  history.forEach((item, i) => { if (item.dirty) syncDate(`history-${i}`); });
-  refresh();
-});
-zone.addEventListener('change', () => {
+function changeTimeZone() {
   for (const prefix of dateDirty) {
     dateElement(prefix, 'offset').value = '';
     syncDate(prefix);
   }
-  history.forEach((item, i) => { if (item.dirty) { dateElement(`history-${i}`, 'offset').value = ''; syncDate(`history-${i}`); } });
+  history.forEach((item, i) => {
+    if (item.dirty) {
+      dateElement(`history-${i}`, 'offset').value = '';
+      syncDate(`history-${i}`);
+    }
+  });
   refresh();
+}
+useZone.addEventListener('click', () => {
+  zone.value = detectedZone;
+  edited.add('time_zone');
+  changeTimeZone();
 });
+zone.addEventListener('change', changeTimeZone);
 form.addEventListener('focusout', (e) => {
   const input = e.target as HTMLInputElement;
   if (input.name || input.id) {
