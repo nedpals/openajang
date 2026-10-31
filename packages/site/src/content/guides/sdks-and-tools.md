@@ -16,7 +16,7 @@ You do not need a specialized library to publish or read OpenAjang events. Any s
 
 ## TypeScript packages
 
-`@openajang/core` and `@openajang/resolver` are release candidates published for testing and feedback. Their APIs and validation behavior may change before `0.1.0`. Both packages support Node.js 22.18 or newer. The repository's `package.json` files currently say `0.1.0-rc.2`; release candidates are published under the `next` tag.
+`@openajang/core` and `@openajang/resolver` are release candidates published for testing and feedback. Their APIs and validation behavior may change before `0.1.0`. Both packages support Node.js 22.18 or newer. Release candidates are published under the `next` tag.
 
 ```sh
 npm install @openajang/core@next @openajang/resolver@next
@@ -32,7 +32,18 @@ The two packages share a version number, and that number is separate from the sc
 - Schema validation plus the procedural checks the specification describes, using the bundled schema.
 - Optional Schema.org, JSCalendar and single-event iCalendar adapters, imported from `@openajang/core/adapters`.
 
-`validate` throws on an invalid document. `validateSafe` returns a result instead:
+`validateSafe` returns every problem it finds in `errors`. Each entry has a `code`, a `path` (a JSON Pointer to the offending value), a `message`, and sometimes `params`. Schema problems use the JSON Schema keyword as the code. The rules a schema cannot express have their own codes, listed in the [package README](https://github.com/nedpals/openajang/blob/master/packages/core/README.md#diagnostics).
+
+Write your own wording against `code`, and fall back to `message` for codes you do not recognize. The message text can change between releases.
+
+```ts
+import { parseJsonStrict, validateSafe } from '@openajang/core';
+
+const { valid, errors } = validateSafe(parseJsonStrict(json));
+// errors: [{ code: 'end-before-start', path: '/ends_at', message: 'Event end does not follow start' }]
+```
+
+`validate` returns the event or throws:
 
 ```ts
 import { parseJsonStrict, validate } from '@openajang/core';
