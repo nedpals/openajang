@@ -91,7 +91,7 @@ Emit diagnostics for these losses. Fractional instants are represented without
 rounding in UTC start/duration strings; the reference adapter preserves up to six
 fractional digits and declines greater precision rather than silently truncating.
 
-## 3. iCalendar
+## 3. iCalendar and reminders
 
 The TypeScript SDK exports `toICalendar(event, options?)` from `@openajang/core/adapters`.
 It produces a single-event RFC 5545 `VCALENDAR` with one `VEVENT`, plus diagnostics,

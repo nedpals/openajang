@@ -11,7 +11,7 @@ The OpenAjang project includes normative specifications, formal schemas, develop
 
 - [Specification](/spec/): the core rules for event documents, identity, status, discovery and conformance.
 - [Atom feed profile](/feeds/): how a directory lists events in an Atom feed that links to publisher-hosted documents.
-- [Conversion guide](/conversions/): how an event document maps to Schema.org JSON-LD and JSCalendar, and when a conversion is declined.
+- [Conversion guide](/conversions/): how an event document maps to Schema.org JSON-LD, JSCalendar and iCalendar, and when a conversion is declined.
 - [Experimental extensions](https://github.com/nedpals/openajang/blob/master/experimental-extensions.md): example extension keys that sit outside the core. See [Extensions](/docs/extensions/) for how they work.
 
 ## Schema and tools
