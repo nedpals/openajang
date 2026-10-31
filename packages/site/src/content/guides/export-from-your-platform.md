@@ -307,7 +307,7 @@ The converter declines three kinds of valid events:
 - Timed events without `ends_at`. JSCalendar's default zero duration would not preserve an unknown end, and the adapter does not invent one.
 - Postponed events. The retained start is not confirmed attendance time, so a calendar entry would mislead.
 
-Handle `result: null` in your product, for example by hiding the calendar export for that event and showing why. A calendar exporter must not silently turn unknown hours into an all-day block ([§4.2](/spec/#42-calendar-dates-with-unpublished-clock-times)). The reference tools do not generate iCalendar ([conversion guide §3](/conversions/#3-icalendar-and-reminders)).
+Handle `result: null` in your product, for example by hiding the calendar export for that event and showing why. A calendar exporter must not silently turn unknown hours into an all-day block ([§4.2](/spec/#42-calendar-dates-with-unpublished-clock-times)). The SDK also exports `toICalendar` for a single-event `.ics` file. It declines the same cases and also declines instants with fractional seconds ([conversion guide §3](/conversions/#3-icalendar-and-reminders)).
 
 ## Checklist
 

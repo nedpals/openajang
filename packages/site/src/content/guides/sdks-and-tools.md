@@ -30,7 +30,7 @@ The two packages share a version number, and that number is separate from the sc
 
 - Strict JSON parsing, which rejects duplicate property names and invalid Unicode as [spec section 3](/spec/#3-document-and-authoring-rules) requires.
 - Schema validation plus the procedural checks the specification describes, using the bundled schema.
-- Optional Schema.org and JSCalendar adapters, imported from `@openajang/core/adapters`.
+- Optional Schema.org, JSCalendar and single-event iCalendar adapters, imported from `@openajang/core/adapters`.
 
 `validate` throws on an invalid document. `validateSafe` returns a result instead:
 
@@ -57,7 +57,7 @@ if (validation.valid && validation.event) {
 }
 ```
 
-JSCalendar declines date-only events, timed events without `ends_at`, and `postponed` events, because converting them would mean inventing clock hours, durations or active dates. The rules are in the [JSCalendar conversion guide](/conversions/#2-jscalendar); the [Schema.org mapping](/conversions/#1-schemaorg-json-ld) is in the same document. The package also exports the bundled schema and the event types.
+JSCalendar declines date-only events, timed events without `ends_at`, and `postponed` events, because converting them would mean inventing clock hours, durations or active dates. The rules are in the [JSCalendar conversion guide](/conversions/#2-jscalendar); the [Schema.org mapping](/conversions/#1-schemaorg-json-ld) is in the same document. `toICalendar` follows the same rules, returns `.ics` text, and accepts an optional `{ sequence }` for stateful exporters ([iCalendar profile](/conversions/#3-icalendar-and-reminders)). The package also exports the bundled schema and the event types.
 
 ### @openajang/resolver
 
@@ -128,6 +128,7 @@ python -m unittest discover -s tests -v
 
 - `validate` checks the documents you name.
 - `generate` validates the fixtures first, then writes the derived Schema.org and supported JSCalendar outputs under `generated/` and records declined conversions in `generated/conversion-diagnostics.json` ([conversion guide, generation and testing](/conversions/#4-generation-and-testing)).
+- `pnpm run generate:ics` (repository root) writes the iCalendar fixtures to `generated/*.ics` and their diagnostics to `generated/icalendar-diagnostics.json`.
 - `generate_example_feeds.py` regenerates the sample Atom and RSS feeds with fixed illustrative timestamps. It is not a live publisher's timestamp implementation.
 - `generate_publisher_feed.py` regenerates the `examples/publisher/` feeds, `events-before.atom` and `events.atom`, with fixed illustrative timestamps.
 - `unittest` runs the offline regression suite.

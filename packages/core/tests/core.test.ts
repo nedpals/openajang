@@ -15,7 +15,8 @@ import {
   OpenAjangValidationError
 } from '../dist/index.js';
 
-import { registrationAction, toSchemaOrg, toJSCalendar } from '../dist/adapters.js';
+import { registrationAction, toSchemaOrg, toJSCalendar, toICalendar } from '../dist/adapters.js';
+import ICAL from 'ical.js';
 
 // Internal helpers for deep unit tests
 import { parseStamp, compareStamps, isValidUrl, isValidUri } from '../dist/parser.js';
@@ -351,4 +352,183 @@ test('jscalendar conversion instant preservation and declines', () => {
       assert.ok(result.duration.startsWith('PT'));
     }
   }
+});
+
+function parseIcs(text: string) {
+  const comp = new ICAL.Component(ICAL.parse(text));
+  const vevent = comp.getFirstSubcomponent('vevent');
+  assert.ok(vevent);
+  return { comp, vevent: vevent as any };
+}
+
+function icsOf(d: any, options?: any) {
+  const { result, diagnostics } = toICalendar(d, options);
+  assert.ok(result, diagnostics.join('; '));
+  return { text: result as string, diagnostics };
+}
+
+test('icalendar export maps a timed event to exact UTC instants', () => {
+  const d: any = baseline();
+  const { text } = icsOf(d);
+  assert.ok(text.includes('\r\nDTSTART:20261114T100000Z\r\n'));
+  assert.ok(text.includes('\r\nDTEND:20261114T120000Z\r\n'));
+  const { comp, vevent } = parseIcs(text);
+  assert.strictEqual(comp.getFirstPropertyValue('version'), '2.0');
+  assert.strictEqual(comp.getFirstPropertyValue('method'), null);
+  assert.strictEqual(vevent.getFirstPropertyValue('uid'), d.id);
+  assert.strictEqual(vevent.getFirstPropertyValue('summary'), d.title);
+  assert.strictEqual(vevent.getFirstPropertyValue('status'), 'CONFIRMED');
+  assert.strictEqual(vevent.getFirstPropertyValue('url'), d.url);
+  assert.strictEqual(vevent.getFirstPropertyValue('location'), 'Community Hall');
+  assert.strictEqual(vevent.getFirstPropertyValue('dtstart').toUnixTime(), Date.parse('2026-11-14T10:00:00Z') / 1000);
+  assert.strictEqual(vevent.getFirstPropertyValue('dtend').toUnixTime(), Date.parse('2026-11-14T12:00:00Z') / 1000);
+  assert.strictEqual(vevent.getFirstPropertyValue('dtstamp').toUnixTime(), Date.parse(d.updated_at) / 1000);
+  assert.strictEqual(vevent.getFirstProperty('organizer'), null);
+  assert.strictEqual(vevent.getFirstProperty('sequence'), null);
+});
+
+test('icalendar export preserves instants across offset and DST transitions', () => {
+  const d: any = baseline();
+  d.starts_at = '2026-03-08T01:30:00-05:00';
+  d.ends_at = '2026-03-08T03:30:00-04:00';
+  const { text } = icsOf(d);
+  assert.ok(text.includes('DTSTART:20260308T063000Z'));
+  assert.ok(text.includes('DTEND:20260308T073000Z'));
+
+  d.starts_at = '2026-11-14T23:30:00-08:00';
+  d.ends_at = '2026-11-15T14:15:00+05:45';
+  d.time_zone = 'America/Los_Angeles';
+  const out = icsOf(d);
+  assert.ok(out.text.includes('DTSTART:20261115T073000Z'));
+  assert.ok(out.text.includes('DTEND:20261115T083000Z'));
+  assert.ok(out.diagnostics.some(n => n.includes('time_zone')));
+});
+
+test('icalendar UID is the effective event ID and stable across reschedules', () => {
+  const d: any = baseline();
+  const first = icsOf(d).text;
+  d.status = 'rescheduled';
+  d.previous_starts_at = [d.starts_at];
+  d.starts_at = '2026-11-21T18:00:00+08:00';
+  d.ends_at = '2026-11-21T20:00:00+08:00';
+  d.updated_at = '2026-11-01T09:00:00Z';
+  const second = icsOf(d, { sequence: 1 });
+  const a = parseIcs(first).vevent;
+  const b = parseIcs(second.text).vevent;
+  assert.strictEqual(a.getFirstPropertyValue('uid'), b.getFirstPropertyValue('uid'));
+  assert.notStrictEqual(a.getFirstPropertyValue('dtstart').toString(), b.getFirstPropertyValue('dtstart').toString());
+  assert.strictEqual(b.getFirstPropertyValue('sequence'), 1);
+  assert.strictEqual(b.getFirstPropertyValue('status'), 'CONFIRMED');
+  assert.strictEqual(b.getFirstPropertyValue('dtstamp').toUnixTime(), Date.parse('2026-11-01T09:00:00Z') / 1000);
+  assert.ok(second.diagnostics.some(n => n.includes('rescheduled')));
+  assert.ok(String(b.getFirstPropertyValue('description')).includes('OpenAjang status: rescheduled'));
+
+  delete d.id;
+  assert.strictEqual(parseIcs(icsOf(d).text).vevent.getFirstPropertyValue('uid'), d.url);
+});
+
+test('icalendar export is deterministic and omits SEQUENCE unless supplied', () => {
+  const d: any = baseline();
+  const a = icsOf(d);
+  assert.strictEqual(a.text, icsOf(d).text);
+  assert.ok(a.diagnostics.some(n => n.startsWith('SEQUENCE omitted')));
+  assert.throws(() => toICalendar(d, { sequence: -1 }), RangeError);
+  assert.throws(() => toICalendar(d, { sequence: 1.5 }), RangeError);
+});
+
+test('icalendar export escapes text, folds lines, and keeps UTF-8 intact', () => {
+  const d: any = baseline();
+  d.title = 'Semi;colon, comma \\ backslash';
+  d.description = 'Line one\r\nLine two ' + 'ñandú 🎉 '.repeat(40);
+  d.location.physical.address = { street: '1 Main St', locality: 'Dávao' };
+  d.tags = ['a,b', 'c'];
+  const { text } = icsOf(d);
+  for (const line of text.split('\r\n')) {
+    assert.ok(new TextEncoder().encode(line).length <= 75, line);
+  }
+  assert.ok(!/\n(?!$)/.test(text.replace(/\r\n/g, '')));
+  const { vevent } = parseIcs(text);
+  assert.strictEqual(vevent.getFirstPropertyValue('summary'), d.title);
+  const desc = String(vevent.getFirstPropertyValue('description'));
+  assert.ok(desc.startsWith('Line one\nLine two ñandú 🎉'));
+  assert.strictEqual(vevent.getFirstPropertyValue('location'), 'Community Hall, 1 Main St, Dávao');
+  assert.deepStrictEqual(vevent.getFirstProperty('categories').getValues(), ['a,b', 'c']);
+});
+
+test('icalendar export maps cancelled to STATUS:CANCELLED and drops registration link', () => {
+  const d: any = baseline();
+  d.status = 'cancelled';
+  const { text } = icsOf(d);
+  const { vevent } = parseIcs(text);
+  assert.strictEqual(vevent.getFirstPropertyValue('status'), 'CANCELLED');
+  assert.ok(!String(vevent.getFirstPropertyValue('description')).includes('docs.google.com'));
+});
+
+test('icalendar export retains venue coordinates and virtual attendance', () => {
+  const d: any = baseline();
+  d.location = {
+    type: 'hybrid',
+    physical: { status: 'tentative', name: 'Hall', coordinates: { latitude: 7.07, longitude: 125.6 } },
+    virtual: { url: 'https://example.org/live', platform: 'Zoom' }
+  };
+  const out = icsOf(d);
+  const { vevent } = parseIcs(out.text);
+  const geo = vevent.getFirstPropertyValue('geo');
+  assert.deepStrictEqual(geo, [7.07, 125.6]);
+  const desc = String(vevent.getFirstPropertyValue('description'));
+  assert.ok(desc.includes('Venue status: tentative'));
+  assert.ok(desc.includes('Online (Zoom): https://example.org/live'));
+  assert.ok(out.diagnostics.some(n => n.includes('Venue certainty')));
+});
+
+test('icalendar export declines when fidelity cannot be preserved', () => {
+  const cases: Array<[string, (d: any) => void, RegExp]> = [
+    ['unknown end', d => { delete d.ends_at; }, /unknown end/],
+    ['date-only', d => { d.starts_at = '2026-11-14'; d.ends_at = '2026-11-15'; }, /clock times unpublished/],
+    ['date-only with unknown end', d => { d.starts_at = '2026-11-14'; delete d.ends_at; }, /clock times unpublished/],
+    ['postponed', d => { d.status = 'postponed'; delete d.ends_at; }, /postponed/],
+    ['postponed with known times', d => { d.status = 'postponed'; }, /postponed/],
+    ['sub-second start', d => { d.starts_at = '2026-11-14T18:00:00.5+08:00'; }, /sub-second/],
+    ['sub-second end', d => { d.ends_at = '2026-11-14T20:00:00.250+08:00'; }, /sub-second/],
+    ['zero duration', d => { d.ends_at = d.starts_at; }, /DTEND later/]
+  ];
+  for (const [name, mutate, pattern] of cases) {
+    const d: any = baseline();
+    mutate(d);
+    let r;
+    try {
+      r = toICalendar(d);
+    } catch {
+      continue; // rejected earlier by the validator
+    }
+    assert.strictEqual(r.result, null, name);
+    assert.ok(r.diagnostics[0].startsWith('Declined'), name);
+    assert.match(r.diagnostics[0], pattern, name);
+  }
+});
+
+test('icalendar export accepts zero-valued fractional seconds', () => {
+  const d: any = baseline();
+  d.starts_at = '2026-11-14T18:00:00.000+08:00';
+  assert.ok(icsOf(d).text.includes('DTSTART:20261114T100000Z'));
+});
+
+test('icalendar export of examples matches committed fixtures', () => {
+  const generated = path.join(ROOT, 'generated');
+  const files = fs.readdirSync(EXAMPLES_DIR).filter(f => f.endsWith('.openajang.json'));
+  let produced = 0;
+  for (const f of files) {
+    const d: any = parseJsonStrict(fs.readFileSync(path.join(EXAMPLES_DIR, f), 'utf-8'));
+    const { result } = toICalendar(d);
+    const fixture = path.join(generated, f.replace('.openajang.json', '.ics'));
+    if (/^\d{4}-\d{2}-\d{2}$/.test(d.starts_at)) {
+      assert.strictEqual(result, null);
+      assert.ok(!fs.existsSync(fixture));
+    } else {
+      produced++;
+      assert.strictEqual(result, fs.readFileSync(fixture, 'utf-8'));
+      assert.strictEqual(parseIcs(result as string).vevent.getFirstPropertyValue('uid'), d.id ?? d.url);
+    }
+  }
+  assert.ok(produced >= 1);
 });

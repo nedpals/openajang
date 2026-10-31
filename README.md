@@ -190,8 +190,8 @@ That does not mean existing standards cannot be handwritten, or that a Schema.or
 profile could never meet the same need. A simpler authoring experience is a design
 goal that needs testing with organizers, not a proven adoption advantage.
 
-OpenAjang can be the editable source for generated Schema.org markup and supported
-JSCalendar outputs. Services read OpenAjang directly; they do not need to convert
+OpenAjang can be the editable source for generated Schema.org markup, supported
+JSCalendar outputs, and single-event iCalendar files. Services read OpenAjang directly; they do not need to convert
 it to Schema.org before importing or distributing it. Conversion limitations are
 reported rather than hidden. For example, an unpublished clock time is not silently
 turned into an all-day calendar event.

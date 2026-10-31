@@ -1,0 +1,30 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//OpenAjang//iCalendar export 0.1//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:https://gdg.community.dev/events/details/google-gdg-belgrade-presents-d
+ evfest-2026-hackathon/
+DTSTAMP:20261029T080000Z
+LAST-MODIFIED:20261029T080000Z
+DTSTART:20261010T073000Z
+DTEND:20261011T193000Z
+SUMMARY:DevFest 2026 Hackathon
+STATUS:CONFIRMED
+URL:https://gdg.community.dev/events/details/google-gdg-belgrade-presents-d
+ evfest-2026-hackathon/
+LOCATION:Naučno-tehnološki park\, Veljka Dugoševića 54\, Belgrade\, 110
+ 50\, RS
+DESCRIPTION:The DevFest 2026 Hackathon is a two-day in-person competition o
+ rganized by GDG Belgrade. Teams of three or four participants develop and 
+ present a project\; individual applicants may be matched into teams. Worki
+ ng language is Serbian\; presentations are in English. Age\, prerequisite 
+ conference attendance\, and team requirements are stated in the registrati
+ on instructions.\n\nOrganizer: GDG Belgrade\n\nRegistration: open. Applica
+ nts must be aged 18 to 26 and attend the DevFest Conference on October 9. 
+ Teams have three or four members\; individuals may apply and be matched. h
+ ttps://forms.gdg-belgrade.com/\n\nSource: https://gdg.community.dev/events
+ /details/google-gdg-belgrade-presents-devfest-2026-hackathon/
+CATEGORIES:DevFest,hackathon,software development,GDG
+END:VEVENT
+END:VCALENDAR
