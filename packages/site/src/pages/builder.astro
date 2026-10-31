@@ -10,26 +10,29 @@ import Icon from '../components/Icon.astro';
 >
   <h1>Event builder</h1>
   <p>
-    Create an event or edit a local OpenAjang file. Everything stays in your browser. Download your
-    work to save it; this page does not save drafts automatically.
+    Create an event or edit a local OpenAjang file. Everything stays in your browser.
+    Use Save draft to keep unfinished work and reopen it later. Drafts are not saved automatically.
+    Download JSON or website files when the event passes validation.
   </p>
   <noscript>
     <p>JavaScript is required to use the event builder.</p>
   </noscript>
   <div class="toolbar">
     <label class="file-button">
-      Import event JSON{' '}
+      Open event or draft JSON{' '}
       <input
         id="import"
         type="file"
         accept=".json,application/json,application/vnd.openajang+json"
       />
     </label>
+    <button type="button" class="secondary" id="save-draft">Save draft</button>
     <button type="button" class="secondary" id="new">
       New event
     </button>
     <span id="notice" role="status"></span>
   </div>
+  <p class="hint">You can open event files up to 1 MiB and draft files up to 4 MiB.</p>
   <p class="mobile-jump">
     <a href="#preview-panel">
       Output &amp; export <span id="mobile-error-count"></span>
@@ -37,10 +40,11 @@ import Icon from '../components/Icon.astro';
   </p>
   <div class="builder">
     <form id="builder-form" novalidate>
+      <p class="hint">Required fields are marked. Other fields are optional unless a condition is stated beside them.</p>
       <fieldset>
         <legend>Event details</legend>
         <label>
-          Title <input name="title" required />
+          Title (required) <input name="title" required />
         </label>
         <label>
           Summary <textarea name="summary" rows="3"></textarea>
@@ -60,11 +64,11 @@ import Icon from '../components/Icon.astro';
           </label>
         </details>
         <label>
-          Event page URL{' '}
+          Event page URL (required){' '}
           <input name="url" type="url" placeholder="https://example.org/event/" required />
         </label>
         <label>
-          Organizer name <input name="organizer.name" required />
+          Organizer name (required) <input name="organizer.name" required />
         </label>
         <details class="optional-group" data-fields="organizer.url,organizer.email,organizer.phone">
           <summary>
@@ -80,12 +84,12 @@ import Icon from '../components/Icon.astro';
             Organizer phone <input name="organizer.phone" type="tel" />
           </label>
         </details>
-        <p class="hint">
-          Postponed means the new date is not yet confirmed. Rescheduled means a new date is known.
+        <p class="hint" id="status-help">
+          Postponed retains the last scheduled start when the new date is not yet confirmed. Rescheduled means a new date is known.
         </p>
         <label>
           Lifecycle status{' '}
-          <select name="status">
+          <select name="status" aria-describedby="status-help">
             <option value="scheduled">Scheduled</option>
             <option value="postponed">Postponed</option>
             <option value="rescheduled">Rescheduled</option>
@@ -97,10 +101,11 @@ import Icon from '../components/Icon.astro';
           Status note <input name="status_note" />
         </label>
         <div id="history-label">
-          <label>
-            Previous start dates or timestamps (one per line, required for rescheduled events){' '}
-            <textarea name="previous_starts_at" rows="2"></textarea>
-          </label>
+          <p>Previous starts (required for rescheduled events)</p>
+          <p class="hint" id="history-help">Add earlier starts in the order they were announced, from oldest to newest. A date alone is enough if the time was not known.</p>
+          <textarea name="previous_starts_at" hidden></textarea>
+          <div id="history-list"></div>
+          <button type="button" id="add-history" class="secondary">Add previous start</button>
           <button type="button" id="add-previous" class="secondary" hidden>
             Add the imported start date to history
           </button>
@@ -154,10 +159,10 @@ import Icon from '../components/Icon.astro';
         <input type="hidden" name="ends_at" />
         <div class="date-controls">
           <label>
-            Start date <input type="date" id="start-date" required />
+            Start date (required) <input type="date" id="start-date" required />
           </label>
           <label>
-            Start time (optional) <input type="time" id="start-time" step="1" />
+            Start time (optional) <input type="time" id="start-time" step="1" aria-describedby="start-time-help" />
           </label>
           <div id="start-offset-group" hidden>
             <label>
@@ -171,7 +176,7 @@ import Icon from '../components/Icon.astro';
             End date (optional) <input type="date" id="end-date" />
           </label>
           <label>
-            End time (optional) <input type="time" id="end-time" step="1" />
+            End time (optional) <input type="time" id="end-time" step="1" aria-describedby="end-time-help" />
           </label>
           <div id="end-offset-group" hidden>
             <label>
@@ -203,7 +208,7 @@ import Icon from '../components/Icon.astro';
             </select>
           </label>
           <label>
-            Venue name <input name="location.physical.name" />
+            Venue name (required unless to be announced) <input name="location.physical.name" />
           </label>
           <details
             class="optional-group"
@@ -236,7 +241,7 @@ import Icon from '../components/Icon.astro';
         </div>
         <div id="virtual-fields">
           <label>
-            Online event URL <input name="location.virtual.url" type="url" />
+            Online event URL (required for online and hybrid events) <input name="location.virtual.url" type="url" />
           </label>
           <details
             class="optional-group"
@@ -255,8 +260,8 @@ import Icon from '../components/Icon.astro';
           </details>
         </div>
         <p class="hint">
-          For online and hybrid events, provide an online event URL. When changing mode, you can
-          remove the entire unused location, including any imported details.
+          Online and hybrid events need an online event URL. Changing attendance mode keeps existing
+          location details until you remove them. A venue with no status is treated as confirmed.
         </p>
         <div class="actions">
           <button class="secondary" type="button" id="clear-physical">
@@ -273,13 +278,13 @@ import Icon from '../components/Icon.astro';
         </summary>
         <fieldset>
           <legend class="sr-only">Registration</legend>
-          <p class="hint">
-            “Not specified” means the requirement is unknown. “Not required” means attendees do not
-            need to register.
+          <p class="hint" id="registration-help">
+            If you add registration details, choose Required or Not required. Leave Not specified selected
+            when you have no registration details to publish.
           </p>
           <label>
-            Registration{' '}
-            <select name="registration.required">
+            Is registration required?{' '}
+            <select name="registration.required" aria-describedby="registration-help">
               <option value="">Not specified</option>
               <option value="true">Required</option>
               <option value="false">Not required</option>
@@ -299,18 +304,17 @@ import Icon from '../components/Icon.astro';
           <label>
             Registration URL <input name="registration.url" type="url" />
           </label>
-          <p class="hint">
-            Optional registration opening and closing times use an offset timestamp, such as
-            2027-05-12T14:30:00+08:00.
-          </p>
-          <label>
-            Registration opens at{' '}
-            <input name="registration.opens_at" placeholder="YYYY-MM-DDThh:mm:ss+00:00" />
-          </label>
-          <label>
-            Registration closes at{' '}
-            <input name="registration.closes_at" placeholder="YYYY-MM-DDThh:mm:ss+00:00" />
-          </label>
+          <p class="hint">Opening and closing times are optional. Enter both a date and a time for each one you add.
+            These use the event time zone selected above.</p>
+          {['opens', 'closes'].map((boundary) => (
+            <div class="date-controls">
+              <input type="hidden" name={`registration.${boundary}_at`} />
+              <label>Registration {boundary} date <input type="date" id={`registration-${boundary}-date`} /></label>
+              <label>Registration {boundary} time <input type="time" step="1" id={`registration-${boundary}-time`} aria-describedby={`registration-${boundary}-time-help`} /></label>
+              <div id={`registration-${boundary}-offset-group`} hidden><label>Choose offset <select id={`registration-${boundary}-offset`}></select></label></div>
+              <p class="hint" id={`registration-${boundary}-time-help`}></p>
+            </div>
+          ))}
           <label>
             Registration instructions{' '}
             <textarea name="registration.instructions" rows="2"></textarea>
@@ -323,7 +327,7 @@ import Icon from '../components/Icon.astro';
         </summary>
         <fieldset>
           <legend class="sr-only">Tickets</legend>
-          <p class="hint">Add ticket options if applicable. Price and availability are optional.</p>
+          <p class="hint">Add ticket options if needed. Price and availability are optional. If you enter a price, include both the amount and currency.</p>
           <div id="ticket-list"></div>
           <button type="button" id="add-ticket" class="secondary">
             Add ticket
@@ -359,8 +363,9 @@ import Icon from '../components/Icon.astro';
           Download website files (ZIP)
         </button>
       </div>
+      <p id="export-notice" role="status" aria-live="polite" aria-atomic="true"></p>
       <div class="validation-feedback">
-        <p id="validation"></p>
+        <p id="validation" role="status" aria-live="polite" aria-atomic="true"></p>
         <ul id="errors"></ul>
       </div>
     </aside>
@@ -377,12 +382,16 @@ import Icon from '../components/Icon.astro';
     object-fit: contain;
     border-radius: 3px;
   }
+  :global(.history-editor label),
   :global(.ticket-editor label) {
     display: block;
     font-weight: 600;
     margin: 0.85rem 0;
   }
+  :global(.history-editor input:not([type='hidden'])),
+  :global(.history-editor select),
   :global(.ticket-editor input),
+  :global(.ticket-editor textarea),
   :global(.ticket-editor select) {
     display: block;
     width: 100%;
@@ -394,6 +403,19 @@ import Icon from '../components/Icon.astro';
     border: 1px solid var(--muted);
     border-radius: 3px;
     font: inherit;
+    font-size: 1rem;
+  }
+  :global(.history-editor) {
+    min-width: 0;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 1.25rem;
+    margin: 1rem 0;
+  }
+  :global(.history-editor .hint) {
+    color: var(--muted);
+    font-size: 0.86rem;
+    overflow-wrap: anywhere;
   }
   :global(.ticket-editor) {
     border-top: 1px solid var(--line);
@@ -506,6 +528,7 @@ import Icon from '../components/Icon.astro';
     border: 1px solid var(--muted);
     border-radius: 3px;
     font: inherit;
+    font-size: 1rem;
   }
   textarea {
     resize: vertical;
@@ -516,9 +539,9 @@ import Icon from '../components/Icon.astro';
   }
   .side {
     position: sticky;
-    top: 1rem;
+    top: calc(var(--builder-banner-height, 3rem) + 1rem);
     min-width: 0;
-    max-height: calc(100vh - 2rem);
+    max-height: calc(100vh - var(--builder-banner-height, 3rem) - 2rem);
     overflow-y: auto;
     overscroll-behavior: contain;
   }
@@ -538,6 +561,8 @@ import Icon from '../components/Icon.astro';
     white-space: pre;
     overflow: auto;
   }
+  #preview-panel button:disabled { opacity: .55; cursor: not-allowed; }
+
   .validation-feedback {
     border-top: 1px solid var(--line);
     margin-top: 1rem;
