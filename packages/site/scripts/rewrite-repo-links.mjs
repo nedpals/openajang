@@ -1,5 +1,5 @@
 // Repo documents link to each other by filename; on the site those become pages.
-const PAGES = { 'SPEC.md': '/spec/', 'FEEDS.md': '/feeds/', 'CONVERSIONS.md': '/conversions/' };
+const PAGES = { 'SPEC.md': '/spec/', 'FEEDS.md': '/feeds/', 'CONVERSIONS.md': '/conversions/', 'EXTENSIONS.md': '/extension-profiles/' };
 const REPO = 'https://github.com/nedpals/openajang/blob/master/';
 
 function rewrite(url) {
