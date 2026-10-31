@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
 ---
 
 <Base
@@ -31,7 +32,7 @@ import Base from '../layouts/Base.astro';
   </div>
   <p class="mobile-jump">
     <a href="#preview-panel">
-      Preview &amp; export <span id="mobile-error-count"></span>
+      Output &amp; export <span id="mobile-error-count"></span>
     </a>
   </p>
   <div class="builder">
@@ -120,7 +121,7 @@ import Base from '../layouts/Base.astro';
           </label>
           <p id="alt-help" class="hint">
             Describe what the image conveys to someone who cannot see it. The image is loaded from
-            the URL for the preview and published page.
+            the URL for the published page.
           </p>
         </fieldset>
       </details>
@@ -330,32 +331,38 @@ import Base from '../layouts/Base.astro';
         </fieldset>
       </details>
     </form>
-    <aside class="side" id="preview-panel" aria-label="Preview and export">
+    <aside class="side" id="preview-panel" aria-label="Output and export">
       <p class="mobile-jump">
         <a href="#builder-form">Back to event details</a>
       </p>
-      <section class="card">
-        <h2>Live preview</h2>
-        <div id="preview"></div>
-      </section>
-      <section class="card">
-        <h2>Validation &amp; export</h2>
+      <label for="generated-json" class="output-label">
+        Output
+      </label>
+      <textarea
+        id="generated-json"
+        class="generated-output"
+        rows="18"
+        readonly
+        spellcheck="false"
+        aria-describedby="output-hint"
+      ></textarea>
+      <p id="output-hint" class="hint">
+        The updated timestamp is finalized when you download.
+      </p>
+      <div class="actions download-actions">
+        <button id="json" type="button">
+          <Icon name="download" size={18} />
+          Download JSON
+        </button>
+        <button id="zip" type="button">
+          <Icon name="download" size={18} />
+          Download website files (ZIP)
+        </button>
+      </div>
+      <div class="validation-feedback">
         <p id="validation"></p>
         <ul id="errors"></ul>
-        <div class="actions">
-          <button id="json" type="button">
-            Download JSON
-          </button>
-          <button id="zip" type="button">
-            Download website files (ZIP)
-          </button>
-        </div>
-        <p class="hint">
-          Upload the page and JSON together to your website. The page also includes a Schema.org
-          example. Set the event page URL above to its public address. Fix validation errors before
-          downloading.
-        </p>
-      </section>
+      </div>
     </aside>
   </div>
 </Base>
@@ -445,6 +452,16 @@ import Base from '../layouts/Base.astro';
     gap: 0.75rem;
     margin: 1.5rem 0;
   }
+  .download-actions {
+    display: grid;
+  }
+  .download-actions button {
+    width: 100%;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+  }
   .file-button {
     font-weight: 600;
   }
@@ -459,8 +476,7 @@ import Base from '../layouts/Base.astro';
     gap: 2rem;
     align-items: start;
   }
-  fieldset,
-  .card {
+  fieldset {
     border: 1px solid var(--line);
     border-radius: 4px;
     padding: 1.25rem;
@@ -509,12 +525,22 @@ import Base from '../layouts/Base.astro';
   .mobile-jump {
     display: none;
   }
-  .card {
-    background: var(--panel);
-    overflow-wrap: anywhere;
-  }
-  .card h2 {
+  .output-label {
     margin-top: 0;
+    font-size: 1.5rem;
+  }
+  textarea.generated-output {
+    min-height: 18rem;
+    padding: 1rem;
+    font-family: monospace;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    white-space: pre;
+    overflow: auto;
+  }
+  .validation-feedback {
+    border-top: 1px solid var(--line);
+    margin-top: 1rem;
   }
   #errors {
     color: var(--bad);

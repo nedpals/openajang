@@ -3,6 +3,7 @@ import {
   BookOpen,
   CalendarDays,
   CodeXml,
+  Download,
   FileBraces,
   Link,
   List,
@@ -16,6 +17,7 @@ const icons = {
   calendar: CalendarDays,
   check: SquareCheck,
   code: CodeXml,
+  download: Download,
   file: FileBraces,
   link: Link,
   list: List,
@@ -30,8 +32,13 @@ interface Props {
 const { name, size = 20 } = Astro.props;
 const LucideIcon = icons[name];
 ---
+
 <LucideIcon class="icon" size={size} stroke-width={1.75} aria-hidden="true" focusable="false" />
 
 <style is:global>
-  .icon { display: inline-block; flex-shrink: 0; vertical-align: -.15em; }
+  .icon {
+    display: inline-block;
+    flex-shrink: 0;
+    vertical-align: -0.15em;
+  }
 </style>
