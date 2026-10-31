@@ -1,0 +1,14 @@
+[
+  { "name": "both limits", "valid": true, "value": { "minimum_age": 18, "maximum_age": 26 } },
+  { "name": "minimum only", "valid": true, "value": { "minimum_age": 13 } },
+  { "name": "maximum only", "valid": true, "value": { "maximum_age": 17 } },
+  { "name": "equal limits", "valid": true, "value": { "minimum_age": 16, "maximum_age": 16 } },
+  { "name": "unknown property from a compatible later revision", "valid": true, "value": { "minimum_age": 18, "proof_required": false } },
+  { "name": "empty object", "valid": false, "value": {} },
+  { "name": "null value", "valid": false, "value": null },
+  { "name": "array value", "valid": false, "value": [18, 26] },
+  { "name": "age as text", "valid": false, "value": { "minimum_age": "18" } },
+  { "name": "fractional age", "valid": false, "value": { "minimum_age": 17.5 } },
+  { "name": "negative age", "valid": false, "value": { "minimum_age": -1 } },
+  { "name": "maximum below minimum", "valid": false, "value": { "minimum_age": 26, "maximum_age": 18 } }
+]

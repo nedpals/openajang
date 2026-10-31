@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/openajang/extensions/eligibility-v1/schema.json",
+  "title": "org.example:eligibility-v1 value",
+  "description": "Reference profile value. Event-wide age limits stated in whole years.",
+  "type": "object",
+  "properties": {
+    "minimum_age": { "type": "integer", "minimum": 0, "maximum": 150 },
+    "maximum_age": { "type": "integer", "minimum": 0, "maximum": 150 }
+  },
+  "minProperties": 1,
+  "additionalProperties": true
+}

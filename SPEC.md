@@ -438,6 +438,14 @@ Extension values are arbitrary valid JSON, including `null`. They MUST NOT alter
 core meanings. Core descriptions and instructions must remain useful when all
 extensions are removed.
 
+A key that other tools are meant to implement MAY be described by an extension
+profile, defined in [EXTENSIONS.md](EXTENSIONS.md). A profile fixes the key, value
+schema, scope, core fallback, consumer behavior, fixtures, and lifecycle status. The
+version is a `-vN` suffix on the name part, and a breaking change MUST use a new key
+rather than reuse the old one. Profiles are optional. A publisher, validator, or
+consumer is conforming without supporting any profile, and a consumer MUST NOT fetch
+a profile schema from a document.
+
 The immutable schema identifier for this contract is:
 
 `https://openajang.nedpals.xyz/schema/0.1/event.json`

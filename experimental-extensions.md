@@ -3,7 +3,8 @@
 These `unstable:*` shapes are documented only for the included examples. They are
 not core requirements and are not a program, eligibility, or admission-selection
 API. Consumers may ignore them. Broad implementation requires a separate reviewed
-extension contract and schema; no generic validator may require that support.
+extension contract and schema, such as an [extension profile](EXTENSIONS.md); no
+generic validator may require that support.
 
 | Key | Illustrative shape | Core fallback |
 | --- | --- | --- |

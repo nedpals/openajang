@@ -4,7 +4,7 @@ import { sectionIds } from './lib/docs-nav';
 
 // The documents live at the repo root; the site renders them in place.
 const docs = defineCollection({
-  loader: glob({ base: '../..', pattern: ['SPEC.md', 'FEEDS.md', 'CONVERSIONS.md'] })
+  loader: glob({ base: '../..', pattern: ['SPEC.md', 'FEEDS.md', 'CONVERSIONS.md', 'EXTENSIONS.md'] })
 });
 
 // Role-based guides; each file is one page at /docs/<file name>/.

@@ -64,7 +64,7 @@ Consumers must ignore unknown extensions ([spec §3](/spec/#3-document-and-autho
 
 A validator must not require private extension schemas ([spec §9](/spec/#9-extensions-versions-and-conformance)). The experimental notes go a step further and say no generic validator may require support for specific extension keys. The schema checks only that `extensions` is an object and that each key matches the `namespace:name` pattern.
 
-An extension that many tools should implement needs more than a key name. The experimental notes say broad implementation requires a separately reviewed extension contract and schema. Until one exists, a key is a private agreement between a publisher and the tools that chose to read it.
+An extension that many tools should implement needs more than a key name. [Extension profiles](/extension-profiles/) define what that contract contains: the key, a value schema, scope, core fallback, consumer behavior, fixtures and lifecycle status. The major version goes in the key, as in `org.example:eligibility-v1`, and a breaking change takes a new key instead of reusing the old one. Profiles are optional. Without one, a key is a private agreement between a publisher and the tools that chose to read it.
 
 ## The five experimental keys
 
