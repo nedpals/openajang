@@ -9,27 +9,40 @@ import Icon from '../components/Icon.astro';
   wide
 >
   <h1>Event builder</h1>
-  <p>
-    Create an event or edit a local OpenAjang file. Everything stays in your browser. Download your
-    work to save it; this page does not save drafts automatically.
-  </p>
+  <div class="builder-intro">
+    <p>
+      Fill in the form to make an OpenAjang event file, or open one you already have. Nothing leaves
+      your browser.
+    </p>
+    <p>
+      Drafts are not saved automatically, so use Save draft before you close the tab. When the event
+      passes validation, download it and upload the file to your own website.
+    </p>
+    <p class="reference-links">
+      <a href="/docs/publish-your-first-event/">Publish your first event</a>
+      <a href="/spec/">Read the specification</a>
+      <a href="/validator/">Check an existing file</a>
+    </p>
+  </div>
   <noscript>
     <p>JavaScript is required to use the event builder.</p>
   </noscript>
   <div class="toolbar">
-    <label class="file-button">
-      Import event JSON{' '}
-      <input
-        id="import"
-        type="file"
-        accept=".json,application/json,application/vnd.openajang+json"
-      />
-    </label>
-    <button type="button" class="secondary" id="new">
-      New event
+    <button type="button" class="secondary" id="open-file">
+      <Icon name="file" size={18} />Open JSON file
     </button>
+    <input
+      id="import"
+      type="file"
+      accept=".json,application/json,application/vnd.openajang+json"
+      aria-label="Open event or draft JSON"
+      hidden
+    />
+    <button type="button" class="secondary" id="save-draft">Save draft</button>
+    <button type="button" class="secondary" id="new">New event</button>
     <span id="notice" role="status"></span>
   </div>
+  <p class="hint">Files can be up to 1 MiB for events and 4 MiB for drafts.</p>
   <p class="mobile-jump">
     <a href="#preview-panel">
       Output &amp; export <span id="mobile-error-count"></span>
@@ -37,13 +50,14 @@ import Icon from '../components/Icon.astro';
   </p>
   <div class="builder">
     <form id="builder-form" novalidate>
+      <p class="hint">Fields marked "required" must be filled in. Everything else is optional.</p>
       <fieldset>
         <legend>Event details</legend>
         <label>
-          Title <input name="title" required />
+          Event title (required) <input name="title" required />
         </label>
         <label>
-          Summary <textarea name="summary" rows="3"></textarea>
+          Short summary <textarea name="summary" rows="3"></textarea>
         </label>
         <details class="optional-group" data-fields="description,language,tags">
           <summary>
@@ -60,11 +74,11 @@ import Icon from '../components/Icon.astro';
           </label>
         </details>
         <label>
-          Event page URL{' '}
+          Event page URL (required){' '}
           <input name="url" type="url" placeholder="https://example.org/event/" required />
         </label>
         <label>
-          Organizer name <input name="organizer.name" required />
+          Organizer name (required) <input name="organizer.name" required />
         </label>
         <details class="optional-group" data-fields="organizer.url,organizer.email,organizer.phone">
           <summary>
@@ -80,90 +94,54 @@ import Icon from '../components/Icon.astro';
             Organizer phone <input name="organizer.phone" type="tel" />
           </label>
         </details>
-        <p class="hint">
-          Postponed means the new date is not yet confirmed. Rescheduled means a new date is known.
-        </p>
-        <label>
-          Lifecycle status{' '}
-          <select name="status">
-            <option value="scheduled">Scheduled</option>
-            <option value="postponed">Postponed</option>
-            <option value="rescheduled">Rescheduled</option>
-            <option value="cancelled">Cancelled</option>
-            <option value="completed">Completed</option>
-          </select>
-        </label>
-        <label>
-          Status note <input name="status_note" />
-        </label>
-        <div id="history-label">
-          <label>
-            Previous start dates or timestamps (one per line, required for rescheduled events){' '}
-            <textarea name="previous_starts_at" rows="2"></textarea>
-          </label>
-          <button type="button" id="add-previous" class="secondary" hidden>
-            Add the imported start date to history
-          </button>
-        </div>
       </fieldset>
-      <details class="optional-panel" data-fields="image">
-        <summary>
-          Event image <span data-detail-indicator></span>
-        </summary>
-        <fieldset>
-          <legend class="sr-only">Event image</legend>
-          <label>
-            Image URL{' '}
-            <input name="image.url" type="url" placeholder="https://example.org/image.jpg" />
-          </label>
-          <label>
-            Image description (alt text) <input name="image.alt" aria-describedby="alt-help" />
-          </label>
-          <p id="alt-help" class="hint">
-            Describe what the image conveys to someone who cannot see it. The image is loaded from
-            the URL for the published page.
-          </p>
-        </fieldset>
-      </details>
-      <fieldset>
-        <legend>Dates and time</legend>
-        <p class="hint">
-          Choose a date. Leave the time blank if it is not yet known; a date alone does not mean an
-          all-day event.
-        </p>
+      <fieldset id="time-zone-settings">
+        <legend>Time zone</legend>
         <label>
-          Event time zone{' '}
+          Time zone for this event
           <input
             name="time_zone"
             list="time-zones"
             autocomplete="off"
-            placeholder="Search a city or time zone"
+            placeholder="e.g. Asia/Manila"
             aria-describedby="zone-help"
           />
         </label>
         <datalist id="time-zones"></datalist>
         <p class="hint" id="zone-help">
-          Use the event’s time zone, which may differ from yours. Required when entering a time.
-          Changing the zone does not alter imported timestamps until you edit their dates or times.
+          Applies to the event times, registration times and earlier start times. A date without a time needs no zone.
         </p>
         <p id="zone-suggestion" class="hint"></p>
         <button type="button" id="use-zone" class="secondary" hidden>
           Use my detected time zone
         </button>
+        <details class="optional-group">
+          <summary>About imported times</summary>
+          <p class="hint">
+            Changing the zone recalculates times you edited here. Times from an imported file stay as they were until you edit that date or time.
+          </p>
+        </details>
+      </fieldset>
+      <fieldset>
+        <legend>Dates and time</legend>
+        <p class="hint">
+          Leave the time blank if it is not known yet. A date alone does not mean an all-day event.
+        </p>
         <input type="hidden" name="starts_at" />
         <input type="hidden" name="ends_at" />
         <div class="date-controls">
           <label>
-            Start date <input type="date" id="start-date" required />
+            Start date (required) <input type="date" id="start-date" required />
           </label>
           <label>
-            Start time (optional) <input type="time" id="start-time" step="1" />
+            Start time (optional) <input type="time" id="start-time" step="1" aria-describedby="start-time-help" />
           </label>
           <div id="start-offset-group" hidden>
             <label>
               Choose start time offset <select id="start-offset"></select>
             </label>
           </div>
+          <p id="start-zone-context" class="hint" data-time-zone-context></p>
           <p id="start-time-help" class="hint"></p>
         </div>
         <div class="date-controls">
@@ -171,21 +149,22 @@ import Icon from '../components/Icon.astro';
             End date (optional) <input type="date" id="end-date" />
           </label>
           <label>
-            End time (optional) <input type="time" id="end-time" step="1" />
+            End time (optional) <input type="time" id="end-time" step="1" aria-describedby="end-time-help" />
           </label>
           <div id="end-offset-group" hidden>
             <label>
               Choose end time offset <select id="end-offset"></select>
             </label>
           </div>
+          <p id="end-zone-context" class="hint" data-time-zone-context></p>
           <p id="end-time-help" class="hint"></p>
         </div>
-        <p class="hint">Start and end must both include times, or both be dates only.</p>
+        <p class="hint">Give both start and end a time, or neither.</p>
       </fieldset>
       <fieldset>
         <legend>Location</legend>
         <label>
-          Attendance mode{' '}
+          How people attend{' '}
           <select name="location.type">
             <option value="physical">In person</option>
             <option value="virtual">Online</option>
@@ -194,16 +173,16 @@ import Icon from '../components/Icon.astro';
         </label>
         <div id="physical-fields">
           <label>
-            Venue status{' '}
+            Is the venue confirmed?{' '}
             <select name="location.physical.status">
-              <option value="">Not specified</option>
+              <option value="">Not specified (treated as confirmed)</option>
               <option value="confirmed">Confirmed</option>
               <option value="tentative">Tentative</option>
               <option value="to_be_announced">To be announced</option>
             </select>
           </label>
           <label>
-            Venue name <input name="location.physical.name" />
+            Venue name (required unless the venue is to be announced) <input name="location.physical.name" />
           </label>
           <details
             class="optional-group"
@@ -225,7 +204,7 @@ import Icon from '../components/Icon.astro';
               Postal code <input name="location.physical.address.postal_code" />
             </label>
             <label>
-              Country code{' '}
+              Country code (2 letters){' '}
               <input name="location.physical.address.country" placeholder="e.g. PH" maxlength="2" />
             </label>
             <label>
@@ -236,7 +215,7 @@ import Icon from '../components/Icon.astro';
         </div>
         <div id="virtual-fields">
           <label>
-            Online event URL <input name="location.virtual.url" type="url" />
+            Online event link (required for online and hybrid events) <input name="location.virtual.url" type="url" />
           </label>
           <details
             class="optional-group"
@@ -246,7 +225,7 @@ import Icon from '../components/Icon.astro';
               Online joining details <span data-detail-indicator></span>
             </summary>
             <label>
-              Online platform <input name="location.virtual.platform" />
+              Online platform (e.g. Zoom) <input name="location.virtual.platform" />
             </label>
             <label>
               Joining instructions{' '}
@@ -255,8 +234,7 @@ import Icon from '../components/Icon.astro';
           </details>
         </div>
         <p class="hint">
-          For online and hybrid events, provide an online event URL. When changing mode, you can
-          remove the entire unused location, including any imported details.
+          Changing how people attend keeps the details you entered until you remove them.
         </p>
         <div class="actions">
           <button class="secondary" type="button" id="clear-physical">
@@ -267,19 +245,63 @@ import Icon from '../components/Icon.astro';
           </button>
         </div>
       </fieldset>
+      <fieldset>
+        <legend>Event status</legend>
+        <label>
+          Status{' '}
+          <select name="status" aria-describedby="status-help">
+            <option value="scheduled">Scheduled</option>
+            <option value="postponed">Postponed</option>
+            <option value="rescheduled">Rescheduled</option>
+            <option value="cancelled">Cancelled</option>
+            <option value="completed">Completed</option>
+          </select>
+        </label>
+        <p class="hint" id="status-help"></p>
+        <label>
+          Note for attendees <input name="status_note" />
+        </label>
+        <div id="history-label">
+          <p>Earlier start dates (required for rescheduled events)</p>
+          <p class="hint" id="history-help">List earlier starts from oldest to newest. A date alone is enough if the time was unknown.</p>
+          <textarea name="previous_starts_at" hidden></textarea>
+          <div id="history-list"></div>
+          <button type="button" id="add-history" class="secondary">Add earlier start</button>
+          <button type="button" id="add-previous" class="secondary" hidden>
+            Add the imported start date to history
+          </button>
+        </div>
+      </fieldset>
+      <details class="optional-panel" data-fields="image">
+        <summary>
+          Event image <span data-detail-indicator></span>
+        </summary>
+        <fieldset>
+          <legend class="sr-only">Event image</legend>
+          <label>
+            Image URL{' '}
+            <input name="image.url" type="url" placeholder="https://example.org/image.jpg" />
+          </label>
+          <label>
+            Image description (alt text) <input name="image.alt" aria-describedby="alt-help" />
+          </label>
+          <p id="alt-help" class="hint">
+            Describe the image for someone who cannot see it. The published page loads the image from the URL.
+          </p>
+        </fieldset>
+      </details>
       <details class="optional-panel" data-fields="registration">
         <summary>
           Registration <span data-detail-indicator></span>
         </summary>
         <fieldset>
           <legend class="sr-only">Registration</legend>
-          <p class="hint">
-            “Not specified” means the requirement is unknown. “Not required” means attendees do not
-            need to register.
+          <p class="hint" id="registration-help">
+            Only fill this in if you want to publish registration details. Otherwise leave it as Not specified.
           </p>
           <label>
-            Registration{' '}
-            <select name="registration.required">
+            Do attendees need to register?{' '}
+            <select name="registration.required" aria-describedby="registration-help">
               <option value="">Not specified</option>
               <option value="true">Required</option>
               <option value="false">Not required</option>
@@ -299,18 +321,17 @@ import Icon from '../components/Icon.astro';
           <label>
             Registration URL <input name="registration.url" type="url" />
           </label>
-          <p class="hint">
-            Optional registration opening and closing times use an offset timestamp, such as
-            2027-05-12T14:30:00+08:00.
-          </p>
-          <label>
-            Registration opens at{' '}
-            <input name="registration.opens_at" placeholder="YYYY-MM-DDThh:mm:ss+00:00" />
-          </label>
-          <label>
-            Registration closes at{' '}
-            <input name="registration.closes_at" placeholder="YYYY-MM-DDThh:mm:ss+00:00" />
-          </label>
+          <p class="hint">Opening and closing times are optional. Each needs a date and a time, in the event time zone.</p>
+          {['opens', 'closes'].map((boundary) => (
+            <div class="date-controls">
+              <input type="hidden" name={`registration.${boundary}_at`} />
+              <label>Registration {boundary} date <input type="date" id={`registration-${boundary}-date`} /></label>
+              <label>Registration {boundary} time <input type="time" step="1" id={`registration-${boundary}-time`} aria-describedby={`registration-${boundary}-time-help`} /></label>
+              <div id={`registration-${boundary}-offset-group`} hidden><label>Choose offset <select id={`registration-${boundary}-offset`}></select></label></div>
+              <p class="hint" id={`registration-${boundary}-zone-context`} data-time-zone-context></p>
+              <p class="hint" id={`registration-${boundary}-time-help`}></p>
+            </div>
+          ))}
           <label>
             Registration instructions{' '}
             <textarea name="registration.instructions" rows="2"></textarea>
@@ -323,7 +344,7 @@ import Icon from '../components/Icon.astro';
         </summary>
         <fieldset>
           <legend class="sr-only">Tickets</legend>
-          <p class="hint">Add ticket options if applicable. Price and availability are optional.</p>
+          <p class="hint">Price and availability are optional. A price needs both an amount and a currency.</p>
           <div id="ticket-list"></div>
           <button type="button" id="add-ticket" class="secondary">
             Add ticket
@@ -336,19 +357,23 @@ import Icon from '../components/Icon.astro';
         <a href="#builder-form">Back to event details</a>
       </p>
       <label for="generated-json" class="output-label">
-        Output
+        Your event file
       </label>
       <textarea
         id="generated-json"
         class="generated-output"
-        rows="18"
+        rows="14"
         readonly
         spellcheck="false"
         aria-describedby="output-hint"
       ></textarea>
       <p id="output-hint" class="hint">
-        The updated timestamp is finalized when you download.
+        The updated timestamp is set when you download.
       </p>
+      <div class="validation-feedback">
+        <p id="validation" role="status" aria-live="polite" aria-atomic="true"></p>
+        <ul id="errors"></ul>
+      </div>
       <div class="actions download-actions">
         <button id="json" type="button">
           <Icon name="download" size={18} />
@@ -359,10 +384,8 @@ import Icon from '../components/Icon.astro';
           Download website files (ZIP)
         </button>
       </div>
-      <div class="validation-feedback">
-        <p id="validation"></p>
-        <ul id="errors"></ul>
-      </div>
+      <p class="hint">The ZIP holds the JSON file and a ready-made event page. Upload either to your own website.</p>
+      <p id="export-notice" role="status" aria-live="polite" aria-atomic="true"></p>
     </aside>
   </div>
 </Base>
@@ -377,12 +400,16 @@ import Icon from '../components/Icon.astro';
     object-fit: contain;
     border-radius: 3px;
   }
+  :global(.history-editor label),
   :global(.ticket-editor label) {
     display: block;
-    font-weight: 600;
+    font-weight: 500;
     margin: 0.85rem 0;
   }
+  :global(.history-editor input:not([type='hidden'])),
+  :global(.history-editor select),
   :global(.ticket-editor input),
+  :global(.ticket-editor textarea),
   :global(.ticket-editor select) {
     display: block;
     width: 100%;
@@ -394,6 +421,19 @@ import Icon from '../components/Icon.astro';
     border: 1px solid var(--muted);
     border-radius: 3px;
     font: inherit;
+    font-size: 1rem;
+  }
+  :global(.history-editor) {
+    min-width: 0;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 1.25rem;
+    margin: 1rem 0;
+  }
+  :global(.history-editor .hint) {
+    color: var(--muted);
+    font-size: 0.85rem;
+    overflow-wrap: anywhere;
   }
   :global(.ticket-editor) {
     border-top: 1px solid var(--line);
@@ -407,7 +447,7 @@ import Icon from '../components/Icon.astro';
   }
   .optional-panel > summary {
     padding: 1rem 1.25rem;
-    font-size: 1.1rem;
+    font-size: 1.15rem;
     font-weight: 700;
     cursor: pointer;
   }
@@ -427,7 +467,7 @@ import Icon from '../components/Icon.astro';
   }
   [data-detail-indicator] {
     color: var(--muted);
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     font-weight: 400;
   }
   .sr-only {
@@ -444,6 +484,24 @@ import Icon from '../components/Icon.astro';
   [hidden] {
     display: none !important;
   }
+  .secondary {
+    background: linear-gradient(var(--control-top), var(--control-bottom));
+    color: var(--fg);
+    border-color: var(--line);
+  }
+  .secondary:hover {
+    background: var(--code);
+    border-color: var(--muted);
+  }
+  .builder-intro {
+    max-width: 72ch;
+  }
+  .reference-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+    font-size: 0.9rem;
+  }
   .toolbar,
   .actions {
     display: flex;
@@ -451,6 +509,13 @@ import Icon from '../components/Icon.astro';
     align-items: center;
     gap: 0.75rem;
     margin: 1.5rem 0;
+  }
+  .toolbar {
+    padding: 1rem;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
   }
   .download-actions {
     display: grid;
@@ -461,14 +526,6 @@ import Icon from '../components/Icon.astro';
     justify-content: center;
     align-items: center;
     gap: 0.5rem;
-  }
-  .file-button {
-    font-weight: 600;
-  }
-  .file-button input {
-    display: block;
-    max-width: 100%;
-    font-size: 0.85rem;
   }
   .builder {
     display: grid;
@@ -484,13 +541,13 @@ import Icon from '../components/Icon.astro';
     min-width: 0;
   }
   legend {
-    font-size: 1.2rem;
+    font-size: 1.15rem;
     font-weight: 700;
     padding: 0 0.3rem;
   }
   label {
     display: block;
-    font-weight: 600;
+    font-weight: 500;
     margin: 0.85rem 0;
   }
   input:not([type='file']),
@@ -506,19 +563,20 @@ import Icon from '../components/Icon.astro';
     border: 1px solid var(--muted);
     border-radius: 3px;
     font: inherit;
+    font-size: 1rem;
   }
   textarea {
     resize: vertical;
   }
   .hint {
     color: var(--muted);
-    font-size: 0.86rem;
+    font-size: 0.85rem;
   }
   .side {
     position: sticky;
-    top: 1rem;
+    top: calc(var(--builder-banner-height, 3rem) + 1rem);
     min-width: 0;
-    max-height: calc(100vh - 2rem);
+    max-height: calc(100vh - var(--builder-banner-height, 3rem) - 2rem);
     overflow-y: auto;
     overscroll-behavior: contain;
   }
@@ -530,7 +588,7 @@ import Icon from '../components/Icon.astro';
     font-size: 1.5rem;
   }
   textarea.generated-output {
-    min-height: 18rem;
+    min-height: 12rem;
     padding: 1rem;
     font-family: monospace;
     font-size: 0.8rem;
@@ -538,18 +596,29 @@ import Icon from '../components/Icon.astro';
     white-space: pre;
     overflow: auto;
   }
+  #preview-panel button:disabled { opacity: .55; cursor: not-allowed; }
+
   .validation-feedback {
-    border-top: 1px solid var(--line);
     margin-top: 1rem;
+  }
+  #validation {
+    font-weight: 500;
+  }
+  #validation[data-state='valid'] {
+    color: var(--good);
+  }
+  #validation[data-state='invalid'] {
+    color: var(--bad);
   }
   #errors {
     color: var(--bad);
     padding-left: 1.2rem;
+    overflow-wrap: anywhere;
   }
   :global(.field-error) {
     display: block;
     color: var(--bad);
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     font-weight: 400;
   }
   :global([aria-invalid='true']) {

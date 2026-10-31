@@ -1,5 +1,8 @@
+import { render, escape } from './event-html';
+import { decodeDraft, encodeDraft, DRAFT_LIMIT } from './draft';
+import { normalizeDiagnostics } from './diagnostics';
 import { schemaOrgForPage } from './schema-org';
-import { candidates } from './time-zone';
+import { resolveTemporal, type TemporalControl } from './temporal';
 import { Buffer } from 'buffer';
 import {
   eventId,
@@ -11,6 +14,8 @@ import {
 import { strToU8, zipSync } from 'fflate';
 
 globalThis.Buffer = Buffer;
+const banner = document.querySelector<HTMLElement>('.test-banner');
+if (banner) new ResizeObserver(() => document.documentElement.style.setProperty('--builder-banner-height', `${banner.offsetHeight}px`)).observe(banner);
 type RecordObject = Record<string, any>;
 const form = document.querySelector<HTMLFormElement>('#builder-form')!;
 const inputs = [
@@ -20,6 +25,10 @@ const notice = document.querySelector<HTMLElement>('#notice')!;
 const generatedJson = document.querySelector<HTMLTextAreaElement>('#generated-json')!;
 const validation = document.querySelector<HTMLElement>('#validation')!;
 const errors = document.querySelector<HTMLElement>('#errors')!;
+// Keep the pressed link alive until its click handler moves focus to the field.
+errors.addEventListener('pointerdown', (event) => {
+  if ((event.target as Element).closest('a')) event.preventDefault();
+});
 const jsonButton = document.querySelector<HTMLButtonElement>('#json')!;
 const zipButton = document.querySelector<HTMLButtonElement>('#zip')!;
 let original: RecordObject;
@@ -28,6 +37,8 @@ const touched = new Set<string>();
 let identity: string;
 let tickets: RecordObject[] = [];
 let ticketsEdited = false;
+let savedDraft = "";
+let validationTimer = 0;
 let removedLocations = new Set<string>();
 const zone = form.elements.namedItem('time_zone') as HTMLInputElement;
 const detectedZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -40,66 +51,46 @@ for (const name of (Intl as any).supportedValuesOf?.('timeZone') ?? []) {
 const zoneSuggestion = document.querySelector<HTMLElement>('#zone-suggestion')!;
 const useZone = document.querySelector<HTMLButtonElement>('#use-zone')!;
 if (detectedZone) {
-  zoneSuggestion.textContent = `Your browser suggests ${detectedZone}. Confirm that this is the event’s time zone.`;
+  zoneSuggestion.textContent = `Your browser reports ${detectedZone}. Use it only if the event happens in that zone.`;
   useZone.hidden = false;
 }
-const dateFields = ['start', 'end'] as const;
+const dateFields = ['start', 'end', 'registration-opens', 'registration-closes'];
+let history: { value: string; date: string; time: string; offset: string; dirty: boolean }[] = [];
 const dateDirty = new Set<string>();
 const dateErrors = new Map<string, string>();
+const dateErrorControls = new Map<string, TemporalControl>();
 function dateElement(prefix: string, suffix: string) {
   return document.querySelector<HTMLInputElement>(`#${prefix}-${suffix}`)!;
 }
 function datePath(prefix: string) {
-  return prefix === 'start' ? 'starts_at' : 'ends_at';
+  return prefix === 'start' ? 'starts_at' : prefix === 'end' ? 'ends_at' : prefix.startsWith('history-') ? `previous_starts_at.${prefix.slice(8)}` : `registration.${prefix.slice(13)}_at`;
 }
 function syncDate(prefix: string) {
   const path = datePath(prefix);
   const date = dateElement(prefix, 'date').value;
   const time = dateElement(prefix, 'time').value;
-  const input = form.elements.namedItem(path) as HTMLInputElement;
+  const input = (prefix.startsWith('history-') ? document.querySelector(`#${prefix}-value`) : form.elements.namedItem(path)) as HTMLInputElement;
   const help = document.querySelector<HTMLElement>(`#${prefix}-time-help`)!;
   const group = document.querySelector<HTMLElement>(`#${prefix}-offset-group`)!;
   const select = document.querySelector<HTMLSelectElement>(`#${prefix}-offset`)!;
   dateErrors.delete(path);
-  group.hidden = true;
-  help.textContent = '';
-  input.value = date;
-  if (time && !date) dateErrors.set(path, 'Choose a date for this time.');
-  else if (date && time) {
-    if (!zone.value) dateErrors.set(path, 'Choose the event time zone before entering a time.');
-    else
-      try {
-        const choices = candidates(date, time, zone.value);
-        if (!choices.length)
-          dateErrors.set(
-            path,
-            'This local time does not exist in that time zone. Choose another time.',
-          );
-        else if (choices.length > 1) {
-          const previous = select.value;
-          select.replaceChildren(
-            new Option('Choose an offset…', ''),
-            ...choices.map((c) => new Option(`UTC${c.offset}`, c.offset)),
-          );
-          if (choices.some((c) => c.offset === previous)) select.value = previous;
-          group.hidden = false;
-          const choice = choices.find((c) => c.offset === select.value);
-          if (!choice)
-            dateErrors.set(path, 'This time occurs twice due to a clock change. Choose an offset.');
-          else {
-            input.value = choice.value;
-            help.textContent = `Local time: ${date} ${time} (UTC${choice.offset}).`;
-          }
-        } else {
-          input.value = choices[0].value;
-          help.textContent = `Local time: ${date} ${time} (UTC${choices[0].offset}).`;
-        }
-      } catch {
-        dateErrors.set(path, 'Choose a valid IANA time zone, such as Asia/Manila.');
-      }
+  dateErrorControls.delete(path);
+  const resolved = resolveTemporal({ date, time, offset: select.value }, zone.value, prefix.startsWith('registration-'), prefix.startsWith('history-'));
+  const previous = select.value;
+  group.hidden = resolved.choices.length < 2;
+  select.replaceChildren(new Option('Choose an offset…', ''), ...resolved.choices.map(choice => new Option(`UTC${choice.offset}`, choice.offset)));
+  if (resolved.choices.some(choice => choice.offset === previous)) select.value = previous;
+  input.value = resolved.value;
+  help.textContent = resolved.message || (date && time ? `Local time: ${date} ${time} (${resolved.value.slice(-6)}).` : '');
+  if (resolved.message) {
+    dateErrors.set(path, resolved.message);
+    dateErrorControls.set(path, resolved.control);
   }
-  if (dateErrors.has(path)) help.textContent = dateErrors.get(path)!;
-  edited.add(path);
+  if (prefix.startsWith('history-')) {
+    const item = history[Number(prefix.slice(8))];
+    Object.assign(item, { value: input.value, date, time, offset: select.value, dirty: true });
+    syncHistory();
+  } else edited.add(path);
 }
 
 function fresh(): RecordObject {
@@ -117,7 +108,7 @@ function fresh(): RecordObject {
   };
 }
 function get(obj: RecordObject, path: string): any {
-  return path.split('.').reduce((v, k) => v?.[k], obj);
+  return path.split('.').reduce((v, k) => v != null && Object.hasOwn(v, k) ? v[k] : undefined, obj);
 }
 function set(obj: RecordObject, path: string, value: string) {
   const parts = path.split('.');
@@ -173,7 +164,10 @@ function load(value: RecordObject) {
   removedLocations = new Set();
   dateDirty.clear();
   dateErrors.clear();
+  dateErrorControls.clear();
   touched.clear();
+  history = (value.previous_starts_at || []).map(historyItem);
+  renderHistory();
   tickets = structuredClone(value.tickets || []);
   ticketsEdited = false;
   renderTickets();
@@ -183,95 +177,35 @@ function load(value: RecordObject) {
     input.value = v == null ? '' : Array.isArray(v) ? v.join('\n') : String(v);
   }
   for (const prefix of dateFields) {
-    const stamp = value[datePath(prefix)] || '';
+    const stamp = get(value, datePath(prefix)) || '';
     const match = /^(\d{4}-\d{2}-\d{2})(?:T(\d{2}:\d{2}(?::\d{2})?))?/.exec(stamp);
+    for (const suffix of ['date', 'time', 'offset']) dateElement(prefix, suffix).setAttribute('aria-describedby', `${prefix}-time-help ${prefix}-zone-context`);
     dateElement(prefix, 'date').value = match?.[1] || '';
     dateElement(prefix, 'time').value = match?.[2] || '';
     document.querySelector<HTMLElement>(`#${prefix}-offset-group`)!.hidden = true;
     document.querySelector<HTMLElement>(`#${prefix}-time-help`)!.textContent = stamp.includes('T')
-      ? `Imported value: ${stamp}. It remains unchanged until edited.`
+      ? `Imported value: ${stamp}. This stays unchanged until you edit it.`
       : '';
   }
   refresh();
-}
-function escape(value: unknown): string {
-  return String(value ?? '').replace(
-    /[&<>"']/g,
-    (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!,
-  );
-}
-function safeUrl(value: unknown): string | null {
-  if (typeof value !== 'string') return null;
-  try {
-    const url = new URL(value);
-    return ['http:', 'https:'].includes(url.protocol) ? url.href : null;
-  } catch {
-    return null;
-  }
-}
-function link(value: unknown, label: string): string {
-  const url = safeUrl(value);
-  return url ? `<a href="${escape(url)}" rel="noopener noreferrer">${escape(label)}</a>` : '';
-}
-function render(event: RecordObject, showImage = true): string {
-  const imageUrl = showImage ? safeUrl(event.image?.url) : null;
-  const image = imageUrl
-    ? `<img class="event-image" src="${escape(imageUrl)}" alt="${escape(event.image?.alt || '')}" referrerpolicy="no-referrer" loading="lazy">`
-    : '';
-  const ticketText =
-    Array.isArray(event.tickets) && event.tickets.length
-      ? `<h4>Tickets</h4><ul>${event.tickets.map((ticket: RecordObject) => `<li>${escape(ticket.name || 'Ticket')}${ticket.price ? ` — ${escape(ticket.price.amount)} ${escape(ticket.price.currency)}` : ''}${ticket.availability ? ` · ${escape(String(ticket.availability).replaceAll('_', ' '))}` : ''}${link(ticket.url, 'Ticket details') ? ` · ${link(ticket.url, 'Ticket details')}` : ''}</li>`).join('')}</ul>`
-      : '';
-  const location = event.location || {};
-  const physical = location.physical || {};
-  const virtual = location.virtual || {};
-  const registration = event.registration;
-  const venue = [
-    physical.name,
-    physical.address?.street,
-    physical.address?.locality,
-    physical.address?.region,
-    physical.address?.postal_code,
-    physical.address?.country,
-  ]
-    .filter(Boolean)
-    .map(escape)
-    .join(', ');
-  const venueStatus =
-    physical.status === 'tentative'
-      ? ' (tentative)'
-      : physical.status === 'to_be_announced' && venue
-        ? ' (to be announced)'
-        : '';
-  const where = [
-    location.type !== 'virtual' ? `${venue || 'Venue to be announced'}${venueStatus}` : '',
-    location.type !== 'physical'
-      ? link(virtual.url, virtual.platform || 'Online event') || 'Online details to be announced'
-      : '',
-  ]
-    .filter(Boolean)
-    .join(' · ');
-  const date = event.starts_at
-    ? escape(event.starts_at) +
-      (event.ends_at ? ` – ${escape(event.ends_at)}` : '') +
-      (/^\d{4}-\d\d-\d\d$/.test(event.starts_at) ? ' (time not specified)' : '')
-    : 'Date to be announced';
-  const reg = registration
-    ? `${registration.required === true ? 'Registration required' : registration.required === false ? 'Registration not required' : 'Registration details'}${registration.status ? ` · ${escape(String(registration.status).replaceAll('_', ' '))}` : ''}${registration.instructions ? `<br>${escape(registration.instructions)}` : ''}${link(registration.url, 'Registration details') ? `<br>${link(registration.url, 'Registration details')}` : ''}`
-    : 'Registration details not specified';
-  return `${image}<h3>${escape(event.title || 'Untitled event')}</h3>${event.summary ? `<p>${escape(event.summary)}</p>` : ''}${event.description ? `<p style="white-space:pre-wrap">${escape(event.description)}</p>` : ''}<p><strong>Status:</strong> ${escape(event.status || 'Not specified')}${event.status_note ? ` — ${escape(event.status_note)}` : ''}</p><p><strong>When:</strong> ${date}${event.time_zone ? ` · ${escape(event.time_zone)}` : ''}</p><p><strong>Where:</strong> ${where || 'Location to be announced'}</p><p><strong>Organizer:</strong> ${escape(event.organizer?.name || 'Not specified')}</p><p><strong>Registration:</strong> ${reg}</p>${physical.instructions && location.type !== 'virtual' ? `<p>${escape(physical.instructions)}</p>` : ''}${virtual.instructions && location.type !== 'physical' ? `<p>${escape(virtual.instructions)}</p>` : ''}${ticketText}${link(event.url, 'Event website') ? `<p>${link(event.url, 'Event website')}</p>` : ''}`;
+  savedDraft = draftSnapshot();
 }
 function refresh() {
   const event = record();
+  for (const context of document.querySelectorAll<HTMLElement>('[data-time-zone-context]')) {
+    context.textContent = zone.value ? `Time zone for edits: ${zone.value}.` : 'Set the time zone above before entering a time.';
+  }
   generatedJson.value = JSON.stringify(event, null, 2);
   for (const input of [
     ...inputs,
-    ...dateFields.map((prefix) => dateElement(prefix, 'date')),
-    ...document.querySelectorAll<HTMLInputElement>('#ticket-list input, #ticket-list select'),
+    ...dateFields.flatMap((prefix) => ['date', 'time', 'offset'].map(suffix => dateElement(prefix, suffix))),
+    ...document.querySelectorAll<HTMLInputElement | HTMLSelectElement>('#history-list input, #history-list select'),
+    ...document.querySelectorAll<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>('#ticket-list input, #ticket-list textarea, #ticket-list select'),
   ]) {
     input.removeAttribute('aria-invalid');
-    if (input.getAttribute('aria-describedby')?.startsWith('error-'))
-      input.removeAttribute('aria-describedby');
+    const described = input.getAttribute('aria-describedby')?.split(/\s+/).filter((id) => !id.startsWith('error-'));
+    if (described?.length) input.setAttribute('aria-describedby', described.join(' '));
+    else input.removeAttribute('aria-describedby');
     input.parentElement?.querySelectorAll('.field-error').forEach((error) => error.remove());
   }
   errors.replaceChildren();
@@ -304,22 +238,39 @@ function refresh() {
     };
   }
   for (const [path, message] of dateErrors)
-    result.errors.unshift({ path: `/${path}`, message, code: 'date' });
+    result.errors.unshift({ path: `/${path.replaceAll('.', '/')}`, message, code: 'date' });
   if (dateErrors.size) result.valid = false;
+  document.querySelector<HTMLElement>('#export-notice')!.textContent = '';
+  const statusHelp = document.querySelector<HTMLElement>('#status-help')!;
+  statusHelp.textContent = event.status === 'postponed' ? 'Postponed: keep the last scheduled start until the new date is confirmed.' : event.status === 'rescheduled' ? 'Rescheduled: enter the new start, then list the earlier starts below.' : 'Pick the status that describes the event today. It stays the same event when the status changes.';
+  result.errors = normalizeDiagnostics(result.errors, event).filter((error) =>
+    !(dateErrors.has(error.path.slice(1).replaceAll('/', '.')) && error.code !== 'date'));
+
   document.querySelector<HTMLElement>('#mobile-error-count')!.textContent = result.valid
     ? '(ready)'
     : `(${result.errors.length} to fix)`;
-  validation.textContent = result.valid
-    ? 'This event passes the bundled OpenAjang checks.'
-    : `${result.errors.length} problem(s) to fix before export.`;
+  clearTimeout(validationTimer);
+  const message = result.valid ? 'This event passes validation. You can download it.' : `${result.errors.length} ${result.errors.length === 1 ? 'problem' : 'problems'} to fix before you can download.`;
+  validationTimer = window.setTimeout(() => {
+    validation.textContent = message;
+    validation.dataset.state = result.valid ? 'valid' : 'invalid';
+  }, 500);
+  const shownFields = new Set<HTMLElement>();
   for (const error of result.errors) {
     const li = document.createElement('li');
     errors.append(li);
     let path = error.path.replace(/^\//, '').replaceAll('/', '.');
     const missing = error.message.match(/required property '([^']+)'/);
     if (missing) path = [path, missing[1]].filter(Boolean).join('.');
+    const historyPath = /^previous_starts_at\.(\d+)/.exec(path);
     const ticketPath = /^tickets\.(\d+)\.(.+)$/.exec(path);
+    const temporalPrefix = path === 'starts_at' ? 'start' : path === 'ends_at' ? 'end' : path === 'registration.opens_at' ? 'registration-opens' : path === 'registration.closes_at' ? 'registration-closes' : historyPath ? `history-${historyPath[1]}` : null;
+    const temporalControl = dateErrorControls.get(path) || 'date';
     const input =
+      temporalPrefix ? (temporalControl === 'zone' ? zone : dateElement(temporalPrefix, temporalControl)) :
+      error.code === 'remove-location' && path === 'location.physical' ? document.querySelector<HTMLButtonElement>('#clear-physical') :
+      error.code === 'remove-location' && path === 'location.virtual' ? document.querySelector<HTMLButtonElement>('#clear-virtual') :
+      path === 'previous_starts_at' ? (document.querySelector<HTMLInputElement>('#history-0-date') || document.querySelector<HTMLButtonElement>('#add-history')) :
       path === 'starts_at'
         ? dateElement('start', 'date')
         : path === 'ends_at'
@@ -343,23 +294,26 @@ function refresh() {
       if (!input.id) input.id = `field-${input.name.replaceAll('.', '-')}`;
       const link = document.createElement('a');
       link.href = `#${input.id}`;
-      link.addEventListener('click', () => {
+      link.addEventListener('click', (event) => {
+        event.preventDefault();
         let parent: HTMLElement | null = input.parentElement;
         while (parent) {
           if (parent instanceof HTMLDetailsElement) parent.open = true;
           parent = parent.parentElement;
         }
+        input.focus();
       });
       link.textContent = `${input.closest('label')?.textContent?.trim() || path}: ${friendly}`;
       li.append(link);
     } else li.textContent = `${error.path || 'Document'}: ${friendly}`;
-    if (input && touched.has(input.name || input.id)) {
+    if (input && (touched.has(input.name || input.id) || touched.has(path)) && !shownFields.has(input)) {
+      shownFields.add(input);
       input.setAttribute('aria-invalid', 'true');
       const hint = document.createElement('span');
       hint.className = 'field-error';
       hint.textContent = friendly;
       hint.id = `error-${input.name || input.id}`;
-      input.setAttribute('aria-describedby', hint.id);
+      input.setAttribute('aria-describedby', [input.getAttribute('aria-describedby'), hint.id].filter(Boolean).join(' '));
       input.parentElement?.append(hint);
     }
   }
@@ -372,10 +326,10 @@ function refresh() {
     event.status !== 'rescheduled' ||
     !original.starts_at ||
     original.starts_at === event.starts_at ||
-    (event.previous_starts_at || []).includes(original.starts_at);
+    (Array.isArray(event.previous_starts_at) && event.previous_starts_at.includes(original.starts_at));
   document.querySelector<HTMLElement>('#history-label')!.hidden =
     (form.elements.namedItem('status') as HTMLSelectElement).value !== 'rescheduled' &&
-    !get(event, 'previous_starts_at');
+    history.length === 0;
 }
 function canonical(value: any): any {
   if (Array.isArray(value)) return value.map(canonical);
@@ -390,6 +344,74 @@ function canonical(value: any): any {
 function same(a: RecordObject, b: RecordObject) {
   return JSON.stringify(canonical(a)) === JSON.stringify(canonical(b));
 }
+function draftState() {
+  return {
+    original, identity, edited: [...edited], removedLocations: [...removedLocations], tickets, ticketsEdited,
+    values: Object.fromEntries(inputs.map((input) => [input.name, input.value])),
+    history: structuredClone(history),
+    dates: Object.fromEntries(dateFields.map((prefix) => [prefix, {
+      date: dateElement(prefix, 'date').value, time: dateElement(prefix, 'time').value,
+      offset: dateElement(prefix, 'offset').value, dirty: dateDirty.has(prefix),
+    }])),
+  };
+}
+function draftSnapshot() { return JSON.stringify(draftState()); }
+function isDirty() { return draftSnapshot() !== savedDraft; }
+function applyDraft(state: RecordObject) {
+  load(state.original);
+  identity = state.identity;
+  edited = new Set(state.edited);
+  removedLocations = new Set(state.removedLocations);
+  tickets = structuredClone(state.tickets);
+  ticketsEdited = state.ticketsEdited;
+  for (const input of inputs) input.value = state.values[input.name];
+  renderTickets();
+  history = state.history ? structuredClone(state.history) : (state.values.previous_starts_at || '').split('\n').filter(Boolean).map(historyItem);
+  renderHistory();
+  for (const prefix of dateFields) {
+    const date = state.dates[prefix];
+    if (!date) continue;
+    dateElement(prefix, 'date').value = date.date;
+    dateElement(prefix, 'time').value = date.time;
+    if (date.dirty) {
+      dateDirty.add(prefix);
+      syncDate(prefix);
+      dateElement(prefix, 'offset').value = date.offset;
+      syncDate(prefix);
+    }
+  }
+  history.forEach((item, i) => { if (item.dirty) { const offset = item.offset; syncDate(`history-${i}`); dateElement(`history-${i}`, 'offset').value = offset; syncDate(`history-${i}`); } });
+  refresh();
+  savedDraft = draftSnapshot();
+}
+function restoreDraft(value: RecordObject) {
+  const state = decodeDraft(value, inputs.map(input => input.name));
+  const backup = structuredClone(draftState());
+  const baseline = savedDraft;
+  const priorTouched = [...touched];
+  try { applyDraft(state); }
+  catch (error) {
+    applyDraft(backup);
+    savedDraft = baseline;
+    touched.clear(); priorTouched.forEach(name => touched.add(name));
+    refresh();
+    throw error;
+  }
+}
+window.addEventListener('beforeunload', (event) => {
+  if (isDirty()) { event.preventDefault(); event.returnValue = ''; }
+});
+document.querySelector('#open-file')!.addEventListener('click', () => {
+  document.querySelector<HTMLInputElement>('#import')!.click();
+});
+document.querySelector('#save-draft')!.addEventListener('click', () => {
+  try {
+    const text = encodeDraft(draftState(), inputs.map(input => input.name));
+    download(new Blob([text], { type: 'application/json' }), 'event.openajang-draft.json');
+    savedDraft = draftSnapshot();
+    notice.textContent = 'Draft download started. Reopen the file to continue editing.';
+  } catch (error) { notice.textContent = `Could not save draft: ${error instanceof Error ? error.message : 'invalid draft'}`; }
+});
 function exportRecord(): RecordObject | null {
   const event = record();
   if (dateErrors.size || !validateSafe(event).valid) {
@@ -401,7 +423,7 @@ function exportRecord(): RecordObject | null {
       Math.max(Date.now(), Date.parse(original.updated_at) + 1 || 0),
     ).toISOString();
   if (!validateSafe(event).valid) {
-    notice.textContent = 'The updated event did not pass validation.';
+    document.querySelector<HTMLElement>('#export-notice')!.textContent = 'The updated event did not pass validation.';
     return null;
   }
   // Subsequent downloads of the same revision use the same timestamp and record.
@@ -410,6 +432,7 @@ function exportRecord(): RecordObject | null {
   removedLocations.clear();
   ticketsEdited = false;
   generatedJson.value = JSON.stringify(event, null, 2);
+  savedDraft = draftSnapshot();
   return event;
 }
 function download(blob: Blob, name: string) {
@@ -421,20 +444,59 @@ function download(blob: Blob, name: string) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 function html(event: RecordObject, jsonLd: string): string {
-  return `<!doctype html>\n<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${escape(event.title)}</title><link rel="alternate" type="application/vnd.openajang+json" href="event.openajang.json"><script type="application/ld+json">${jsonLd}</script><style>body{font:1rem/1.6 system-ui,sans-serif;color:#29283d;background:#faf9f6;margin:0}main{max-width:45rem;margin:3rem auto;padding:0 1.25rem}h1{font-size:2rem}h3{font-size:1.6rem}.event-image{display:block;max-width:100%;max-height:24rem;object-fit:contain}a{color:#873816}p{overflow-wrap:anywhere}</style></head><body><main>${render(event)}</main></body></html>\n`;
+  return `<!doctype html>\n<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${escape(event.title)}</title><link rel="alternate" type="application/vnd.openajang+json" href="event.openajang.json"><script type="application/ld+json">${jsonLd}</script><style>body{font:1rem/1.6 system-ui,sans-serif;color:#29283d;background:#faf9f6;margin:0}main{max-width:45rem;margin:3rem auto;padding:0 1.25rem}h1{font-size:2rem}h2{font-size:1.6rem}.event-image{display:block;max-width:100%;max-height:24rem;object-fit:contain}a{color:#873816}p{overflow-wrap:anywhere}</style></head><body><main>${render(event)}</main></body></html>\n`;
 }
+function historyItem(value: string) {
+  const match = /^(\d{4}-\d{2}-\d{2})(?:T(\d{2}:\d{2}(?::\d{2})?))?/.exec(value);
+  return { value, date: match?.[1] || '', time: match?.[2] || '', offset: '', dirty: false };
+}
+function syncHistory() {
+  const input = form.elements.namedItem('previous_starts_at') as HTMLTextAreaElement;
+  input.value = history.map(item => item.value).join('\n');
+  edited.add(input.name);
+}
+function renderHistory() {
+  const list = document.querySelector<HTMLElement>('#history-list')!;
+  list.replaceChildren();
+  history.forEach((item, index) => {
+    const prefix = `history-${index}`;
+    const group = document.createElement('fieldset');
+    group.className = 'history-editor';
+    group.innerHTML = `<legend>Earlier start ${index + 1}</legend><input type="hidden" id="${prefix}-value"><label>Date <input type="date" id="${prefix}-date"></label><label>Time (optional) <input type="time" step="1" id="${prefix}-time"></label><div id="${prefix}-offset-group" hidden><label>Choose offset <select id="${prefix}-offset"></select></label></div><p class="hint" id="${prefix}-zone-context" data-time-zone-context></p><p class="hint" id="${prefix}-time-help"></p><button type="button" class="secondary">Remove earlier start</button>`;
+    list.append(group);
+    for (const suffix of ['date', 'time', 'offset']) dateElement(prefix, suffix).setAttribute('aria-describedby', `${prefix}-time-help ${prefix}-zone-context`);
+    dateElement(prefix, 'value').value = item.value;
+    dateElement(prefix, 'date').value = item.date;
+    dateElement(prefix, 'time').value = item.time;
+    if (!item.dirty && item.value.includes('T')) document.querySelector<HTMLElement>(`#${prefix}-time-help`)!.textContent = `Imported value: ${item.value}. This stays unchanged until you edit it.`;
+    for (const suffix of ['date', 'time', 'offset']) dateElement(prefix, suffix).addEventListener('change', () => {
+      if (suffix !== 'offset') dateElement(prefix, 'offset').value = '';
+      syncDate(prefix); refresh();
+    });
+    if (item.dirty) { const offset = item.offset; syncDate(prefix); dateElement(prefix, 'offset').value = offset; syncDate(prefix); }
+    group.querySelector('button')!.addEventListener('click', () => {
+      history.splice(index, 1); for (const key of dateErrors.keys()) if (key.startsWith('previous_starts_at.')) { dateErrors.delete(key); dateErrorControls.delete(key); } renderHistory(); syncHistory();
+      history.forEach((entry, i) => { if (entry.dirty) syncDate(`history-${i}`); });
+      refresh(); (document.querySelector<HTMLElement>(`#history-${Math.min(index, history.length - 1)}-date`) || document.querySelector<HTMLElement>('#add-history'))?.focus();
+    });
+  });
+}
+document.querySelector('#add-history')!.addEventListener('click', () => {
+  history.push(historyItem('')); renderHistory(); syncDate(`history-${history.length - 1}`); refresh();
+  dateElement(`history-${history.length - 1}`, 'date').focus();
+});
 function renderTickets() {
   const list = document.querySelector<HTMLElement>('#ticket-list')!;
   list.replaceChildren();
   tickets.forEach((ticket, index) => {
-    const group = document.createElement('div');
+    const group = document.createElement('fieldset');
     group.className = 'ticket-editor';
-    const heading = document.createElement('h3');
+    const heading = document.createElement('legend');
     heading.textContent = `Ticket ${index + 1}`;
     group.append(heading);
     const fields: [string, string, string][] = [
-      ['name', 'Ticket name', 'text'],
-      ['description', 'Description', 'text'],
+      ['name', 'Ticket name (required)', 'text'],
+      ['description', 'Description', 'textarea'],
       ['url', 'Ticket URL', 'url'],
       ['price.amount', 'Price amount', 'text'],
       ['price.currency', 'Currency code (e.g. USD)', 'text'],
@@ -444,7 +506,7 @@ function renderTickets() {
       const label = document.createElement('label');
       label.textContent = title;
       const control =
-        type === 'select' ? document.createElement('select') : document.createElement('input');
+        type === 'select' ? document.createElement('select') : type === 'textarea' ? document.createElement('textarea') : document.createElement('input');
       if (control instanceof HTMLSelectElement)
         for (const [value, text] of [
           ['', 'Not specified'],
@@ -455,7 +517,12 @@ function renderTickets() {
           ['unknown', 'Unknown'],
         ])
           control.add(new Option(text, value));
-      else control.type = type;
+      else if (control instanceof HTMLInputElement) {
+        control.type = type;
+        if (path === 'price.amount') control.inputMode = 'decimal';
+        if (path === 'price.currency') control.maxLength = 3;
+      }
+      if (path === 'name') control.required = true;
       control.value = String(get(ticket, path) ?? '');
       control.id = `ticket-${index}-${path.replaceAll('.', '-')}`;
       control.addEventListener('input', () => {
@@ -482,6 +549,7 @@ function renderTickets() {
       ticketsEdited = true;
       renderTickets();
       refresh();
+      (document.querySelector<HTMLElement>(`#ticket-${Math.min(index, tickets.length - 1)}-name`) || document.querySelector<HTMLElement>('#add-ticket'))?.focus();
     });
     group.append(remove);
     list.append(group);
@@ -492,6 +560,7 @@ document.querySelector('#add-ticket')!.addEventListener('click', () => {
   ticketsEdited = true;
   renderTickets();
   refresh();
+  document.querySelector<HTMLElement>(`#ticket-${tickets.length - 1}-name`)?.focus();
 });
 for (const prefix of dateFields)
   for (const suffix of ['date', 'time', 'offset'])
@@ -501,24 +570,32 @@ for (const prefix of dateFields)
       syncDate(prefix);
       refresh();
     });
-useZone.addEventListener('click', () => {
-  zone.value = detectedZone;
-  edited.add('time_zone');
-  for (const prefix of dateDirty) syncDate(prefix);
-  refresh();
-});
-zone.addEventListener('change', () => {
+function changeTimeZone() {
   for (const prefix of dateDirty) {
     dateElement(prefix, 'offset').value = '';
     syncDate(prefix);
   }
+  history.forEach((item, i) => {
+    if (item.dirty) {
+      dateElement(`history-${i}`, 'offset').value = '';
+      syncDate(`history-${i}`);
+    }
+  });
   refresh();
+}
+useZone.addEventListener('click', () => {
+  zone.value = detectedZone;
+  edited.add('time_zone');
+  changeTimeZone();
 });
+zone.addEventListener('change', changeTimeZone);
 form.addEventListener('focusout', (e) => {
   const input = e.target as HTMLInputElement;
   if (input.name || input.id) {
     touched.add(input.name || input.id);
-    refresh();
+    if (e.relatedTarget instanceof Element && errors.contains(e.relatedTarget)) {
+      e.relatedTarget.addEventListener('click', () => window.setTimeout(refresh, 0), { once: true });
+    } else refresh();
   }
 });
 form.addEventListener('input', (e) => {
@@ -536,10 +613,11 @@ form.addEventListener('change', (e) => {
   }
 });
 document.querySelector('#add-previous')!.addEventListener('click', () => {
-  const input = form.elements.namedItem('previous_starts_at') as HTMLTextAreaElement;
-  input.value = [input.value.trim(), original.starts_at].filter(Boolean).join('\n');
-  edited.add(input.name);
+  history.push(historyItem(original.starts_at));
+  renderHistory();
+  syncHistory();
   refresh();
+  dateElement(`history-${history.length - 1}`, 'date').focus();
 });
 for (const key of ['physical', 'virtual'])
   document.querySelector(`#clear-${key}`)!.addEventListener('click', () => {
@@ -560,7 +638,7 @@ for (const key of ['physical', 'virtual'])
   });
 document.querySelector('#new')!.addEventListener('click', () => {
   if (
-    (dateErrors.size > 0 || !same(record(), original)) &&
+    isDirty() &&
     !confirm(
       'Discard your changes and start a new event? Download your work first if you want to keep it.',
     )
@@ -574,7 +652,7 @@ document.querySelector<HTMLInputElement>('#import')!.addEventListener('change', 
   const file = input.files?.[0];
   if (!file) return;
   if (
-    (dateErrors.size > 0 || !same(record(), original)) &&
+    isDirty() &&
     !confirm(
       'Discard your changes and open this file? Download your work first if you want to keep it.',
     )
@@ -583,12 +661,19 @@ document.querySelector<HTMLInputElement>('#import')!.addEventListener('change', 
     return;
   }
   try {
-    if (file.size > 1024 * 1024) throw new Error('File exceeds the 1 MiB limit.');
+    if (file.size > DRAFT_LIMIT) throw new Error('File exceeds the 4 MiB draft limit.');
     const value = parseJsonStrict(
       new TextDecoder('utf-8', { fatal: true }).decode(await file.arrayBuffer()),
     );
     if (!value || typeof value !== 'object' || Array.isArray(value))
       throw new Error('Expected an event object.');
+    if ((value as RecordObject).format === 'openajang-builder-draft') {
+      restoreDraft(value as RecordObject);
+      notice.textContent = `Opened draft ${file.name}.`;
+      input.value = '';
+      return;
+    }
+    if (file.size > 1024 * 1024) throw new Error('Event file exceeds the 1 MiB limit.');
     const checked = validateSafe(value);
     if (!checked.valid)
       throw new Error(
@@ -596,7 +681,7 @@ document.querySelector<HTMLInputElement>('#import')!.addEventListener('change', 
           checked.errors.map((error) => `${error.path || 'Document'}: ${error.message}`).join('; '),
       );
     load(value as RecordObject);
-    notice.textContent = `Opened ${file.name}. Unexposed fields are preserved.`;
+    notice.textContent = `Opened ${file.name}. Details outside this form have been kept.`;
   } catch (error) {
     notice.textContent = `Could not import file: ${error instanceof Error ? error.message : 'invalid JSON'}`;
   }
@@ -604,13 +689,15 @@ document.querySelector<HTMLInputElement>('#import')!.addEventListener('change', 
 });
 jsonButton.addEventListener('click', () => {
   const event = exportRecord();
-  if (event)
+  if (event) {
     download(
       new Blob([JSON.stringify(event, null, 2) + '\n'], {
         type: 'application/vnd.openajang+json',
       }),
       'event.openajang.json',
     );
+    document.querySelector<HTMLElement>('#export-notice')!.textContent = 'JSON download started.';
+  }
 });
 zipButton.addEventListener('click', () => {
   const event = exportRecord();
@@ -630,5 +717,6 @@ zipButton.addEventListener('click', () => {
     new Blob([zip as BlobPart], { type: 'application/zip' }),
     'openajang-publishing-kit.zip',
   );
+  document.querySelector<HTMLElement>('#export-notice')!.textContent = 'ZIP download started. Upload the website files to publish your event.';
 });
 load(fresh());

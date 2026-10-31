@@ -1,3 +1,4 @@
+import { normalizeDiagnostics } from './diagnostics';
 import { Buffer } from 'buffer';
 import {
   eventId,
@@ -183,9 +184,10 @@ function run(moveFocus = false) {
       show('valid', 'Valid against the bundled OpenAjang 0.1 checks.', 'passed', 'passed');
       showSummary(validation.event);
     } else {
-      const count = validation.errors.length;
+      const visibleErrors = normalizeDiagnostics(validation.errors, parsed.value);
+      const count = visibleErrors.length;
       show('invalid', `${count} ${count === 1 ? 'problem' : 'problems'} reported. Fix the document and validate again.`, 'passed', 'failed');
-      showDiagnostics(validation.errors);
+      showDiagnostics(visibleErrors);
     }
   } catch {
     show('error', 'Document validation could not complete. Try again, or report the problem with the SDK.', 'passed');

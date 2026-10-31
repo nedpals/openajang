@@ -7,6 +7,8 @@ order: 1
 
 Publishing an event in OpenAjang requires only a text editor and a public URL to host one JSON file. Once published, compatible apps and directories can import the event directly, and linking the file from your existing event page lets visitors import it using your ordinary website address.
 
+You can also use the [event builder](/builder/) to create an event file locally in your browser.
+
 You do not need a custom server, a central OpenAjang account, or any third-party package.
 
 ## Write the event document
