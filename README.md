@@ -69,6 +69,9 @@ through either route in the same compatible consumer:
 - **Feed discovery:** subscribe to a directory's feed. The directory collects and
   refreshes events from multiple publishers; the app follows the feed's document
   links to retrieve structured event information.
+- **Publisher feeds:** an organizer can publish its own Atom feed, such as
+  `/events.atom` on static hosting, so indexers find new events without manual
+  submission ([publisher feeds](FEEDS.md#6-publisher-feeds)).
 
 The arrows show how event information reaches the participant. In the direct route,
 the participant initiates the import by supplying a URL. Directories are optional,

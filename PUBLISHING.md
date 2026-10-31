@@ -13,6 +13,8 @@ in [SPEC.md](SPEC.md); filenames remain stable between releases.
 - [Validation and scenario report](TEST-REPORT.md)
 
 `examples/` contains eight event fixtures and illustrative Atom/RSS feeds.
+`examples/publisher/` is a static-hosted publisher feed example; see
+[publisher feeds](FEEDS.md#6-publisher-feeds).
 `generated/` contains derived Schema.org and supported JSCalendar outputs, plus
 conversion diagnostics. `tools/` and `tests/` contain local reference helpers and
 regression tests. These are not a deployed authoring website, directory, or app.
@@ -42,6 +44,7 @@ python -m pip install -r requirements.txt
 python tools/openajang.py validate examples/*.openajang.json
 python tools/openajang.py generate
 python tools/generate_example_feeds.py
+python tools/generate_publisher_feed.py
 python -m unittest discover -s tests -v
 ```
 
@@ -75,9 +78,12 @@ rebinding protection, isolation, moderation, and notification behavior.
    Publish fixtures as examples with their provenance notice.
 4. Replace placeholder feed URLs before using the sample feeds as working feeds.
    Use genuine service identity and publication/update timestamps.
-5. Add discovery links only to pages you control. Hosting a separate document does
+5. Optionally serve an `events.atom` feed so indexers can find new events, and add
+   `<link rel="alternate" type="application/atom+xml" href="/events.atom">` to
+   pages you control. Static hosting is enough, and URL submission still works.
+6. Add discovery links only to pages you control. Hosting a separate document does
    not automatically make another organization's page discoverable.
-6. Choose your project's license and ownership notices before public distribution.
+7. Choose your project's license and ownership notices before public distribution.
    This package does not invent a license or grant rights over source event data.
 
 ## Maintaining versions
