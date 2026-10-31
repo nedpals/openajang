@@ -79,12 +79,48 @@ reassigned.
 - A malformed value means the consumer ignores the extension. The core listing
   stays valid.
 
+## Graduation checklist
+
+A profile moves from `experimental` to `published` only when every item holds. An
+item that does not hold yet is recorded in the profile as an open question.
+
+1. A written scope and a stable, versioned key.
+2. A schema, with field-level meaning and edge cases.
+3. The relationship to core assertions, and a core fallback that stays truthful with
+   the extension removed.
+4. Stated handling of malformed, omitted, conflicting, and stale data.
+5. At least one valid fixture, one invalid fixture, and a fallback case showing a
+   core-only reader is not misled.
+6. A compatibility and migration policy.
+7. Two independent implementations that read the same payload the same way.
+
+Apply the checklist to one profile at a time. Passing it does not make a profile
+mandatory for anyone.
+
+## Two kinds of conformance
+
+Core conformance asks whether a document is a valid OpenAjang event. It never
+depends on a profile: a document with a malformed extension value stays core valid.
+Profile conformance asks whether a value meets one profile's schema and rules. The
+core tests and the profile tests are separate, and a profile failure never fails the
+core check.
+
+Automated fallback checks can confirm that the core text mentions a fact the
+extension also carries. They cannot confirm the text is true or sufficient. Each
+profile's fallback cases mark which cases need a human reviewer for that reason.
+
 ## Reference profile
 
 [extensions/org.example-eligibility-v1](extensions/org.example-eligibility-v1/PROFILE.md)
 shows each element for event-wide age limits. Its schema and fixtures are checked by
 the core test suite, together with a check that core validation accepts every
 fixture value in a document.
+
+### Worked candidate
+
+[extensions/unstable-event_languages](extensions/unstable-event_languages/PROFILE.md)
+applies the checklist to the existing `unstable:event_languages` shape. It stays
+`experimental` because the independent implementation item is unmet.
 
 ## Writing a profile
 

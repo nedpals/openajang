@@ -11,7 +11,7 @@ generic validator may require that support.
 | `unstable:components` | Array of objects with `name`, `starts_at`, and location-shaped `location`. Dates retain original precision. | Overall description and registration/venue instructions identify which days have which attendance modes. No ticket coverage inferred. |
 | `unstable:eligibility` | Object with integer `minimum_age`, `maximum_age`. | Belgrade registration instructions state ages 18–26. |
 | `unstable:participation` | Object with integer `minimum_team_size`, `maximum_team_size`, boolean `individual_matching_available`, text `prerequisite`. | Registration instructions state team sizes, matching, and prior conference attendance. |
-| `unstable:event_languages` | Object with arrays `working` and `presentations` of language tags. | Belgrade description names Serbian and English. Document `language` remains English. |
+| `unstable:event_languages` | Object with arrays `working` and `presentations` of language tags. Worked as a [graduation candidate](extensions/unstable-event_languages/PROFILE.md). | Belgrade description names Serbian and English. Document `language` remains English. |
 | `unstable:broadcast` | Object with URL `recordings_url` and boolean `counts_as_attendance`. | FOSDEM description says recordings remain available; core location remains physical. |
 
 No extension may change the meaning of the core. Stripping every extension must

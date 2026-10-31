@@ -1,0 +1,15 @@
+[
+  { "name": "belgrade example", "valid": true, "value": { "working": ["sr"], "presentations": ["en"] } },
+  { "name": "working only", "valid": true, "value": { "working": ["en", "fil"] } },
+  { "name": "presentations only", "valid": true, "value": { "presentations": ["en-US"] } },
+  { "name": "script and region subtags", "valid": true, "value": { "working": ["sr-Latn-RS"] } },
+  { "name": "unknown property from a compatible later revision", "valid": true, "value": { "working": ["en"], "signed": false } },
+  { "name": "empty object", "valid": false, "value": {} },
+  { "name": "null value", "valid": false, "value": null },
+  { "name": "language as bare text", "valid": false, "value": { "working": "en" } },
+  { "name": "empty array", "valid": false, "value": { "working": [] } },
+  { "name": "duplicate tag", "valid": false, "value": { "working": ["en", "en"] } },
+  { "name": "language name with spaces instead of tag", "valid": false, "value": { "working": ["English (US)"] } },
+  { "name": "malformed tag", "valid": false, "value": { "presentations": ["en_US"] } },
+  { "name": "non-string item", "valid": false, "value": { "working": [1] } }
+]
