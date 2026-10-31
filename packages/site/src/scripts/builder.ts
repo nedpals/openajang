@@ -17,8 +17,7 @@ const inputs = [
   ...form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>('[name]'),
 ];
 const notice = document.querySelector<HTMLElement>('#notice')!;
-const preview = document.querySelector<HTMLElement>('#preview')!;
-const generatedJson = document.querySelector<HTMLElement>('#generated-json')!;
+const generatedJson = document.querySelector<HTMLTextAreaElement>('#generated-json')!;
 const validation = document.querySelector<HTMLElement>('#validation')!;
 const errors = document.querySelector<HTMLElement>('#errors')!;
 const jsonButton = document.querySelector<HTMLButtonElement>('#json')!;
@@ -264,11 +263,7 @@ function render(event: RecordObject, showImage = true): string {
 }
 function refresh() {
   const event = record();
-  generatedJson.textContent = JSON.stringify(event, null, 2);
-  preview.innerHTML = render(
-    event,
-    document.activeElement !== form.elements.namedItem('image.url'),
-  );
+  generatedJson.value = JSON.stringify(event, null, 2);
   for (const input of [
     ...inputs,
     ...dateFields.map((prefix) => dateElement(prefix, 'date')),
@@ -414,7 +409,7 @@ function exportRecord(): RecordObject | null {
   edited.clear();
   removedLocations.clear();
   ticketsEdited = false;
-  generatedJson.textContent = JSON.stringify(event, null, 2);
+  generatedJson.value = JSON.stringify(event, null, 2);
   return event;
 }
 function download(blob: Blob, name: string) {
