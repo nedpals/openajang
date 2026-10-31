@@ -239,7 +239,8 @@ SHOULD use event-zone context where available and be conservative near day bound
 
 A material change MUST advance `updated_at`; unchanged fetches and rebuilds MUST
 NOT advance it. Material changes include dates, venue, lifecycle, registration,
-ticket prices, and availability. HTTP validators and consumer retrieval time remain
+ticket prices, and availability. A change to extension data that affects a
+participant's decision is also material, even when no core field changes. HTTP validators and consumer retrieval time remain
 separate. A contract-only migration preserving event meaning need not advance it.
 
 Postponement retains the last scheduled start; consumers MUST NOT treat that start
@@ -478,6 +479,44 @@ fields such as `schedule`. Schema validates shape and value patterns;
 procedural checks validate relationships and registered-code membership. The
 bundled validator reports its limits in README rather than claiming to exercise
 real network security. A validator MUST NOT require private extension schemas.
+
+### 9.1 Processing supported extensions
+
+These rules apply to a consumer that chooses to support an extension profile. A
+consumer that ignores extensions needs none of them.
+
+1. **Core validity stands alone.** A document that is valid under the core contract
+   stays valid when a supported extension fails its profile. The consumer MAY report
+   an extension-specific warning or error. It MUST NOT treat the failed value as
+   supported data or derive any capability from it.
+2. **Core wins on conflict.** When a supported extension contradicts a core field,
+   the consumer MUST keep the core reading. It MAY report the conflict or ignore the
+   extension. It MUST NOT silently adopt the extension's assertion, and it MUST NOT
+   rank competing extensions by their order in the object.
+3. **Actions need explicit semantics.** Extra labels and display detail are separate from
+   automated decisions about eligibility, registration, attendance, ticket coverage,
+   or price. A consumer MUST NOT make such a decision from an extension unless a
+   profile it supports defines that decision. Ambiguous, partial, or `-unstable`
+   values never qualify.
+4. **Fallback stays truthful.** Removing every extension may lose
+   machine-readable detail, but it MUST NOT leave the core listing materially misleading
+   about attendance, times, mode, eligibility, registration, or price.
+5. **No dynamic contracts.** A consumer MUST NOT fetch a schema or profile named by a
+   document, and MUST NOT execute an extension value.
+
+The core validator never needs a profile, so rule 1 holds for every document. Rule 4
+is a publisher duty under [section 1.1](#11-occurrence-boundaries-and-conservative-interpretation):
+extensions never correct a false core assertion.
+
+Scenarios a consumer SHOULD test:
+
+| Scenario | Expected outcome |
+| --- | --- |
+| Unknown namespaced key | Core event valid; extension ignored. |
+| Supported key, profile-invalid value | Core event valid; extension-derived capability withheld; failure MAY be reported. |
+| Supported extension conflicts with core | Core reading kept; conflict reported or extension ignored. |
+| Every extension removed | Core text still makes truthful attendance, registration, and price claims. |
+| Extension-only material change | `updated_at` advances. |
 
 ## 10. Security and operational requirements
 
