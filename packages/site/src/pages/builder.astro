@@ -9,31 +9,37 @@ import Icon from '../components/Icon.astro';
   wide
 >
   <h1>Event builder</h1>
-  <p>
-    Fill in the form to make an OpenAjang event file, or open one you already have. Nothing leaves
-    your browser. OpenAjang is a version 0.1 working draft, so the format may still change.
-  </p>
-  <p>
-    Drafts are not saved automatically, so use Save draft before you close the tab. When the event
-    passes validation, download it and upload the file to your own website.
-    <a href="/docs/publish-your-first-event/">Publish your first event</a> explains how.
-  </p>
+  <div class="builder-intro">
+    <p>
+      Fill in the form to make an OpenAjang event file, or open one you already have. Nothing leaves
+      your browser. OpenAjang is a version 0.1 working draft, so the format may still change.
+    </p>
+    <p>
+      Drafts are not saved automatically, so use Save draft before you close the tab. When the event
+      passes validation, download it and upload the file to your own website.
+    </p>
+    <p class="reference-links">
+      <a href="/docs/publish-your-first-event/">Publish your first event</a>
+      <a href="/spec/">Read the specification</a>
+      <a href="/validator/">Check an existing file</a>
+    </p>
+  </div>
   <noscript>
     <p>JavaScript is required to use the event builder.</p>
   </noscript>
   <div class="toolbar">
-    <label class="file-button">
-      Open event or draft JSON{' '}
-      <input
-        id="import"
-        type="file"
-        accept=".json,application/json,application/vnd.openajang+json"
-      />
-    </label>
-    <button type="button" class="secondary" id="save-draft">Save draft</button>
-    <button type="button" class="secondary" id="new">
-      New event
+    <button type="button" class="secondary" id="open-file">
+      <Icon name="file" size={18} />Open JSON file
     </button>
+    <input
+      id="import"
+      type="file"
+      accept=".json,application/json,application/vnd.openajang+json"
+      aria-label="Open event or draft JSON"
+      hidden
+    />
+    <button type="button" class="secondary" id="save-draft">Save draft</button>
+    <button type="button" class="secondary" id="new">New event</button>
     <span id="notice" role="status"></span>
   </div>
   <p class="hint">Files can be up to 1 MiB for events and 4 MiB for drafts.</p>
@@ -397,7 +403,7 @@ import Icon from '../components/Icon.astro';
   :global(.history-editor label),
   :global(.ticket-editor label) {
     display: block;
-    font-weight: 600;
+    font-weight: 500;
     margin: 0.85rem 0;
   }
   :global(.history-editor input:not([type='hidden'])),
@@ -426,7 +432,7 @@ import Icon from '../components/Icon.astro';
   }
   :global(.history-editor .hint) {
     color: var(--muted);
-    font-size: 0.86rem;
+    font-size: 0.85rem;
     overflow-wrap: anywhere;
   }
   :global(.ticket-editor) {
@@ -441,7 +447,7 @@ import Icon from '../components/Icon.astro';
   }
   .optional-panel > summary {
     padding: 1rem 1.25rem;
-    font-size: 1.1rem;
+    font-size: 1.15rem;
     font-weight: 700;
     cursor: pointer;
   }
@@ -461,7 +467,7 @@ import Icon from '../components/Icon.astro';
   }
   [data-detail-indicator] {
     color: var(--muted);
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     font-weight: 400;
   }
   .sr-only {
@@ -478,6 +484,24 @@ import Icon from '../components/Icon.astro';
   [hidden] {
     display: none !important;
   }
+  .secondary {
+    background: linear-gradient(var(--control-top), var(--control-bottom));
+    color: var(--fg);
+    border-color: var(--line);
+  }
+  .secondary:hover {
+    background: var(--code);
+    border-color: var(--muted);
+  }
+  .builder-intro {
+    max-width: 72ch;
+  }
+  .reference-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+    font-size: 0.9rem;
+  }
   .toolbar,
   .actions {
     display: flex;
@@ -485,6 +509,13 @@ import Icon from '../components/Icon.astro';
     align-items: center;
     gap: 0.75rem;
     margin: 1.5rem 0;
+  }
+  .toolbar {
+    padding: 1rem;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
   }
   .download-actions {
     display: grid;
@@ -495,14 +526,6 @@ import Icon from '../components/Icon.astro';
     justify-content: center;
     align-items: center;
     gap: 0.5rem;
-  }
-  .file-button {
-    font-weight: 600;
-  }
-  .file-button input {
-    display: block;
-    max-width: 100%;
-    font-size: 0.85rem;
   }
   .builder {
     display: grid;
@@ -518,13 +541,13 @@ import Icon from '../components/Icon.astro';
     min-width: 0;
   }
   legend {
-    font-size: 1.2rem;
+    font-size: 1.15rem;
     font-weight: 700;
     padding: 0 0.3rem;
   }
   label {
     display: block;
-    font-weight: 600;
+    font-weight: 500;
     margin: 0.85rem 0;
   }
   input:not([type='file']),
@@ -547,7 +570,7 @@ import Icon from '../components/Icon.astro';
   }
   .hint {
     color: var(--muted);
-    font-size: 0.86rem;
+    font-size: 0.85rem;
   }
   .side {
     position: sticky;
@@ -578,6 +601,15 @@ import Icon from '../components/Icon.astro';
   .validation-feedback {
     margin-top: 1rem;
   }
+  #validation {
+    font-weight: 500;
+  }
+  #validation[data-state='valid'] {
+    color: var(--good);
+  }
+  #validation[data-state='invalid'] {
+    color: var(--bad);
+  }
   #errors {
     color: var(--bad);
     padding-left: 1.2rem;
@@ -586,7 +618,7 @@ import Icon from '../components/Icon.astro';
   :global(.field-error) {
     display: block;
     color: var(--bad);
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     font-weight: 400;
   }
   :global([aria-invalid='true']) {

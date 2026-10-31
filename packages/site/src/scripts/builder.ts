@@ -251,7 +251,10 @@ function refresh() {
     : `(${result.errors.length} to fix)`;
   clearTimeout(validationTimer);
   const message = result.valid ? 'This event passes validation. You can download it.' : `${result.errors.length} ${result.errors.length === 1 ? 'problem' : 'problems'} to fix before you can download.`;
-  validationTimer = window.setTimeout(() => { validation.textContent = message; }, 500);
+  validationTimer = window.setTimeout(() => {
+    validation.textContent = message;
+    validation.dataset.state = result.valid ? 'valid' : 'invalid';
+  }, 500);
   const shownFields = new Set<HTMLElement>();
   for (const error of result.errors) {
     const li = document.createElement('li');
@@ -397,6 +400,9 @@ function restoreDraft(value: RecordObject) {
 }
 window.addEventListener('beforeunload', (event) => {
   if (isDirty()) { event.preventDefault(); event.returnValue = ''; }
+});
+document.querySelector('#open-file')!.addEventListener('click', () => {
+  document.querySelector<HTMLInputElement>('#import')!.click();
 });
 document.querySelector('#save-draft')!.addEventListener('click', () => {
   try {
