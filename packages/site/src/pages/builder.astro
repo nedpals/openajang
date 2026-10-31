@@ -1,0 +1,49 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="Event builder" description="Create and publish an OpenAjang event in your browser." wide>
+  <h1>Event builder</h1>
+  <p>Create an event or edit a local OpenAjang file. Everything stays in your browser.</p>
+  <noscript><p>JavaScript is required to use the event builder.</p></noscript>
+  <div class="toolbar"><label class="file-button">Import event JSON <input id="import" type="file" accept=".json,application/json,application/vnd.openajang+json" /></label><button type="button" class="secondary" id="new">New event</button><span id="notice" role="status"></span></div>
+  <div class="builder">
+    <form id="builder-form" novalidate>
+      <fieldset><legend>Event details</legend>
+        <label>Title <input name="title" required /></label>
+        <label>Summary <textarea name="summary" rows="3"></textarea></label>
+        <label>Event page URL <input name="url" type="url" placeholder="https://example.org/event/" required /></label>
+        <label>Organizer name <input name="organizer.name" required /></label>
+        <label>Organizer URL <input name="organizer.url" type="url" /></label>
+        <label>Lifecycle status <select name="status"><option value="scheduled">Scheduled</option><option value="postponed">Postponed</option><option value="rescheduled">Rescheduled</option><option value="cancelled">Cancelled</option><option value="completed">Completed</option></select></label>
+        <label>Status note <input name="status_note" /></label>
+        <label>Previous start dates or timestamps (one per line, required for rescheduled events) <textarea name="previous_starts_at" rows="2"></textarea></label>
+      </fieldset>
+      <fieldset><legend>Dates and time</legend>
+        <p class="hint">Use a date (YYYY-MM-DD) when the time is unknown, or a timestamp with an offset (e.g. 2027-05-12T14:30:00+08:00). Start and end must use the same precision.</p>
+        <label>Starts <input name="starts_at" placeholder="YYYY-MM-DD" required /></label>
+        <label>Ends <input name="ends_at" placeholder="YYYY-MM-DD" /></label>
+        <label>Time zone <input name="time_zone" placeholder="e.g. Asia/Manila" /></label>
+      </fieldset>
+      <fieldset><legend>Location</legend>
+        <label>Attendance mode <select name="location.type"><option value="physical">In person</option><option value="virtual">Online</option><option value="hybrid">Hybrid</option></select></label>
+        <label>Venue status <select name="location.physical.status"><option value="">Not specified</option><option value="confirmed">Confirmed</option><option value="tentative">Tentative</option><option value="to_be_announced">To be announced</option></select></label>
+        <label>Venue name <input name="location.physical.name" /></label>
+        <label>City or locality <input name="location.physical.address.locality" /></label>
+        <label>Online event URL <input name="location.virtual.url" type="url" /></label>
+        <p class="hint">For online and hybrid events, provide an online event URL. When changing mode, you can remove the entire unused location, including any imported details.</p><div class="actions"><button class="secondary" type="button" id="clear-physical">Remove venue details</button><button class="secondary" type="button" id="clear-virtual">Remove online details</button></div>
+      </fieldset>
+      <fieldset><legend>Registration</legend>
+        <label>Registration <select name="registration.required"><option value="">Not specified</option><option value="true">Required</option><option value="false">Not required</option></select></label>
+        <label>Registration status <select name="registration.status"><option value="">Not specified</option><option value="not_yet_open">Not yet open</option><option value="open">Open</option><option value="closed">Closed</option><option value="waitlist">Waitlist</option><option value="unknown">Unknown</option></select></label>
+        <label>Registration URL <input name="registration.url" type="url" /></label>
+        <label>Registration instructions <textarea name="registration.instructions" rows="2"></textarea></label>
+      </fieldset>
+    </form>
+    <aside class="side"><section class="card"><h2>Live preview</h2><div id="preview"></div></section><section class="card"><h2>Validation &amp; export</h2><p id="validation" role="status" aria-live="polite"></p><ul id="errors"></ul><div class="actions"><button id="json" type="button">Download JSON</button><button id="zip" type="button">Download publishing ZIP</button></div><p class="hint">The ZIP includes a page, event JSON, and publishing instructions. Fix validation errors before downloading.</p></section></aside>
+  </div>
+</Base>
+<script>import '../scripts/builder';</script>
+<style>
+  .toolbar,.actions { display:flex; flex-wrap:wrap; align-items:center; gap:.75rem; margin:1.5rem 0; } .file-button { font-weight:600; } .file-button input { display:block; max-width:100%; font-size:.85rem; }
+  .builder { display:grid; grid-template-columns:minmax(0, 1.1fr) minmax(0, .9fr); gap:2rem; align-items:start; } fieldset,.card { border:1px solid var(--line); border-radius:4px; padding:1.25rem; margin:0 0 1.25rem; min-width:0; } legend { font-size:1.2rem; font-weight:700; padding:0 .3rem; } label { display:block; font-weight:600; margin:.85rem 0; } input:not([type=file]),select,textarea { display:block; width:100%; max-width:100%; margin-top:.3rem; padding:.55rem; color:var(--fg); background:var(--bg); border:1px solid var(--muted); border-radius:3px; font:inherit; } textarea { resize:vertical; } .hint { color:var(--muted); font-size:.86rem; } .side { position:sticky; top:1rem; min-width:0; } .card { background:var(--panel); overflow-wrap:anywhere; } .card h2 { margin-top:0; } #errors { color:var(--bad); padding-left:1.2rem; } :global(.field-error) { display:block; color:var(--bad); font-size:.8rem; font-weight:400; } :global([aria-invalid=true]) { border-color:var(--bad) !important; } @media(max-width:800px) { .builder { grid-template-columns:1fr; } .side { position:static; } }
+</style>
