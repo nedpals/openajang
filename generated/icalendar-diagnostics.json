@@ -1,0 +1,66 @@
+{
+  "chasing-clouds-2026": {
+    "generated": false,
+    "diagnostics": [
+      "Declined: clock times unpublished; no invented midnight or all-day event"
+    ]
+  },
+  "devcon-8-india-2026": {
+    "generated": false,
+    "diagnostics": [
+      "Declined: clock times unpublished; no invented midnight or all-day event"
+    ]
+  },
+  "devfest-belgrade-hackathon-2026": {
+    "generated": true,
+    "diagnostics": [
+      "SEQUENCE omitted: no revision counter supplied; updated_at is not a monotonic revision number",
+      "Registration retained descriptively; iCalendar has no registration semantics",
+      "Organizer retained descriptively; no ORGANIZER, ATTENDEE, or METHOD emitted (not an invitation)",
+      "publisher not preserved structurally",
+      "series not preserved structurally",
+      "extensions not preserved structurally",
+      "language not preserved structurally"
+    ]
+  },
+  "devfest-kuala-lumpur-2026": {
+    "generated": true,
+    "diagnostics": [
+      "SEQUENCE omitted: no revision counter supplied; updated_at is not a monotonic revision number",
+      "Registration retained descriptively; iCalendar has no registration semantics",
+      "Organizer retained descriptively; no ORGANIZER, ATTENDEE, or METHOD emitted (not an invitation)",
+      "publisher not preserved structurally",
+      "series not preserved structurally",
+      "language not preserved structurally"
+    ]
+  },
+  "fosdem-2026": {
+    "generated": false,
+    "diagnostics": [
+      "Declined: clock times unpublished; no invented midnight or all-day event"
+    ]
+  },
+  "pycon-davao-2026": {
+    "generated": false,
+    "diagnostics": [
+      "Declined: clock times unpublished; no invented midnight or all-day event"
+    ]
+  },
+  "react-summit-us-2026": {
+    "generated": false,
+    "diagnostics": [
+      "Declined: clock times unpublished; no invented midnight or all-day event"
+    ]
+  },
+  "webdavao-september-2026": {
+    "generated": true,
+    "diagnostics": [
+      "SEQUENCE omitted: no revision counter supplied; updated_at is not a monotonic revision number",
+      "Registration retained descriptively; iCalendar has no registration semantics",
+      "Ticket prices/availability/coverage have no native mapping; descriptive text only; seller omitted",
+      "Organizer retained descriptively; no ORGANIZER, ATTENDEE, or METHOD emitted (not an invitation)",
+      "publisher not preserved structurally",
+      "language not preserved structurally"
+    ]
+  }
+}

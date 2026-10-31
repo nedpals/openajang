@@ -7,6 +7,7 @@
     "build": "pnpm --filter @openajang/core run build && pnpm --filter @openajang/resolver run build",
     "test": "pnpm run build && node --test packages/core/tests/*.test.ts packages/resolver/tests/resolver.test.ts packages/site/tests/*.test.ts",
     "typecheck": "pnpm --filter @openajang/core run build && pnpm --filter @openajang/resolver run typecheck",
+    "generate:ics": "pnpm run build && node scripts/generate-ics.mjs",
     "site:dev": "pnpm --filter @openajang/site run dev",
     "site:build": "pnpm --filter @openajang/site run build"
   },

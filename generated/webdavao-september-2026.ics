@@ -1,0 +1,23 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//OpenAjang//iCalendar export 0.1//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:https://luma.com/3nzv58t2
+DTSTAMP:20261029T080000Z
+LAST-MODIFIED:20261029T080000Z
+DTSTART:20260919T040000Z
+DTEND:20260919T110000Z
+SUMMARY:Draw It\, Build It - WebDavao September 2026 Meetup
+STATUS:CONFIRMED
+URL:https://luma.com/3nzv58t2
+LOCATION:Fika Cafe - Lapu-Lapu\, Diamond Piazza\, Lapu-Lapu Street\, Barang
+ ay 15-B\, Poblacion District\, Davao City\, Davao del Sur\, PH
+DESCRIPTION:Participants first sketch what they want to make\, then build i
+ t from an empty repository without AI or code generation. The meetup concl
+ udes with a show-and-tell session.\n\nOrganizer: WebDavao\n\nRegistration:
+  open. https://luma.com/3nzv58t2\n\nEvent registration: Price not publishe
+ d. Availability: limited.\n\nSource: https://luma.com/3nzv58t2
+CATEGORIES:web development,software development,meetup,Davao
+END:VEVENT
+END:VCALENDAR

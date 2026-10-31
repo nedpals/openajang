@@ -1,0 +1,28 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//OpenAjang//iCalendar export 0.1//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:https://gdg.community.dev/events/details/google-gdg-kuala-lumpur-presen
+ ts-devfest-kuala-lumpur-2026/
+DTSTAMP:20261029T080000Z
+LAST-MODIFIED:20261029T080000Z
+DTSTART:20261114T003000Z
+DTEND:20261114T100000Z
+SUMMARY:DevFest Kuala Lumpur 2026
+STATUS:CONFIRMED
+URL:https://gdg.community.dev/events/details/google-gdg-kuala-lumpur-presen
+ ts-devfest-kuala-lumpur-2026/
+LOCATION:Sunway University\, 5 Jalan Universiti\, Petaling Jaya\, 47500\, M
+ Y
+DESCRIPTION:DevFest Kuala Lumpur returns for its fifteenth year with knowle
+ dge exchange\, networking\, and learning focused on Google developer techn
+ ologies. The schedule and speaker lineup have not yet been published.\n\nO
+ rganizer: GDG Kuala Lumpur\n\nRegistration: not_yet_open. Registration has
+  not started yet. Check the event page for updates.\n\nSource: https://gdg
+ .community.dev/events/details/google-gdg-kuala-lumpur-presents-devfest-kua
+ la-lumpur-2026/
+CATEGORIES:DevFest,AI,Android,Firebase,Flutter,Google Cloud,web development
+ ,community conference
+END:VEVENT
+END:VCALENDAR

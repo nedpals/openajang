@@ -15,6 +15,6 @@ import { parseJsonStrict, validate } from '@openajang/core';
 const event = validate(parseJsonStrict(json));
 ```
 
-`validateSafe` returns a result instead of throwing. The package also exports the bundled schema and event types. Optional conversions and registration helpers are available from `@openajang/core/adapters`. Validation uses the bundled schema and additional checks described in the specification.
+`validateSafe` returns a result instead of throwing. The package also exports the bundled schema and event types. Optional conversions (Schema.org, JSCalendar, and single-event iCalendar via `toICalendar`) and registration helpers are available from `@openajang/core/adapters`. Validation uses the bundled schema and additional checks described in the specification.
 
 The implementation uses JavaScript `Intl` for time zones. URI, email, and language-tag checks are covered by a shared Python and TypeScript conformance corpus, but full equivalence is still work in progress. JSON numbers use JavaScript numeric precision; large values may lose precision.
