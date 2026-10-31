@@ -1,3 +1,4 @@
+import { candidates } from './time-zone';
 import { Buffer } from 'buffer';
 import { eventId, parseJsonStrict, SCHEMA_ID, validateSafe, type OpenAjangEvent } from '@openajang/core';
 import { strToU8, zipSync } from 'fflate';
@@ -14,8 +15,44 @@ const jsonButton = document.querySelector<HTMLButtonElement>('#json')!;
 const zipButton = document.querySelector<HTMLButtonElement>('#zip')!;
 let original: RecordObject;
 let edited = new Set<string>();
+const touched = new Set<string>();
 let identity: string;
 let removedLocations = new Set<string>();
+const zone = form.elements.namedItem('time_zone') as HTMLInputElement;
+const detectedZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+const zoneList = document.querySelector<HTMLDataListElement>('#time-zones')!;
+for (const name of (Intl as any).supportedValuesOf?.('timeZone') ?? []) { const option = document.createElement('option'); option.value = name; zoneList.append(option); }
+const zoneSuggestion = document.querySelector<HTMLElement>('#zone-suggestion')!;
+const useZone = document.querySelector<HTMLButtonElement>('#use-zone')!;
+if (detectedZone) { zoneSuggestion.textContent = `Your browser suggests ${detectedZone}. Confirm that this is the event’s time zone.`; useZone.hidden = false; }
+const dateFields = ['start', 'end'] as const;
+const dateDirty = new Set<string>();
+const dateErrors = new Map<string, string>();
+function dateElement(prefix: string, suffix: string) { return document.querySelector<HTMLInputElement>(`#${prefix}-${suffix}`)!; }
+function datePath(prefix: string) { return prefix === 'start' ? 'starts_at' : 'ends_at'; }
+function syncDate(prefix: string) {
+  const path = datePath(prefix); const date = dateElement(prefix, 'date').value; const time = dateElement(prefix, 'time').value;
+  const input = form.elements.namedItem(path) as HTMLInputElement; const help = document.querySelector<HTMLElement>(`#${prefix}-time-help`)!;
+  const group = document.querySelector<HTMLElement>(`#${prefix}-offset-group`)!; const select = document.querySelector<HTMLSelectElement>(`#${prefix}-offset`)!;
+  dateErrors.delete(path); group.hidden = true; help.textContent = ''; input.value = date;
+  if (time && !date) dateErrors.set(path, 'Choose a date for this time.');
+  else if (date && time) {
+    if (!zone.value) dateErrors.set(path, 'Choose the event time zone before entering a time.');
+    else try {
+      const choices = candidates(date, time, zone.value);
+      if (!choices.length) dateErrors.set(path, 'This local time does not exist in that time zone. Choose another time.');
+      else if (choices.length > 1) {
+        const previous = select.value; select.replaceChildren(new Option('Choose an offset…', ''), ...choices.map(c => new Option(`UTC${c.offset}`, c.offset)));
+        if (choices.some(c => c.offset === previous)) select.value = previous;
+        group.hidden = false; const choice = choices.find(c => c.offset === select.value);
+        if (!choice) dateErrors.set(path, 'This time occurs twice due to a clock change. Choose an offset.'); else { input.value = choice.value; help.textContent = `Local time: ${date} ${time} (UTC${choice.offset}).`; }
+      } else { input.value = choices[0].value; help.textContent = `Local time: ${date} ${time} (UTC${choices[0].offset}).`; }
+    } catch { dateErrors.set(path, 'Choose a valid IANA time zone, such as Asia/Manila.'); }
+  }
+  if (dateErrors.has(path)) help.textContent = dateErrors.get(path)!;
+  edited.add(path);
+}
+
 
 function fresh(): RecordObject {
   return { $schema: SCHEMA_ID, type: 'event', id: `urn:uuid:${crypto.randomUUID()}`, url: '', title: '', status: 'scheduled', starts_at: '', location: { type: 'physical', physical: {} }, organizer: { name: '' }, updated_at: new Date().toISOString() };
@@ -48,9 +85,15 @@ function record(): RecordObject {
   return result;
 }
 function load(value: RecordObject) {
-  original = structuredClone(value); edited = new Set(); removedLocations = new Set();
+  original = structuredClone(value); edited = new Set(); removedLocations = new Set(); dateDirty.clear(); dateErrors.clear(); touched.clear();
   identity = typeof value.url === 'string' ? eventId(value as OpenAjangEvent) : '';
   for (const input of inputs) { const v = get(value, input.name); input.value = v == null ? '' : Array.isArray(v) ? v.join('\n') : String(v); }
+  for (const prefix of dateFields) {
+    const stamp = value[datePath(prefix)] || ''; const match = /^(\d{4}-\d{2}-\d{2})(?:T(\d{2}:\d{2}(?::\d{2})?))?/.exec(stamp);
+    dateElement(prefix, 'date').value = match?.[1] || ''; dateElement(prefix, 'time').value = match?.[2] || '';
+    document.querySelector<HTMLElement>(`#${prefix}-offset-group`)!.hidden = true;
+    document.querySelector<HTMLElement>(`#${prefix}-time-help`)!.textContent = stamp.includes('T') ? `Imported value: ${stamp}. It remains unchanged until edited.` : '';
+  }
   refresh();
 }
 function escape(value: unknown): string { return String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]!)); }
@@ -70,20 +113,31 @@ function render(event: RecordObject): string {
 }
 function refresh() {
   const event = record(); preview.innerHTML = render(event);
-  for (const input of inputs) { input.removeAttribute('aria-invalid'); input.parentElement?.querySelectorAll('.field-error').forEach(error => error.remove()); }
+  for (const input of [...inputs, ...dateFields.map(prefix => dateElement(prefix, 'date'))]) { input.removeAttribute('aria-invalid'); if (input.getAttribute('aria-describedby')?.startsWith('error-')) input.removeAttribute('aria-describedby'); input.parentElement?.querySelectorAll('.field-error').forEach(error => error.remove()); }
   errors.replaceChildren();
   let result;
   try { result = validateSafe(event); } catch { result = {valid:false, errors:[{path:'', message:'Validation could not complete.', code:'validation'}]}; }
+  for (const [path, message] of dateErrors) result.errors.unshift({path: `/${path}`, message, code:'date'});
+  if (dateErrors.size) result.valid = false;
+  document.querySelector<HTMLElement>('#mobile-error-count')!.textContent = result.valid ? '(ready)' : `(${result.errors.length} to fix)`;
   validation.textContent = result.valid ? 'This event passes the bundled OpenAjang checks.' : `${result.errors.length} problem(s) to fix before export.`;
   for (const error of result.errors) {
-    const li = document.createElement('li'); li.textContent = `${error.path || 'Document'}: ${error.message}`; errors.append(li);
+    const li = document.createElement('li'); errors.append(li);
     let path = error.path.replace(/^\//, '').replaceAll('/', '.');
     const missing = error.message.match(/required property '([^']+)'/);
     if (missing) path = [path, missing[1]].filter(Boolean).join('.');
-    const input = inputs.find(i => i.name === path);
-    if (input) { input.setAttribute('aria-invalid', 'true'); const hint = document.createElement('span'); hint.className = 'field-error'; hint.textContent = error.message; input.parentElement?.append(hint); }
+    const input = path === 'starts_at' ? dateElement('start', 'date') : path === 'ends_at' ? dateElement('end', 'date') : inputs.find(i => i.name === path);
+    const friendly = error.code === 'required' ? 'This field is required.' : error.code === 'pattern' ? 'Enter a value that is not blank.' : error.code === 'format' ? 'Enter a valid value in the requested format.' : error.code === 'oneOf' ? 'Enter a valid date or date and time.' : error.message;
+    if (input) { if (!input.id) input.id = `field-${input.name.replaceAll('.', '-')}`; const link = document.createElement('a'); link.href = `#${input.id}`; link.textContent = `${input.closest('label')?.textContent?.trim() || path}: ${friendly}`; li.append(link); } else li.textContent = `${error.path || 'Document'}: ${friendly}`;
+    if (input && touched.has(input.name || input.id)) { input.setAttribute('aria-invalid', 'true'); const hint = document.createElement('span'); hint.className = 'field-error'; hint.textContent = friendly; hint.id = `error-${input.name || input.id}`; input.setAttribute('aria-describedby', hint.id); input.parentElement?.append(hint); }
   }
   jsonButton.disabled = zipButton.disabled = !result.valid;
+  const mode = (form.elements.namedItem('location.type') as HTMLSelectElement).value;
+  document.querySelector<HTMLElement>('#physical-fields')!.hidden = mode === 'virtual';
+  document.querySelector<HTMLElement>('#virtual-fields')!.hidden = mode === 'physical';
+  const addPrevious = document.querySelector<HTMLButtonElement>('#add-previous')!;
+  addPrevious.hidden = event.status !== 'rescheduled' || !original.starts_at || original.starts_at === event.starts_at || (event.previous_starts_at || []).includes(original.starts_at);
+  document.querySelector<HTMLElement>('#history-label')!.hidden = (form.elements.namedItem('status') as HTMLSelectElement).value !== 'rescheduled' && !get(event, 'previous_starts_at');
 }
 function canonical(value: any): any {
   if (Array.isArray(value)) return value.map(canonical);
@@ -93,7 +147,7 @@ function canonical(value: any): any {
 function same(a: RecordObject, b: RecordObject) { return JSON.stringify(canonical(a)) === JSON.stringify(canonical(b)); }
 function exportRecord(): RecordObject | null {
   const event = record();
-  if (!validateSafe(event).valid) { refresh(); return null; }
+  if (dateErrors.size || !validateSafe(event).valid) { refresh(); return null; }
   if (!same(event, original)) event.updated_at = new Date(Math.max(Date.now(), Date.parse(original.updated_at) + 1 || 0)).toISOString();
   if (!validateSafe(event).valid) { notice.textContent = 'The updated event did not pass validation.'; return null; }
   // Subsequent downloads of the same revision use the same timestamp and record.
@@ -102,16 +156,23 @@ function exportRecord(): RecordObject | null {
 }
 function download(blob: Blob, name: string) { const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); }
 function html(event: RecordObject): string { return `<!doctype html>\n<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${escape(event.title)}</title><link rel="alternate" type="application/vnd.openajang+json" href="event.openajang.json"><style>body{font:1rem/1.6 system-ui,sans-serif;color:#29283d;background:#faf9f6;margin:0}main{max-width:45rem;margin:3rem auto;padding:0 1.25rem}h1{font-size:2rem}h3{font-size:1.6rem}a{color:#873816}p{overflow-wrap:anywhere}</style></head><body><main>${render(event)}</main></body></html>\n`; }
+for (const prefix of dateFields) for (const suffix of ['date', 'time', 'offset']) dateElement(prefix, suffix).addEventListener('change', () => { if (suffix !== 'offset') dateElement(prefix, 'offset').value = ''; dateDirty.add(prefix); syncDate(prefix); refresh(); });
+useZone.addEventListener('click', () => { zone.value = detectedZone; edited.add('time_zone'); for (const prefix of dateDirty) syncDate(prefix); refresh(); });
+zone.addEventListener('change', () => { for (const prefix of dateDirty) { dateElement(prefix, 'offset').value = ''; syncDate(prefix); } refresh(); });
+form.addEventListener('focusout', e => { const input = e.target as HTMLInputElement; if (input.name || input.id) { touched.add(input.name || input.id); refresh(); } });
 form.addEventListener('input', e => { const input = e.target as HTMLInputElement; if (input.name) { edited.add(input.name); refresh(); } });
 form.addEventListener('change', e => { const input = e.target as HTMLInputElement; if (input.name) { edited.add(input.name); refresh(); } });
+document.querySelector('#add-previous')!.addEventListener('click', () => { const input = form.elements.namedItem('previous_starts_at') as HTMLTextAreaElement; input.value = [input.value.trim(), original.starts_at].filter(Boolean).join('\n'); edited.add(input.name); refresh(); });
 for (const key of ['physical', 'virtual']) document.querySelector(`#clear-${key}`)!.addEventListener('click', () => {
+  if (get(record(), `location.${key}`) && !confirm(`Remove all ${key === 'physical' ? 'venue' : 'online'} details, including imported fields?`)) return;
   removedLocations.add(key);
   for (const input of inputs.filter(i => i.name.startsWith(`location.${key}.`))) { input.value = ''; edited.delete(input.name); }
   notice.textContent = `Removed ${key === 'physical' ? 'venue' : 'online'} details from this event.`; refresh();
 });
-document.querySelector('#new')!.addEventListener('click', () => { load(fresh()); notice.textContent = 'Started a new event.'; });
+document.querySelector('#new')!.addEventListener('click', () => { if ((dateErrors.size > 0 || !same(record(), original)) && !confirm('Discard your changes and start a new event? Download your work first if you want to keep it.')) return; load(fresh()); notice.textContent = 'Started a new event.'; });
 document.querySelector<HTMLInputElement>('#import')!.addEventListener('change', async e => {
   const input = e.target as HTMLInputElement; const file = input.files?.[0]; if (!file) return;
+  if ((dateErrors.size > 0 || !same(record(), original)) && !confirm('Discard your changes and open this file? Download your work first if you want to keep it.')) { input.value = ''; return; }
   try {
     if (file.size > 1024 * 1024) throw new Error('File exceeds the 1 MiB limit.');
     const value = parseJsonStrict(new TextDecoder('utf-8', {fatal:true}).decode(await file.arrayBuffer()));
