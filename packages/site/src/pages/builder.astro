@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
 ---
 
 <Base
@@ -348,11 +349,13 @@ import Base from '../layouts/Base.astro';
       <p id="output-hint" class="hint">
         The updated timestamp is finalized when you download.
       </p>
-      <div class="actions">
+      <div class="actions download-actions">
         <button id="json" type="button">
+          <Icon name="download" size={18} />
           Download JSON
         </button>
         <button id="zip" type="button">
+          <Icon name="download" size={18} />
           Download website files (ZIP)
         </button>
       </div>
@@ -448,6 +451,16 @@ import Base from '../layouts/Base.astro';
     align-items: center;
     gap: 0.75rem;
     margin: 1.5rem 0;
+  }
+  .download-actions {
+    display: grid;
+  }
+  .download-actions button {
+    width: 100%;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
   }
   .file-button {
     font-weight: 600;
