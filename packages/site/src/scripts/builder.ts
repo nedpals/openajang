@@ -122,6 +122,10 @@ function refresh() {
   const event = record(); preview.innerHTML = render(event, document.activeElement !== form.elements.namedItem('image.url'));
   for (const input of [...inputs, ...dateFields.map(prefix => dateElement(prefix, 'date')), ...document.querySelectorAll<HTMLInputElement>('#ticket-list input, #ticket-list select')]) { input.removeAttribute('aria-invalid'); if (input.getAttribute('aria-describedby')?.startsWith('error-')) input.removeAttribute('aria-describedby'); input.parentElement?.querySelectorAll('.field-error').forEach(error => error.remove()); }
   errors.replaceChildren();
+  for (const section of form.querySelectorAll<HTMLDetailsElement>('details[data-fields]')) {
+    const hasDetails = section.dataset.fields!.split(',').some(path => { const value = get(event, path); return value != null && value !== '' && (typeof value !== 'object' || Object.keys(value).length > 0); });
+    section.querySelector<HTMLElement>('[data-detail-indicator]')!.textContent = hasDetails ? ' · Added' : ' · Optional';
+  }
   let result;
   try { result = validateSafe(event); } catch { result = {valid:false, errors:[{path:'', message:'Validation could not complete.', code:'validation'}]}; }
   for (const [path, message] of dateErrors) result.errors.unshift({path: `/${path}`, message, code:'date'});
@@ -136,7 +140,7 @@ function refresh() {
     const ticketPath = /^tickets\.(\d+)\.(.+)$/.exec(path);
     const input = path === 'starts_at' ? dateElement('start', 'date') : path === 'ends_at' ? dateElement('end', 'date') : ticketPath ? document.querySelector<HTMLInputElement>(`#ticket-${ticketPath[1]}-${ticketPath[2].replaceAll('.', '-')}`) : inputs.find(i => i.name === path);
     const friendly = error.code === 'required' ? 'This field is required.' : error.code === 'pattern' ? 'Enter a value that is not blank.' : error.code === 'format' ? 'Enter a valid value in the requested format.' : error.code === 'oneOf' ? 'Enter a valid date or date and time.' : error.message;
-    if (input) { if (!input.id) input.id = `field-${input.name.replaceAll('.', '-')}`; const link = document.createElement('a'); link.href = `#${input.id}`; link.textContent = `${input.closest('label')?.textContent?.trim() || path}: ${friendly}`; li.append(link); } else li.textContent = `${error.path || 'Document'}: ${friendly}`;
+    if (input) { if (!input.id) input.id = `field-${input.name.replaceAll('.', '-')}`; const link = document.createElement('a'); link.href = `#${input.id}`; link.addEventListener('click', () => { let parent: HTMLElement | null = input.parentElement; while (parent) { if (parent instanceof HTMLDetailsElement) parent.open = true; parent = parent.parentElement; } }); link.textContent = `${input.closest('label')?.textContent?.trim() || path}: ${friendly}`; li.append(link); } else li.textContent = `${error.path || 'Document'}: ${friendly}`;
     if (input && touched.has(input.name || input.id)) { input.setAttribute('aria-invalid', 'true'); const hint = document.createElement('span'); hint.className = 'field-error'; hint.textContent = friendly; hint.id = `error-${input.name || input.id}`; input.setAttribute('aria-describedby', hint.id); input.parentElement?.append(hint); }
   }
   jsonButton.disabled = zipButton.disabled = !result.valid;
