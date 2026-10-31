@@ -150,8 +150,15 @@ export interface ActionDescriptor {
   url: string;
 }
 
+export interface Diagnostic {
+  code: string;
+  path: string;
+  message: string;
+  params?: Record<string, unknown>;
+}
+
 export interface ValidationResult<T = OpenAjangEvent> {
   valid: boolean;
   event?: T;
-  errors: { code: string; path: string; message: string }[];
+  errors: Diagnostic[];
 }
