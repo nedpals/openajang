@@ -1,0 +1,545 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base
+  title="Event builder"
+  description="Create and publish an OpenAjang event in your browser."
+  wide
+>
+  <h1>Event builder</h1>
+  <p>
+    Create an event or edit a local OpenAjang file. Everything stays in your browser. Download your
+    work to save it; this page does not save drafts automatically.
+  </p>
+  <noscript>
+    <p>JavaScript is required to use the event builder.</p>
+  </noscript>
+  <div class="toolbar">
+    <label class="file-button">
+      Import event JSON{' '}
+      <input
+        id="import"
+        type="file"
+        accept=".json,application/json,application/vnd.openajang+json"
+      />
+    </label>
+    <button type="button" class="secondary" id="new">
+      New event
+    </button>
+    <span id="notice" role="status"></span>
+  </div>
+  <p class="mobile-jump">
+    <a href="#preview-panel">
+      Preview &amp; export <span id="mobile-error-count"></span>
+    </a>
+  </p>
+  <div class="builder">
+    <form id="builder-form" novalidate>
+      <fieldset>
+        <legend>Event details</legend>
+        <label>
+          Title <input name="title" required />
+        </label>
+        <label>
+          Summary <textarea name="summary" rows="3"></textarea>
+        </label>
+        <details class="optional-group" data-fields="description,language,tags">
+          <summary>
+            More event details <span data-detail-indicator></span>
+          </summary>
+          <label>
+            Full description <textarea name="description" rows="5"></textarea>
+          </label>
+          <label>
+            Event language <input name="language" placeholder="e.g. en or fil" />
+          </label>
+          <label>
+            Tags (one per line) <textarea name="tags" rows="2"></textarea>
+          </label>
+        </details>
+        <label>
+          Event page URL{' '}
+          <input name="url" type="url" placeholder="https://example.org/event/" required />
+        </label>
+        <label>
+          Organizer name <input name="organizer.name" required />
+        </label>
+        <details class="optional-group" data-fields="organizer.url,organizer.email,organizer.phone">
+          <summary>
+            Organizer contact details <span data-detail-indicator></span>
+          </summary>
+          <label>
+            Organizer URL <input name="organizer.url" type="url" />
+          </label>
+          <label>
+            Organizer email <input name="organizer.email" type="email" />
+          </label>
+          <label>
+            Organizer phone <input name="organizer.phone" type="tel" />
+          </label>
+        </details>
+        <p class="hint">
+          Postponed means the new date is not yet confirmed. Rescheduled means a new date is known.
+        </p>
+        <label>
+          Lifecycle status{' '}
+          <select name="status">
+            <option value="scheduled">Scheduled</option>
+            <option value="postponed">Postponed</option>
+            <option value="rescheduled">Rescheduled</option>
+            <option value="cancelled">Cancelled</option>
+            <option value="completed">Completed</option>
+          </select>
+        </label>
+        <label>
+          Status note <input name="status_note" />
+        </label>
+        <div id="history-label">
+          <label>
+            Previous start dates or timestamps (one per line, required for rescheduled events){' '}
+            <textarea name="previous_starts_at" rows="2"></textarea>
+          </label>
+          <button type="button" id="add-previous" class="secondary" hidden>
+            Add the imported start date to history
+          </button>
+        </div>
+      </fieldset>
+      <details class="optional-panel" data-fields="image">
+        <summary>
+          Event image <span data-detail-indicator></span>
+        </summary>
+        <fieldset>
+          <legend class="sr-only">Event image</legend>
+          <label>
+            Image URL{' '}
+            <input name="image.url" type="url" placeholder="https://example.org/image.jpg" />
+          </label>
+          <label>
+            Image description (alt text) <input name="image.alt" aria-describedby="alt-help" />
+          </label>
+          <p id="alt-help" class="hint">
+            Describe what the image conveys to someone who cannot see it. The image is loaded from
+            the URL for the preview and published page.
+          </p>
+        </fieldset>
+      </details>
+      <fieldset>
+        <legend>Dates and time</legend>
+        <p class="hint">
+          Choose a date. Leave the time blank if it is not yet known; a date alone does not mean an
+          all-day event.
+        </p>
+        <label>
+          Event time zone{' '}
+          <input
+            name="time_zone"
+            list="time-zones"
+            autocomplete="off"
+            placeholder="Search a city or time zone"
+            aria-describedby="zone-help"
+          />
+        </label>
+        <datalist id="time-zones"></datalist>
+        <p class="hint" id="zone-help">
+          Use the event’s time zone, which may differ from yours. Required when entering a time.
+          Changing the zone does not alter imported timestamps until you edit their dates or times.
+        </p>
+        <p id="zone-suggestion" class="hint"></p>
+        <button type="button" id="use-zone" class="secondary" hidden>
+          Use my detected time zone
+        </button>
+        <input type="hidden" name="starts_at" />
+        <input type="hidden" name="ends_at" />
+        <div class="date-controls">
+          <label>
+            Start date <input type="date" id="start-date" required />
+          </label>
+          <label>
+            Start time (optional) <input type="time" id="start-time" step="1" />
+          </label>
+          <div id="start-offset-group" hidden>
+            <label>
+              Choose start time offset <select id="start-offset"></select>
+            </label>
+          </div>
+          <p id="start-time-help" class="hint"></p>
+        </div>
+        <div class="date-controls">
+          <label>
+            End date (optional) <input type="date" id="end-date" />
+          </label>
+          <label>
+            End time (optional) <input type="time" id="end-time" step="1" />
+          </label>
+          <div id="end-offset-group" hidden>
+            <label>
+              Choose end time offset <select id="end-offset"></select>
+            </label>
+          </div>
+          <p id="end-time-help" class="hint"></p>
+        </div>
+        <p class="hint">Start and end must both include times, or both be dates only.</p>
+      </fieldset>
+      <fieldset>
+        <legend>Location</legend>
+        <label>
+          Attendance mode{' '}
+          <select name="location.type">
+            <option value="physical">In person</option>
+            <option value="virtual">Online</option>
+            <option value="hybrid">Hybrid</option>
+          </select>
+        </label>
+        <div id="physical-fields">
+          <label>
+            Venue status{' '}
+            <select name="location.physical.status">
+              <option value="">Not specified</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="tentative">Tentative</option>
+              <option value="to_be_announced">To be announced</option>
+            </select>
+          </label>
+          <label>
+            Venue name <input name="location.physical.name" />
+          </label>
+          <details
+            class="optional-group"
+            data-fields="location.physical.address,location.physical.instructions"
+          >
+            <summary>
+              Venue address and instructions <span data-detail-indicator></span>
+            </summary>
+            <label>
+              Street address <input name="location.physical.address.street" />
+            </label>
+            <label>
+              City or locality <input name="location.physical.address.locality" />
+            </label>
+            <label>
+              Region <input name="location.physical.address.region" />
+            </label>
+            <label>
+              Postal code <input name="location.physical.address.postal_code" />
+            </label>
+            <label>
+              Country code{' '}
+              <input name="location.physical.address.country" placeholder="e.g. PH" maxlength="2" />
+            </label>
+            <label>
+              Venue instructions{' '}
+              <textarea name="location.physical.instructions" rows="2"></textarea>
+            </label>
+          </details>
+        </div>
+        <div id="virtual-fields">
+          <label>
+            Online event URL <input name="location.virtual.url" type="url" />
+          </label>
+          <details
+            class="optional-group"
+            data-fields="location.virtual.platform,location.virtual.instructions"
+          >
+            <summary>
+              Online joining details <span data-detail-indicator></span>
+            </summary>
+            <label>
+              Online platform <input name="location.virtual.platform" />
+            </label>
+            <label>
+              Joining instructions{' '}
+              <textarea name="location.virtual.instructions" rows="2"></textarea>
+            </label>
+          </details>
+        </div>
+        <p class="hint">
+          For online and hybrid events, provide an online event URL. When changing mode, you can
+          remove the entire unused location, including any imported details.
+        </p>
+        <div class="actions">
+          <button class="secondary" type="button" id="clear-physical">
+            Remove venue details
+          </button>
+          <button class="secondary" type="button" id="clear-virtual">
+            Remove online details
+          </button>
+        </div>
+      </fieldset>
+      <details class="optional-panel" data-fields="registration">
+        <summary>
+          Registration <span data-detail-indicator></span>
+        </summary>
+        <fieldset>
+          <legend class="sr-only">Registration</legend>
+          <p class="hint">
+            “Not specified” means the requirement is unknown. “Not required” means attendees do not
+            need to register.
+          </p>
+          <label>
+            Registration{' '}
+            <select name="registration.required">
+              <option value="">Not specified</option>
+              <option value="true">Required</option>
+              <option value="false">Not required</option>
+            </select>
+          </label>
+          <label>
+            Registration status{' '}
+            <select name="registration.status">
+              <option value="">Not specified</option>
+              <option value="not_yet_open">Not yet open</option>
+              <option value="open">Open</option>
+              <option value="closed">Closed</option>
+              <option value="waitlist">Waitlist</option>
+              <option value="unknown">Unknown</option>
+            </select>
+          </label>
+          <label>
+            Registration URL <input name="registration.url" type="url" />
+          </label>
+          <p class="hint">
+            Optional registration opening and closing times use an offset timestamp, such as
+            2027-05-12T14:30:00+08:00.
+          </p>
+          <label>
+            Registration opens at{' '}
+            <input name="registration.opens_at" placeholder="YYYY-MM-DDThh:mm:ss+00:00" />
+          </label>
+          <label>
+            Registration closes at{' '}
+            <input name="registration.closes_at" placeholder="YYYY-MM-DDThh:mm:ss+00:00" />
+          </label>
+          <label>
+            Registration instructions{' '}
+            <textarea name="registration.instructions" rows="2"></textarea>
+          </label>
+        </fieldset>
+      </details>
+      <details class="optional-panel" data-fields="tickets">
+        <summary>
+          Tickets <span data-detail-indicator></span>
+        </summary>
+        <fieldset>
+          <legend class="sr-only">Tickets</legend>
+          <p class="hint">Add ticket options if applicable. Price and availability are optional.</p>
+          <div id="ticket-list"></div>
+          <button type="button" id="add-ticket" class="secondary">
+            Add ticket
+          </button>
+        </fieldset>
+      </details>
+    </form>
+    <aside class="side" id="preview-panel" aria-label="Preview and export">
+      <p class="mobile-jump">
+        <a href="#builder-form">Back to event details</a>
+      </p>
+      <section class="card">
+        <h2>Live preview</h2>
+        <div id="preview"></div>
+      </section>
+      <section class="card">
+        <h2>Validation &amp; export</h2>
+        <p id="validation"></p>
+        <ul id="errors"></ul>
+        <div class="actions">
+          <button id="json" type="button">
+            Download JSON
+          </button>
+          <button id="zip" type="button">
+            Download website files (ZIP)
+          </button>
+        </div>
+        <p class="hint">
+          Upload the page and JSON together to your website. The page also includes a Schema.org
+          example. Set the event page URL above to its public address. Fix validation errors before
+          downloading.
+        </p>
+      </section>
+    </aside>
+  </div>
+</Base>
+<script>
+  import '../scripts/builder';
+</script>
+<style>
+  :global(.event-image) {
+    display: block;
+    max-width: 100%;
+    max-height: 18rem;
+    object-fit: contain;
+    border-radius: 3px;
+  }
+  :global(.ticket-editor label) {
+    display: block;
+    font-weight: 600;
+    margin: 0.85rem 0;
+  }
+  :global(.ticket-editor input),
+  :global(.ticket-editor select) {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    margin-top: 0.3rem;
+    padding: 0.55rem;
+    color: var(--fg);
+    background: var(--bg);
+    border: 1px solid var(--muted);
+    border-radius: 3px;
+    font: inherit;
+  }
+  :global(.ticket-editor) {
+    border-top: 1px solid var(--line);
+    padding-top: 0.5rem;
+    margin-top: 1rem;
+  }
+  .optional-panel {
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    margin: 0 0 1.25rem;
+  }
+  .optional-panel > summary {
+    padding: 1rem 1.25rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .optional-panel > fieldset {
+    border: 0;
+    margin: 0;
+    padding-top: 0;
+  }
+  .optional-group {
+    border-top: 1px solid var(--line);
+    padding: 0.75rem 0;
+    margin: 1rem 0;
+  }
+  .optional-group > summary {
+    font-weight: 600;
+    cursor: pointer;
+  }
+  [data-detail-indicator] {
+    color: var(--muted);
+    font-size: 0.8rem;
+    font-weight: 400;
+  }
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  [hidden] {
+    display: none !important;
+  }
+  .toolbar,
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 1.5rem 0;
+  }
+  .file-button {
+    font-weight: 600;
+  }
+  .file-button input {
+    display: block;
+    max-width: 100%;
+    font-size: 0.85rem;
+  }
+  .builder {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    gap: 2rem;
+    align-items: start;
+  }
+  fieldset,
+  .card {
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 1.25rem;
+    margin: 0 0 1.25rem;
+    min-width: 0;
+  }
+  legend {
+    font-size: 1.2rem;
+    font-weight: 700;
+    padding: 0 0.3rem;
+  }
+  label {
+    display: block;
+    font-weight: 600;
+    margin: 0.85rem 0;
+  }
+  input:not([type='file']),
+  select,
+  textarea {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    margin-top: 0.3rem;
+    padding: 0.55rem;
+    color: var(--fg);
+    background: var(--bg);
+    border: 1px solid var(--muted);
+    border-radius: 3px;
+    font: inherit;
+  }
+  textarea {
+    resize: vertical;
+  }
+  .hint {
+    color: var(--muted);
+    font-size: 0.86rem;
+  }
+  .side {
+    position: sticky;
+    top: 1rem;
+    min-width: 0;
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .mobile-jump {
+    display: none;
+  }
+  .card {
+    background: var(--panel);
+    overflow-wrap: anywhere;
+  }
+  .card h2 {
+    margin-top: 0;
+  }
+  #errors {
+    color: var(--bad);
+    padding-left: 1.2rem;
+  }
+  :global(.field-error) {
+    display: block;
+    color: var(--bad);
+    font-size: 0.8rem;
+    font-weight: 400;
+  }
+  :global([aria-invalid='true']) {
+    border-color: var(--bad) !important;
+  }
+  @media (max-width: 800px) {
+    .builder {
+      grid-template-columns: 1fr;
+    }
+    .side {
+      position: static;
+      max-height: none;
+      overflow: visible;
+    }
+    .mobile-jump {
+      display: block;
+    }
+  }
+</style>
