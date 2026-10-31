@@ -19,12 +19,12 @@ const event = validate(parseJsonStrict(json));
 
 ## Diagnostics
 
-`validateSafe` returns `errors` as `{ code, path, message, params? }`. `path` is a JSON Pointer to the offending value. Every problem is collected rather than stopping at the first, and procedural rules run on any value the schema accepted.
+`validateSafe` returns `errors` as `{ code, path, message, params? }`, where `path` is a JSON Pointer to the offending value. All problems are collected, and rule checks run on every value the schema accepted.
 
-- Schema problems use the JSON Schema keyword as `code` (`required`, `format`, `type`, ...) and pass the validator's `params` through, for example `{ missingProperty: 'title' }`.
-- Procedural rules use stable codes: `end-before-start`, `end-precision-mismatch`, `registration-close-before-open`, `ticket-sales-end-before-start`, `ticket-id-duplicate`, `tag-duplicate`, `history-contains-current-start`, `placeholder-venue`.
-- JSON syntax and unpaired-surrogate failures use the code `invalid` with an empty path.
+- Schema problems use the JSON Schema keyword as `code` (`required`, `format`, `type`) and pass the validator's `params` through, such as `{ missingProperty: 'title' }`.
+- Rule checks have stable codes: `end-before-start`, `end-precision-mismatch`, `registration-close-before-open`, `ticket-sales-end-before-start`, `ticket-id-duplicate`, `tag-duplicate`, `history-contains-current-start`, `placeholder-venue`.
+- JSON syntax and unpaired-surrogate failures use `invalid` with an empty path.
 
-Codes are the stable contract; `message` wording may change. Key any user-facing copy on `code`, and fall back to `message` for codes you do not recognize.
+Codes are the stable contract and `message` wording may change, so key any user-facing text on `code`.
 
 The implementation uses JavaScript `Intl` for time zones. URI, email, and language-tag checks are covered by a shared Python and TypeScript conformance corpus, but full equivalence is still work in progress. JSON numbers use JavaScript numeric precision; large values may lose precision.

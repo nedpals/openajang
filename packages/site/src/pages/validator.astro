@@ -74,7 +74,7 @@ const examples = readdirSync(directory)
   <details class="diagnostic-help">
     <summary>Reading diagnostics and implementation limits</summary>
     <p>Locations use JSON Pointer notation: <code>/registration/url</code> refers to the registration URL. <em>(document)</em> means the root or a check without a more specific location. Reference links point to the relevant specification section.</p>
-    <p>The validator reports every problem it can find, including rule checks such as an end before the start. A rule check is skipped only when a value it compares already failed schema validation, so fixing those problems can reveal more. Validate again after editing.</p>
+    <p>The validator reports every problem it can find. A rule check, such as an end before the start, is skipped when a value it compares already failed schema validation, so fixing those problems can reveal more. Validate again after editing.</p>
     <p>Time-zone checks use your browser’s <code>Intl</code> support. Parsing and formatting use JavaScript number precision, so very large numbers may lose precision. Cross-language validation equivalence is still work in progress; see the SDK limits above.</p>
     <p>Bundled schema identifier: <code>{schemaId}</code></p>
   </details>
