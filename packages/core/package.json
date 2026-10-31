@@ -1,6 +1,6 @@
 {
   "name": "@openajang/core",
-  "version": "0.1.0-rc.2",
+  "version": "0.1.0-rc.3",
   "description": "Parser, schema and procedural validator, and conversions for the OpenAjang event format",
   "type": "module",
   "main": "./dist/index.js",
