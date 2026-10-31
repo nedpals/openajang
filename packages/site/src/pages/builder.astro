@@ -339,6 +339,17 @@ import Base from '../layouts/Base.astro';
         <div id="preview"></div>
       </section>
       <section class="card">
+        <h2>Generated JSON</h2>
+        <p class="hint">
+          This draft updates as you edit. The updated timestamp is finalized when you download.
+        </p>
+        <pre
+          class="generated-output"
+          tabindex="0"
+          aria-label="Generated OpenAjang JSON"
+        ><code id="generated-json"></code></pre>
+      </section>
+      <section class="card">
         <h2>Validation &amp; export</h2>
         <p id="validation"></p>
         <ul id="errors"></ul>
@@ -515,6 +526,18 @@ import Base from '../layouts/Base.astro';
   }
   .card h2 {
     margin-top: 0;
+  }
+  .generated-output {
+    max-height: 24rem;
+    overflow: auto;
+    padding: 1rem;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    white-space: pre;
+    overflow-wrap: normal;
   }
   #errors {
     color: var(--bad);
