@@ -33,9 +33,11 @@ Both transports accept an optional `dnsLookup` for pre-flight checks. `ResolverO
 
 The resolver checks URL syntax, credentials, forbidden protocols, private hostnames, and private IP literals on every hop.
 
-The Node transport also resolves DNS, rejects every non-public answer, pins the checked address for the connection, and verifies the actual socket destination against rebinding. This is the strongest mode and is the default in Node.
+The Node transport also resolves DNS, rejects every non-public answer, pins the connection to the checked addresses, and verifies the actual socket destination against rebinding. This is the strongest mode and is the default in Node.
 
 The Fetch transport cannot inspect the connected address or pin DNS. When you pass a `dnsLookup`, it checks every answer before the request, but a time-of-check/time-of-use window remains. On runtimes with platform egress controls, such as Cloudflare Workers, the platform is responsible for blocking private network access. Do not treat the Fetch transport as equivalent to the Node transport for untrusted destinations.
+
+Network failures are not normalized across transports. Node passes through its native error, while the Fetch transport throws `ResolverDiscoveryError` for connection and stream failures.
 
 `allowPrivateIps` permits private destinations and should only be used in trusted environments. Browser clients also need the remote host to allow cross-origin reads, and browsers cannot follow redirects with `redirect: 'manual'`. A redirect in a browser context returns a clear error, so resolve those URLs on a server.
 
