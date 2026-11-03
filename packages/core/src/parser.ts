@@ -265,7 +265,7 @@ function isValidEmailDomain(domain: string): boolean {
     if (literal.startsWith('IPv6:')) return ipaddr.IPv6.isValid(literal.slice(5));
     return ipaddr.IPv4.isValid(literal);
   }
-  if (/[/?#:\s]/.test(domain)) return false;
+  if (/[^\p{L}\p{N}\p{M}._-]/u.test(domain)) return false;
 
   let ascii: string;
   try {
@@ -275,6 +275,7 @@ function isValidEmailDomain(domain: string): boolean {
   }
   if (ascii.endsWith('.')) ascii = ascii.slice(0, -1);
   if (!ascii || ascii.length > 253) return false;
+  if (ipaddr.IPv4.isValid(ascii) || ipaddr.IPv6.isValid(ascii)) return false;
 
   return ascii
     .split('.')
@@ -283,8 +284,9 @@ function isValidEmailDomain(domain: string): boolean {
 
 /**
  * Validates public email address syntax without depending on Node.js built-ins.
- * Supports comment-free RFC 5322 local parts, punycoded domains, single-label
- * domains, and address literals. Rejects control characters and line breaks.
+ * Supports RFC 5322 local parts with comments outside quoted strings, punycoded
+ * domains, single-label domains, and address literals. Rejects control
+ * characters and line breaks.
  */
 export function isValidEmail(value: string): boolean {
   if (typeof value !== 'string' || value.length > 254 || /[\r\n]/.test(value)) return false;
