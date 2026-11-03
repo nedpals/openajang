@@ -5,18 +5,22 @@
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "sideEffects": false,
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "default": "./dist/index.js"
     },
     "./schema": {
+      "types": "./dist/schema.d.ts",
       "import": "./dist/schema.js",
-      "types": "./dist/schema.d.ts"
+      "default": "./dist/schema.js"
     },
     "./adapters": {
       "types": "./dist/adapters.d.ts",
-      "import": "./dist/adapters.js"
+      "import": "./dist/adapters.js",
+      "default": "./dist/adapters.js"
     }
   },
   "files": [
@@ -38,7 +42,7 @@
     "typescript": "5.9.3"
   },
   "engines": {
-    "node": ">=22.18"
+    "node": ">=22"
   },
   "license": "Apache-2.0",
   "repository": {
