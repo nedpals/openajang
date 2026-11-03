@@ -8,10 +8,6 @@
   "sideEffects": false,
   "exports": {
     ".": {
-      "node": {
-        "types": "./dist/node.d.ts",
-        "default": "./dist/node.js"
-      },
       "workerd": {
         "types": "./dist/index.d.ts",
         "default": "./dist/index.js"
@@ -23,6 +19,18 @@
       "browser": {
         "types": "./dist/index.d.ts",
         "default": "./dist/index.js"
+      },
+      "deno": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "bun": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "node": {
+        "types": "./dist/node.d.ts",
+        "default": "./dist/node.js"
       },
       "default": {
         "types": "./dist/index.d.ts",

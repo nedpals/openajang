@@ -25,6 +25,8 @@ export {
 
 export { createNodeTransport } from './transport-node.js';
 export type { NodeTransportOptions } from './transport-node.js';
+export { createFetchTransport } from './transport-fetch.js';
+export type { FetchTransportOptions } from './transport-fetch.js';
 
 /**
  * Node entry point. Uses the Node transport for DNS pinning and socket checks
