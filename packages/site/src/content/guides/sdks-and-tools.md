@@ -86,7 +86,7 @@ What the README says about its limits:
 
 - It restricts destinations, so private-IP destinations are blocked by default. The `allowPrivateIps` option permits them, and the README says to use it only in trusted environments.
 - It follows bounded redirects, and it limits response size and retrieval time. The README gives no numbers. Read the option names and defaults in the package's type declarations before you depend on a particular limit. The specification's network rules, including its recommended 1 MiB JSON limit, are in [section 10](/spec/#10-security-and-operational-requirements).
-- In Node, the default entry pins DNS and verifies the connected socket, the same protections as earlier releases. The portable Fetch entry used by Deno, Bun, Workers, and browsers cannot pin DNS. It checks URL literals and any `dnsLookup` answers before the request, and the host platform's egress controls must block private network access. Do not treat the two entries as security-equivalent.
+- In Node, the default entry pins DNS and verifies the connected socket, the same protections as earlier releases. The portable Fetch entry used by Deno, Bun, Workers, and browsers cannot pin DNS. It checks URL literals and any `dnsLookup` answers before the request, and the host platform's egress controls must block private network access. The two entries do not offer the same protection.
 - Browser clients also need the remote host to allow cross-origin reads. A server-side resolver is usually the better choice for arbitrary URLs.
 - The package says additional security testing is planned for network retrieval. Treat it as a starting point, and test your own deployment's network isolation.
 
