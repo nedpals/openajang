@@ -1,46 +1,27 @@
-import Ajv2020Pkg from 'ajv/dist/2020.js';
-import type { ErrorObject } from 'ajv';
 import { caseFold } from 'unicode-case-folding';
-import { EVENT_SCHEMA } from './schema.js';
-import { ISO_3166_1_ALPHA_2, ISO_4217_ALPHA_3 } from './codes.js';
 import {
   OpenAjangValidationError,
   isFullDate,
   parseStamp,
   compareStamps,
-  isValidUri,
-  isValidUrl,
-  isValidEmail,
-  isValidTimeZone,
-  isValidLanguageTag,
   checkUnicodeSurrogates
 } from './parser.js';
 import type { Diagnostic, OpenAjangEvent, ValidationResult } from './types.js';
+import { schemaValidate as schemaValidateRaw } from './validator.generated.js';
 
-const Ajv2020 = (Ajv2020Pkg as any).default || Ajv2020Pkg;
-const ajv = new Ajv2020({
-  allErrors: true,
-  strict: false
-});
+interface SchemaError {
+  instancePath: string;
+  keyword: string;
+  message?: string;
+  params: Record<string, unknown>;
+}
 
-ajv.addFormat('oa-url', (val: string) => isValidUrl(val));
-ajv.addFormat('oa-uri', (val: string) => isValidUri(val));
-ajv.addFormat('oa-email', (val: string) => isValidEmail(val));
-ajv.addFormat('oa-language', (val: string) => isValidLanguageTag(val));
-ajv.addFormat('oa-zone', (val: string) => isValidTimeZone(val));
-ajv.addFormat('oa-country', (val: string) => ISO_3166_1_ALPHA_2.has(val));
-ajv.addFormat('oa-currency', (val: string) => ISO_4217_ALPHA_3.has(val));
-ajv.addFormat('oa-date', (val: string) => isFullDate(val));
-ajv.addFormat('oa-date-time', (val: string) => {
-  try {
-    parseStamp(val);
-    return true;
-  } catch {
-    return false;
-  }
-});
+type SchemaValidator = ((data: unknown) => boolean) & {
+  errors?: SchemaError[] | null;
+};
 
-const schemaValidate = ajv.compile(EVENT_SCHEMA);
+// The schema validator is generated at build time by scripts/generate-validator.mjs.
+const schemaValidate = schemaValidateRaw as SchemaValidator;
 
 /**
  * Validates an OpenAjang document object against the bundled authoritative schema
@@ -58,7 +39,7 @@ export function validate(d: unknown): OpenAjangEvent {
   const messages: string[] = [];
   const schemaPaths = new Set<string>();
   if (!schemaValidate(d) && schemaValidate.errors) {
-    for (const e of schemaValidate.errors as ErrorObject[]) {
+    for (const e of schemaValidate.errors as SchemaError[]) {
       const message = e.message ?? 'Invalid value';
       diagnostics.push({ code: e.keyword, path: e.instancePath, message, params: { ...e.params } });
       messages.push(`${e.instancePath || '/'}: ${message}`);

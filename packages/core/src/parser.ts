@@ -1,6 +1,5 @@
 import ipaddr from 'ipaddr.js';
 import { parse as parseLanguageTag } from 'bcp-47';
-import isEmail from 'isemail';
 import type { Diagnostic } from './types.js';
 
 /**
@@ -172,12 +171,67 @@ export function isValidUrl(value: string): boolean {
   }
 }
 
+const EMAIL_ATEXT = /^[A-Za-z0-9!#$%&'*+/=?^_`{|}~-]+$/;
+const EMAIL_DOMAIN_LABEL = /^[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?$/;
+
+function isValidEmailLocalPart(local: string): boolean {
+  if (local.startsWith('"')) {
+    if (!local.endsWith('"') || local.length < 2) return false;
+    for (let i = 1; i < local.length - 1; i++) {
+      const code = local.charCodeAt(i);
+      if (code === 0x5c) {
+        if (i + 1 >= local.length - 1) return false;
+        const next = local.charCodeAt(i + 1);
+        if (next < 0x20 || next === 0x7f) return false;
+        i++;
+        continue;
+      }
+      if (code === 0x22 || code < 0x20 || code === 0x7f) return false;
+    }
+    return true;
+  }
+  return local.split('.').every((part) => part.length > 0 && EMAIL_ATEXT.test(part));
+}
+
+function isValidEmailDomain(domain: string): boolean {
+  if (domain.startsWith('[') && domain.endsWith(']')) {
+    const literal = domain.slice(1, -1);
+    if (literal.startsWith('IPv6:')) return ipaddr.IPv6.isValid(literal.slice(5));
+    return ipaddr.IPv4.isValid(literal);
+  }
+  return domain
+    .split('.')
+    .every((label) => label.length > 0 && label.length <= 63 && EMAIL_DOMAIN_LABEL.test(label));
+}
+
 /**
- * Validates public email address syntax.
+ * Validates public email address syntax without depending on Node.js built-ins.
+ * Supports dot-atom and quoted local parts, single-label domains, and address
+ * literals. Rejects unescaped control characters and line breaks.
  */
 export function isValidEmail(value: string): boolean {
-  if (typeof value !== 'string' || /[\r\n]/.test(value)) return false;
-  return isEmail.validate(value, { errorLevel: true }) < 127;
+  if (typeof value !== 'string' || value.length > 254 || /[\r\n]/.test(value)) return false;
+
+  let at = -1;
+  let inQuotes = false;
+  for (let i = 0; i < value.length; i++) {
+    const ch = value[i];
+    if (inQuotes && ch === '\\') {
+      i++;
+      continue;
+    }
+    if (ch === '"') {
+      inQuotes = !inQuotes;
+    } else if (ch === '@' && !inQuotes) {
+      at = i;
+    }
+  }
+  if (inQuotes || at <= 0 || at === value.length - 1) return false;
+
+  const local = value.slice(0, at);
+  const domain = value.slice(at + 1);
+  if (local.length > 64) return false;
+  return isValidEmailLocalPart(local) && isValidEmailDomain(domain);
 }
 
 /**
