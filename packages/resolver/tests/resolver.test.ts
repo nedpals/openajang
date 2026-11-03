@@ -301,6 +301,34 @@ test('end-to-end resolution with mock server', async () => {
   }
 });
 
+test('node transport falls back across multiple validated DNS answers', async () => {
+  const sampleEventRaw = fs.readFileSync(
+    path.join(EXAMPLES_DIR, 'pycon-davao-2026.openajang.json'),
+    'utf-8'
+  );
+  const sampleEvent = JSON.parse(sampleEventRaw);
+
+  const server = http.createServer((req, res) => {
+    res.writeHead(200, { 'Content-Type': 'application/vnd.openajang+json' });
+    res.end(sampleEventRaw);
+  });
+  await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve));
+  const port = (server.address() as any).port;
+
+  try {
+    const result = await resolveOpenAjang(`http://dns-fallback.example:${port}/event.json`, {
+      allowPrivateIps: true,
+      dnsLookup: async () => [
+        { address: '::1', family: 6 },
+        { address: '127.0.0.1', family: 4 }
+      ]
+    });
+    assert.strictEqual(result.event.title, sampleEvent.title);
+  } finally {
+    server.close();
+  }
+});
+
 test('compressed response streaming and decompression bomb defense', async () => {
   const sampleEventRaw = fs.readFileSync(
     path.join(EXAMPLES_DIR, 'pycon-davao-2026.openajang.json'),
