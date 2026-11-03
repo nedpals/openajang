@@ -1,6 +1,7 @@
 import { Parser } from 'htmlparser2';
 import { MEDIA_TYPE } from '@openajang/core';
 import { ResolverDiscoveryError } from './types.js';
+import { utf8ByteLength } from './platform.js';
 
 /**
  * Removes dot segments ('..' and '.') according to RFC 3986 section 5.2.4.
@@ -108,7 +109,7 @@ export function discoverOpenAjangUrl(
 }
 
 export function discoverLinks(html: string, finalHtmlUrl: string, maxHtmlBytes = 1048576): { documentUrl: string | null; canonicalUrl: string | null } {
-  const byteLen = Buffer.byteLength(html, 'utf-8');
+  const byteLen = utf8ByteLength(html);
   if (byteLen > maxHtmlBytes) {
     throw new ResolverDiscoveryError(
       `HTML discovery input (${byteLen} bytes) exceeds limit (${maxHtmlBytes} bytes)`

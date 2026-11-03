@@ -112,7 +112,10 @@ The tag must include the release workflow. Prereleases use npm's `next` tag; sta
 versions use `latest`.
 
 The workflow verifies the tag and versions, runs the TypeScript and Python checks,
-packs and smoke-tests both packages, and publishes core before resolver. A retry skips
+packs and smoke-tests both packages, and publishes core before resolver. The
+`Check` workflow runs the full Node suite and the generated-validator staleness
+check; the `Runtime matrix` workflow runs the Bun, Deno, Workers, and browser
+smoke jobs. A retry skips
 an existing version only if its registry integrity matches the locally built tarball;
 a mismatch or registry error stops the release.
 

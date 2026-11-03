@@ -258,7 +258,7 @@ curl -s https://events.example.org/example-community/build-night-november-2026 |
 
 You can also paste the document into the [browser validator](/validator/). The validator checks the document, not the HTTP response, so keep step 1.
 
-To test discovery the way an app does, resolve the event page URL with `@openajang/resolver` (a release candidate, Node.js 22.18 or newer, installed with `npm install @openajang/resolver@next`):
+To test discovery the way an app does, resolve the event page URL with `@openajang/resolver` (a release candidate; install it with `npm install @openajang/resolver@next`). It runs in Node.js 22 and newer, Deno, Bun, Cloudflare Workers, and browsers:
 
 ```ts
 import { resolveOpenAjang } from '@openajang/resolver';

@@ -1,37 +1,39 @@
 {
   "name": "@openajang/core",
-  "version": "0.1.0-rc.3",
+  "version": "0.1.0-rc.4",
   "description": "Parser, schema and procedural validator, and conversions for the OpenAjang event format",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "sideEffects": false,
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "default": "./dist/index.js"
     },
     "./schema": {
+      "types": "./dist/schema.d.ts",
       "import": "./dist/schema.js",
-      "types": "./dist/schema.d.ts"
+      "default": "./dist/schema.js"
     },
     "./adapters": {
       "types": "./dist/adapters.d.ts",
-      "import": "./dist/adapters.js"
+      "import": "./dist/adapters.js",
+      "default": "./dist/adapters.js"
     }
   },
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "node ../../scripts/generate-schema.mjs && tsc -p tsconfig.json",
-    "typecheck": "node ../../scripts/generate-schema.mjs && tsc -p tsconfig.json --noEmit",
+    "build": "node ../../scripts/generate-schema.mjs && node ../../scripts/generate-validator.mjs && tsc -p tsconfig.json",
+    "typecheck": "node ../../scripts/generate-schema.mjs && node ../../scripts/generate-validator.mjs && tsc -p tsconfig.json --noEmit",
     "test": "pnpm run build && node --test tests/core.test.ts"
   },
   "dependencies": {
-    "ajv": "^8.17.1",
     "bcp-47": "^2.1.2",
     "ipaddr.js": "^2.5.0",
-    "isemail": "^3.2.0",
     "unicode-case-folding": "^1.1.2"
   },
   "devDependencies": {
@@ -40,7 +42,7 @@
     "typescript": "5.9.3"
   },
   "engines": {
-    "node": ">=22.18"
+    "node": ">=22"
   },
   "license": "Apache-2.0",
   "repository": {

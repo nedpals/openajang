@@ -1,7 +1,12 @@
 export type {
   ResolverOptions,
   ResolvedEvent,
-  RetrievalProvenance
+  RetrievalProvenance,
+  DnsEntry,
+  DnsLookup,
+  Transport,
+  TransportRequest,
+  TransportResponse
 } from './types.js';
 
 export {
@@ -15,3 +20,6 @@ export {
 } from './discovery.js';
 
 export { resolveOpenAjang } from './resolver.js';
+
+export { createFetchTransport } from './transport-fetch.js';
+export type { FetchTransportOptions } from './transport-fetch.js';

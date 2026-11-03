@@ -1,4 +1,3 @@
-import net from 'node:net';
 import ipaddr from 'ipaddr.js';
 import { ResolverSecurityError } from './types.js';
 
@@ -12,19 +11,19 @@ function isNonPublic(ip: string): boolean {
 }
 
 export function isPrivateOrReservedIPv4(ip: string): boolean {
-  return !net.isIPv4(ip) || isNonPublic(ip);
+  return !ipaddr.IPv4.isValid(ip) || isNonPublic(ip);
 }
 
 export function isPrivateOrReservedIPv6(ip: string): boolean {
   const value = ip.replace(/^\[|\]$/g, '');
-  return !net.isIPv6(value) || isNonPublic(value);
+  return !ipaddr.IPv6.isValid(value) || isNonPublic(value);
 }
 
 export function assertSafeHostname(hostname: string, allowPrivate = false): void {
   const host = hostname.replace(/^\[|\]$/g, '').toLowerCase().replace(/\.$/, '');
   if (!allowPrivate && (host === 'localhost' || host.endsWith('.localhost') ||
     host.endsWith('.local') || host.endsWith('.internal') || host.endsWith('.lan') ||
-    host.endsWith('.onion') || (net.isIP(host) !== 0 && isNonPublic(host)))) {
+    host.endsWith('.onion') || (ipaddr.isValid(host) && isNonPublic(host)))) {
     throw new ResolverSecurityError(`Non-public destination: ${host}`);
   }
 }
