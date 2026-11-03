@@ -62,6 +62,7 @@ const result = await build({
   format: 'esm',
   platform: 'neutral',
   mainFields: ['module', 'main'],
+  absWorkingDir: repo,
   target: 'es2022',
   write: false,
   minify: false,

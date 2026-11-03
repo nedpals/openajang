@@ -28,9 +28,9 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 
-// ../../node_modules/.pnpm/ipaddr.js@2.5.0/node_modules/ipaddr.js/lib/ipaddr.js
+// node_modules/.pnpm/ipaddr.js@2.5.0/node_modules/ipaddr.js/lib/ipaddr.js
 var require_ipaddr = __commonJS({
-  "../../node_modules/.pnpm/ipaddr.js@2.5.0/node_modules/ipaddr.js/lib/ipaddr.js"(exports, module) {
+  "node_modules/.pnpm/ipaddr.js@2.5.0/node_modules/ipaddr.js/lib/ipaddr.js"(exports, module) {
     (function(root) {
       "use strict";
       const ipv4Part = "(0?\\d+|0x[a-f0-9]+)";
@@ -839,9 +839,9 @@ var require_ipaddr = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/fast-deep-equal@3.1.3/node_modules/fast-deep-equal/index.js
+// node_modules/.pnpm/fast-deep-equal@3.1.3/node_modules/fast-deep-equal/index.js
 var require_fast_deep_equal = __commonJS({
-  "../../node_modules/.pnpm/fast-deep-equal@3.1.3/node_modules/fast-deep-equal/index.js"(exports, module) {
+  "node_modules/.pnpm/fast-deep-equal@3.1.3/node_modules/fast-deep-equal/index.js"(exports, module) {
     "use strict";
     module.exports = function equal(a, b) {
       if (a === b) return true;
@@ -874,9 +874,9 @@ var require_fast_deep_equal = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/ajv@8.17.1/node_modules/ajv/dist/runtime/equal.js
+// node_modules/.pnpm/ajv@8.17.1/node_modules/ajv/dist/runtime/equal.js
 var require_equal = __commonJS({
-  "../../node_modules/.pnpm/ajv@8.17.1/node_modules/ajv/dist/runtime/equal.js"(exports) {
+  "node_modules/.pnpm/ajv@8.17.1/node_modules/ajv/dist/runtime/equal.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var equal = require_fast_deep_equal();
@@ -885,7 +885,7 @@ var require_equal = __commonJS({
   }
 });
 
-// src/codes.ts
+// packages/core/src/codes.ts
 var ISO_3166_1_ALPHA_2 = /* @__PURE__ */ new Set([
   "AD",
   "AE",
@@ -1320,27 +1320,27 @@ var ISO_4217_ALPHA_3 = /* @__PURE__ */ new Set([
   "ZWL"
 ]);
 
-// src/parser.ts
+// packages/core/src/parser.ts
 var import_ipaddr = __toESM(require_ipaddr(), 1);
 
-// ../../node_modules/.pnpm/is-alphabetical@2.0.1/node_modules/is-alphabetical/index.js
+// node_modules/.pnpm/is-alphabetical@2.0.1/node_modules/is-alphabetical/index.js
 function isAlphabetical(character) {
   const code = typeof character === "string" ? character.charCodeAt(0) : character;
   return code >= 97 && code <= 122 || code >= 65 && code <= 90;
 }
 
-// ../../node_modules/.pnpm/is-decimal@2.0.1/node_modules/is-decimal/index.js
+// node_modules/.pnpm/is-decimal@2.0.1/node_modules/is-decimal/index.js
 function isDecimal(character) {
   const code = typeof character === "string" ? character.charCodeAt(0) : character;
   return code >= 48 && code <= 57;
 }
 
-// ../../node_modules/.pnpm/is-alphanumerical@2.0.1/node_modules/is-alphanumerical/index.js
+// node_modules/.pnpm/is-alphanumerical@2.0.1/node_modules/is-alphanumerical/index.js
 function isAlphanumerical(character) {
   return isAlphabetical(character) || isDecimal(character);
 }
 
-// ../../node_modules/.pnpm/bcp-47@2.1.2/node_modules/bcp-47/lib/regular.js
+// node_modules/.pnpm/bcp-47@2.1.2/node_modules/bcp-47/lib/regular.js
 var regular = [
   "art-lojban",
   "cel-gaulish",
@@ -1353,7 +1353,7 @@ var regular = [
   "zh-xiang"
 ];
 
-// ../../node_modules/.pnpm/bcp-47@2.1.2/node_modules/bcp-47/lib/normal.js
+// node_modules/.pnpm/bcp-47@2.1.2/node_modules/bcp-47/lib/normal.js
 var normal = {
   "en-gb-oed": "en-GB-oxendict",
   "i-ami": "ami",
@@ -1383,7 +1383,7 @@ var normal = {
   "zh-xiang": "hsn"
 };
 
-// ../../node_modules/.pnpm/bcp-47@2.1.2/node_modules/bcp-47/lib/parse.js
+// node_modules/.pnpm/bcp-47@2.1.2/node_modules/bcp-47/lib/parse.js
 var own = {}.hasOwnProperty;
 function parse(tag, options) {
   if (tag === null || tag === void 0) {
@@ -1544,7 +1544,7 @@ function empty() {
   };
 }
 
-// src/parser.ts
+// packages/core/src/parser.ts
 var OpenAjangValidationError = class extends Error {
   constructor(message, diagnostics = [{ code: "invalid", path: "", message }]) {
     super(message);
@@ -1717,7 +1717,7 @@ function isValidLanguageTag(value) {
   return !invalid && Boolean(parsed.language || parsed.irregular || parsed.regular || parsed.privateuse?.length);
 }
 
-// src/formats.ts
+// packages/core/src/formats.ts
 function isValidStamp(value) {
   try {
     parseStamp(value);
@@ -1738,7 +1738,7 @@ var FORMATS = {
   "oa-date-time": { type: "string", validate: isValidStamp, async: false }
 };
 
-// ../../validator-entry.ts
+// validator-entry.ts
 var __formatsRef = { value: FORMATS };
 var validate = validate20;
 var validator_entry_default = validate20;
