@@ -172,25 +172,91 @@ export function isValidUrl(value: string): boolean {
 }
 
 const EMAIL_ATEXT = /^[A-Za-z0-9!#$%&'*+/=?^_`{|}~-]+$/;
-const EMAIL_DOMAIN_LABEL = /^[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?$/;
+const EMAIL_DOMAIN_LABEL = /^[A-Za-z0-9_](?:[A-Za-z0-9_-]{0,61}[A-Za-z0-9_])?$/;
+
+/** Removes RFC 5322 comments outside quoted strings. */
+function stripEmailComments(value: string): string | null {
+  let out = '';
+  let inQuotes = false;
+  let depth = 0;
+
+  for (let i = 0; i < value.length; i++) {
+    const ch = value[i];
+    if (inQuotes) {
+      out += ch;
+      if (ch === '\\' && i + 1 < value.length) out += value[++i];
+      else if (ch === '"') inQuotes = false;
+      continue;
+    }
+    if (ch === '"') {
+      inQuotes = true;
+      out += ch;
+    } else if (ch === '(') {
+      depth++;
+    } else if (ch === ')') {
+      if (depth === 0) return null;
+      depth--;
+    } else if (depth === 0) {
+      out += ch;
+    }
+  }
+
+  return depth === 0 && !inQuotes ? out : null;
+}
+
+function splitEmailLocalWords(local: string): string[] | null {
+  const words: string[] = [];
+  let current = '';
+  let inQuotes = false;
+
+  for (let i = 0; i < local.length; i++) {
+    const ch = local[i];
+    if (inQuotes) {
+      current += ch;
+      if (ch === '\\' && i + 1 < local.length) current += local[++i];
+      else if (ch === '"') inQuotes = false;
+      continue;
+    }
+    if (ch === '"') {
+      inQuotes = true;
+      current += ch;
+    } else if (ch === '.') {
+      words.push(current);
+      current = '';
+    } else {
+      current += ch;
+    }
+  }
+
+  if (inQuotes) return null;
+  words.push(current);
+  return words;
+}
+
+function isValidQuotedLocalPart(word: string): boolean {
+  if (word.length < 2 || !word.startsWith('"') || !word.endsWith('"')) return false;
+
+  for (let i = 1; i < word.length - 1; i++) {
+    const code = word.charCodeAt(i);
+    if (code === 0x5c) {
+      if (i + 1 >= word.length - 1) return false;
+      const next = word.charCodeAt(i + 1);
+      if (next < 0x20 || next === 0x7f) return false;
+      i++;
+      continue;
+    }
+    if (code === 0x22 || code === 0x7f || (code < 0x20 && code !== 0x09)) return false;
+  }
+
+  return true;
+}
 
 function isValidEmailLocalPart(local: string): boolean {
-  if (local.startsWith('"')) {
-    if (!local.endsWith('"') || local.length < 2) return false;
-    for (let i = 1; i < local.length - 1; i++) {
-      const code = local.charCodeAt(i);
-      if (code === 0x5c) {
-        if (i + 1 >= local.length - 1) return false;
-        const next = local.charCodeAt(i + 1);
-        if (next < 0x20 || next === 0x7f) return false;
-        i++;
-        continue;
-      }
-      if (code === 0x22 || code < 0x20 || code === 0x7f) return false;
-    }
-    return true;
-  }
-  return local.split('.').every((part) => part.length > 0 && EMAIL_ATEXT.test(part));
+  const words = splitEmailLocalWords(local);
+  if (!words || words.some((word) => word.length === 0)) return false;
+  return words.every((word) =>
+    word.startsWith('"') ? isValidQuotedLocalPart(word) : EMAIL_ATEXT.test(word)
+  );
 }
 
 function isValidEmailDomain(domain: string): boolean {
@@ -199,23 +265,37 @@ function isValidEmailDomain(domain: string): boolean {
     if (literal.startsWith('IPv6:')) return ipaddr.IPv6.isValid(literal.slice(5));
     return ipaddr.IPv4.isValid(literal);
   }
-  return domain
+  if (/[/?#:\s]/.test(domain)) return false;
+
+  let ascii: string;
+  try {
+    ascii = new URL(`http://${domain}`).hostname;
+  } catch {
+    return false;
+  }
+  if (ascii.endsWith('.')) ascii = ascii.slice(0, -1);
+  if (!ascii || ascii.length > 253) return false;
+
+  return ascii
     .split('.')
     .every((label) => label.length > 0 && label.length <= 63 && EMAIL_DOMAIN_LABEL.test(label));
 }
 
 /**
  * Validates public email address syntax without depending on Node.js built-ins.
- * Supports dot-atom and quoted local parts, single-label domains, and address
- * literals. Rejects unescaped control characters and line breaks.
+ * Supports comment-free RFC 5322 local parts, punycoded domains, single-label
+ * domains, and address literals. Rejects control characters and line breaks.
  */
 export function isValidEmail(value: string): boolean {
   if (typeof value !== 'string' || value.length > 254 || /[\r\n]/.test(value)) return false;
 
+  const cleaned = stripEmailComments(value);
+  if (cleaned === null) return false;
+
   let at = -1;
   let inQuotes = false;
-  for (let i = 0; i < value.length; i++) {
-    const ch = value[i];
+  for (let i = 0; i < cleaned.length; i++) {
+    const ch = cleaned[i];
     if (inQuotes && ch === '\\') {
       i++;
       continue;
@@ -226,10 +306,10 @@ export function isValidEmail(value: string): boolean {
       at = i;
     }
   }
-  if (inQuotes || at <= 0 || at === value.length - 1) return false;
+  if (inQuotes || at <= 0 || at === cleaned.length - 1) return false;
 
-  const local = value.slice(0, at);
-  const domain = value.slice(at + 1);
+  const local = cleaned.slice(0, at);
+  const domain = cleaned.slice(at + 1);
   if (local.length > 64) return false;
   return isValidEmailLocalPart(local) && isValidEmailDomain(domain);
 }
