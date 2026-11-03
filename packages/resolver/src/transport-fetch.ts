@@ -25,6 +25,25 @@ function timeoutError(): ResolverSecurityError {
   return new ResolverSecurityError('Request timed out');
 }
 
+async function withAbort<T>(promise: Promise<T>, signal: AbortSignal): Promise<T> {
+  if (signal.aborted) throw timeoutError();
+
+  return new Promise<T>((resolve, reject) => {
+    const onAbort = () => reject(timeoutError());
+    signal.addEventListener('abort', onAbort, { once: true });
+    promise.then(
+      (value) => {
+        signal.removeEventListener('abort', onAbort);
+        resolve(value);
+      },
+      (err) => {
+        signal.removeEventListener('abort', onAbort);
+        reject(err);
+      }
+    );
+  });
+}
+
 async function readBody(
   response: Response,
   maxBytes: number,
@@ -79,7 +98,7 @@ export function createFetchTransport(options: FetchTransportOptions = {}): Trans
       const lookup = input.dnsLookup ?? options.dnsLookup;
       if (lookup && !allowPrivateIps) {
         const hostname = url.hostname.replace(/^\[|\]$/g, '');
-        const entries = await lookup(hostname);
+        const entries = await withAbort(lookup(hostname), signal);
         if (entries.length === 0) {
           throw new ResolverSecurityError(`DNS resolution returned no addresses for "${hostname}"`);
         }
@@ -87,9 +106,12 @@ export function createFetchTransport(options: FetchTransportOptions = {}): Trans
       }
 
       const requestHeaders: Record<string, string> = { ...headers };
-      // Accept-Encoding is a forbidden request header in browsers and fetch
-      // negotiates decoding itself. Node's transport keeps its own header.
-      delete requestHeaders['accept-encoding'];
+      // These are forbidden or preflight-triggering headers in browsers, and
+      // fetch negotiates decoding itself. Node's transport keeps both.
+      for (const key of Object.keys(requestHeaders)) {
+        const lower = key.toLowerCase();
+        if (lower === 'accept-encoding' || lower === 'user-agent') delete requestHeaders[key];
+      }
 
       let response: Response;
       try {
@@ -103,6 +125,12 @@ export function createFetchTransport(options: FetchTransportOptions = {}): Trans
         if (signal.aborted) throw timeoutError();
         throw new ResolverSecurityError(
           `Request error: ${err instanceof Error ? err.message : String(err)}`
+        );
+      }
+
+      if (response.type === 'opaqueredirect') {
+        throw new ResolverSecurityError(
+          'Redirects cannot be followed in this browser context; resolve the final URL server-side.'
         );
       }
 

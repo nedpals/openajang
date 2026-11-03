@@ -29,7 +29,7 @@ function validateEntries(hostname: string, entries: readonly DnsEntry[]): void {
 function lookupEntries(hostname: string, lookup?: DnsLookup): Promise<DnsEntry[]> {
   if (lookup) return lookup(hostname);
   return new Promise((resolve, reject) => {
-    dns.lookup(hostname, { all: true }, (err, addresses) => {
+    dns.lookup(hostname, { all: true, hints: dns.ADDRCONFIG }, (err, addresses) => {
       if (err) {
         reject(err);
         return;
@@ -39,30 +39,54 @@ function lookupEntries(hostname: string, lookup?: DnsLookup): Promise<DnsEntry[]
   });
 }
 
-async function pinnedLookup(
+function timeoutError(): ResolverSecurityError {
+  return new ResolverSecurityError('Request timed out');
+}
+
+async function withAbort<T>(promise: Promise<T>, signal: AbortSignal): Promise<T> {
+  if (signal.aborted) throw timeoutError();
+
+  return new Promise<T>((resolve, reject) => {
+    const onAbort = () => reject(timeoutError());
+    signal.addEventListener('abort', onAbort, { once: true });
+    promise.then(
+      (value) => {
+        signal.removeEventListener('abort', onAbort);
+        resolve(value);
+      },
+      (err) => {
+        signal.removeEventListener('abort', onAbort);
+        reject(err);
+      }
+    );
+  });
+}
+
+async function resolveEntries(
   hostname: string,
   allowPrivateIps: boolean,
-  lookup?: DnsLookup
-): Promise<{ address: string; family: 4 | 6 }> {
+  lookup: DnsLookup | undefined,
+  signal: AbortSignal
+): Promise<DnsEntry[]> {
   if (net.isIPv4(hostname)) {
     if (!allowPrivateIps && isPrivateOrReservedIPv4(hostname)) {
       throw new ResolverSecurityError(`SSRF blocked: non-public destination IP ${hostname}`);
     }
-    return { address: hostname, family: 4 };
+    return [{ address: hostname, family: 4 }];
   }
   if (net.isIPv6(hostname)) {
     if (!allowPrivateIps && isPrivateOrReservedIPv6(hostname)) {
       throw new ResolverSecurityError(`SSRF blocked: non-public destination IP ${hostname}`);
     }
-    return { address: hostname, family: 6 };
+    return [{ address: hostname, family: 6 }];
   }
 
-  const entries = await lookupEntries(hostname, lookup);
+  const entries = await withAbort(lookupEntries(hostname, lookup), signal);
   if (entries.length === 0) {
     throw new ResolverSecurityError(`DNS resolution returned no addresses for "${hostname}"`);
   }
   if (!allowPrivateIps) validateEntries(hostname, entries);
-  return entries[0];
+  return entries;
 }
 
 function responseHeaders(headers: http.IncomingHttpHeaders): Record<string, string> {
@@ -72,10 +96,6 @@ function responseHeaders(headers: http.IncomingHttpHeaders): Record<string, stri
     else if (Array.isArray(value)) out[key.toLowerCase()] = value.join(', ');
   }
   return out;
-}
-
-function timeoutError(): ResolverSecurityError {
-  return new ResolverSecurityError('Request timed out');
 }
 
 /**
@@ -92,20 +112,23 @@ export function createNodeTransport(options: NodeTransportOptions = {}): Transpo
       const isHttps = url.protocol === 'https:';
       const client = isHttps ? https : http;
       const hostname = url.hostname.replace(/^\[|\]$/g, '');
-      const pinned = await pinnedLookup(
+      const entries = await resolveEntries(
         hostname,
         allowPrivateIps,
-        input.dnsLookup ?? options.dnsLookup
+        input.dnsLookup ?? options.dnsLookup,
+        signal
       );
 
       if (signal.aborted) throw timeoutError();
 
       return new Promise<TransportResponse>((resolve, reject) => {
         let request: http.ClientRequest | null = null;
+        let decompressor: stream.Readable | null = null;
         let settled = false;
         const fail = (err: Error) => {
           if (settled) return;
           settled = true;
+          decompressor?.destroy();
           request?.destroy();
           reject(err);
         };
@@ -124,9 +147,9 @@ export function createNodeTransport(options: NodeTransportOptions = {}): Transpo
               lookupOptions = {};
             }
             if (lookupOptions && lookupOptions.all) {
-              callback(null, [{ address: pinned.address, family: pinned.family }]);
+              callback(null, entries.map((entry) => ({ address: entry.address, family: entry.family })));
             } else {
-              callback(null, pinned.address, pinned.family);
+              callback(null, entries[0].address, entries[0].family);
             }
           },
           signal
@@ -170,7 +193,6 @@ export function createNodeTransport(options: NodeTransportOptions = {}): Transpo
           });
 
           const encoding = (headers['content-encoding'] || '').toLowerCase().trim();
-          let decompressor: stream.Readable;
           if (encoding === 'gzip' || encoding === 'x-gzip') {
             decompressor = res.pipe(zlib.createGunzip());
           } else if (encoding === 'deflate') {

@@ -32,6 +32,38 @@ function requestHeaders(): Record<string, string> {
   };
 }
 
+function timeoutError(timeoutMs: number): ResolverSecurityError {
+  return new ResolverSecurityError(`Request timed out after ${timeoutMs}ms`);
+}
+
+/**
+ * Races a transport call against the shared deadline. Transports are expected
+ * to honor the signal, but a custom transport may not, and DNS lookups cannot
+ * be cancelled at all.
+ */
+async function withAbort<T>(
+  promise: Promise<T>,
+  signal: AbortSignal,
+  timeoutMs: number
+): Promise<T> {
+  if (signal.aborted) throw timeoutError(timeoutMs);
+
+  return new Promise<T>((resolve, reject) => {
+    const onAbort = () => reject(timeoutError(timeoutMs));
+    signal.addEventListener('abort', onAbort, { once: true });
+    promise.then(
+      (value) => {
+        signal.removeEventListener('abort', onAbort);
+        resolve(value);
+      },
+      (err) => {
+        signal.removeEventListener('abort', onAbort);
+        reject(err);
+      }
+    );
+  });
+}
+
 /**
  * Fetches one document, applying URL policy, downgrade checks, and optional
  * caller redirect checks on every hop.
@@ -44,6 +76,7 @@ async function fetchWithRedirects(
   signal: AbortSignal
 ): Promise<FetchResult> {
   const maxRedirects = options.maxRedirects ?? DEFAULT_MAX_REDIRECTS;
+  const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
   const allowPrivate = options.allowPrivateIps ?? false;
   const headers = requestHeaders();
 
@@ -53,24 +86,18 @@ async function fetchWithRedirects(
   for (let hop = 0; hop <= maxRedirects; hop++) {
     const validatedUrl = assertSafeUrl(currentUrlString, allowPrivate);
 
-    let response: TransportResponse;
-    try {
-      response = await transport.request({
+    const response: TransportResponse = await withAbort(
+      transport.request({
         url: validatedUrl,
         headers,
         signal,
         maxBytes,
         allowPrivateIps: allowPrivate,
         dnsLookup: options.dnsLookup
-      });
-    } catch (err) {
-      if (signal.aborted) {
-        throw new ResolverSecurityError(
-          `Request timed out after ${options.timeoutMs ?? DEFAULT_TIMEOUT_MS}ms`
-        );
-      }
-      throw err;
-    }
+      }),
+      signal,
+      timeoutMs
+    );
 
     const location = response.headers['location'];
     if (isRedirectStatus(response.status) && location) {
