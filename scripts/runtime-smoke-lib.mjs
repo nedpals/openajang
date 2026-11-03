@@ -19,8 +19,8 @@ async function assertRejects(fn, name, message) {
 }
 
 /**
- * Shared runtime-neutral checks. The module argument is the bundle produced by
- * scripts/build-runtime-bundle.mjs, so this file has no imports of its own.
+ * Runtime-neutral checks. The caller passes the bundle from
+ * build-runtime-bundle.mjs, so this module has no imports.
  */
 export async function runSmoke({ core, resolver, fixture }) {
   let checks = 0;

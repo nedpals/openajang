@@ -64,13 +64,11 @@ async function readBody(
 }
 
 /**
- * Portable transport built on the Fetch API.
- *
- * Fetch does not expose the connected address, so this adapter cannot pin DNS.
- * When a dnsLookup is supplied it checks every answer before the request, which
- * still leaves a time-of-check/time-of-use window. Runtimes with platform egress
- * controls (for example Cloudflare Workers) remain responsible for blocking
- * private network access.
+ * Fetch-based transport. Fetch cannot expose the connected address, so this
+ * adapter cannot pin DNS. A supplied dnsLookup is checked before the request,
+ * which still leaves a time-of-check/time-of-use window. On platforms with
+ * egress controls, such as Cloudflare Workers, the platform blocks private
+ * network access.
  */
 export function createFetchTransport(options: FetchTransportOptions = {}): Transport {
   return {

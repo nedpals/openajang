@@ -27,8 +27,8 @@ export { createNodeTransport } from './transport-node.js';
 export type { NodeTransportOptions } from './transport-node.js';
 
 /**
- * Node entry point: keeps DNS pinning and actual-socket verification by using
- * the Node transport unless the caller supplies their own.
+ * Node entry point. Uses the Node transport for DNS pinning and socket checks
+ * unless the caller supplies another transport.
  */
 export function resolveOpenAjang(
   urlString: string,

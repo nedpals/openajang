@@ -10,10 +10,8 @@ import {
 } from './parser.js';
 
 /**
- * Ajv format definitions used by the generated schema validator.
- *
- * Keep this module free of runtime code generation: it is bundled into the
- * standalone validator so the package works where `new Function` is forbidden.
+ * Format definitions bundled into the generated validator. Nothing here may
+ * compile code at runtime.
  */
 export interface FormatDefinition {
   type: 'string';

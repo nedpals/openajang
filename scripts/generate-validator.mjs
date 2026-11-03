@@ -83,7 +83,7 @@ if (checkOnly) {
   try {
     current = await readFile(targetPath, 'utf8');
   } catch {
-    // Missing file is a stale generated artifact too.
+    // A missing file is stale too.
   }
   if (current !== generated) {
     console.error('packages/core/src/validator.generated.ts is stale. Run pnpm run generate:validator.');

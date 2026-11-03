@@ -33,8 +33,8 @@ function requestHeaders(): Record<string, string> {
 }
 
 /**
- * Performs a safe retrieval, following redirects up to maxRedirects with URL
- * policy, downgrade, and optional caller-supplied redirect checks on every hop.
+ * Fetches one document, applying URL policy, downgrade checks, and optional
+ * caller redirect checks on every hop.
  */
 async function fetchWithRedirects(
   initialUrlString: string,
