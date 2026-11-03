@@ -64,6 +64,9 @@ try {
   if (!result.ok) {
     throw new Error(`Browser smoke failed: ${result.error}\n${errors.join('\n')}`);
   }
+  if (errors.length > 0) {
+    throw new Error(`Browser console errors:\n${errors.join('\n')}`);
+  }
   console.log(`browser smoke passed: ${result.checks} checks`);
 } finally {
   await browser?.close();

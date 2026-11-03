@@ -7,11 +7,10 @@ const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const outdir = path.join(repo, 'node_modules/.cache/openajang-runtime');
 const outfile = path.join(outdir, 'bundle.mjs');
 const fixture = path.join(repo, 'examples/pycon-davao-2026.openajang.json');
-const resolverEntry = path.join(repo, 'packages/resolver/dist/fetch.js');
 
 const entry = [
   "import * as core from '@openajang/core';",
-  `import * as resolver from ${JSON.stringify(resolverEntry)};`,
+  "import * as resolver from '@openajang/resolver';",
   `import fixture from ${JSON.stringify(fixture)};`,
   'export { core, resolver, fixture };',
   ''
@@ -30,7 +29,7 @@ await build({
   format: 'esm',
   platform: 'neutral',
   mainFields: ['module', 'main'],
-  conditions: ['import', 'default', 'browser', 'workerd', 'worker'],
+  conditions: ['import', 'default', 'browser', 'workerd', 'worker', 'bun', 'deno'],
   target: 'es2022',
   write: true,
   outfile,

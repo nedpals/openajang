@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert';
 import { readFileSync } from 'node:fs';
+import { createServer } from 'node:http';
+import { gzipSync } from 'node:zlib';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import {
@@ -62,6 +64,54 @@ test('fetch transport follows redirects and applies validateRedirect', async () 
   assert.deepEqual(result.provenance.redirectHistory, ['https://example.org/start']);
 });
 
+test('fetch transport strips browser-restricted headers', async () => {
+  let seen: Record<string, string> = {};
+  const transport = createFetchTransport({
+    fetch: async (_input, init) => {
+      seen = (init?.headers ?? {}) as Record<string, string>;
+      return jsonResponse();
+    }
+  });
+
+  await resolveOpenAjang('https://example.org/event.json', { transport });
+  const names = Object.keys(seen).map((key) => key.toLowerCase());
+  assert.equal(names.includes('accept-encoding'), false);
+  assert.equal(names.includes('user-agent'), false);
+});
+
+test('fetch transport follows a real redirect and decompresses gzip', async () => {
+  const payload = JSON.stringify(EVENT);
+  const server = createServer((req, res) => {
+    if (req.url === '/start') {
+      res.writeHead(302, { location: '/event.json' });
+      res.end();
+      return;
+    }
+    if (req.url === '/event.json') {
+      res.writeHead(200, { 'content-type': MEDIA_TYPE, 'content-encoding': 'gzip' });
+      res.end(gzipSync(payload));
+      return;
+    }
+    res.writeHead(404);
+    res.end();
+  });
+
+  await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
+  const port = (server.address() as { port: number }).port;
+
+  try {
+    const transport = createFetchTransport();
+    const result = await resolveOpenAjang(`http://127.0.0.1:${port}/start`, {
+      allowPrivateIps: true,
+      transport
+    });
+    assert.equal(result.event.title, EVENT.title);
+    assert.deepEqual(result.provenance.redirectHistory, [`http://127.0.0.1:${port}/start`]);
+  } finally {
+    server.close();
+  }
+});
+
 test('fetch transport rejects private DNS answers before fetching', async () => {
   let fetched = false;
   const transport = createFetchTransport({
@@ -77,6 +127,56 @@ test('fetch transport rejects private DNS answers before fetching', async () => 
     ResolverSecurityError
   );
   assert.equal(fetched, false);
+});
+
+test('fetch transport reports opaque browser redirects clearly', async () => {
+  const transport = createFetchTransport({
+    fetch: async () =>
+      ({
+        type: 'opaqueredirect',
+        status: 0,
+        headers: new Headers(),
+        body: null
+      }) as unknown as Response
+  });
+
+  await assert.rejects(
+    resolveOpenAjang('https://example.org/start', { transport }),
+    /Redirects cannot be followed in this browser context/
+  );
+});
+
+test('the deadline covers DNS lookups', async () => {
+  const transport = createFetchTransport({
+    dnsLookup: async () => {
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      return [{ address: '8.8.8.8', family: 4 }];
+    },
+    fetch: async () => jsonResponse()
+  });
+
+  const started = Date.now();
+  await assert.rejects(
+    resolveOpenAjang('https://public.example/event.json', { transport, timeoutMs: 150 }),
+    ResolverSecurityError
+  );
+  assert.ok(Date.now() - started < 1000, 'deadline should fire before the lookup finishes');
+});
+
+test('the deadline covers a transport that ignores the signal', async () => {
+  const transport: Transport = {
+    async request() {
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      return { status: 200, headers: JSON_HEADERS, text: EVENT_TEXT };
+    }
+  };
+
+  const started = Date.now();
+  await assert.rejects(
+    resolveOpenAjang('https://example.org/event.json', { transport, timeoutMs: 150 }),
+    ResolverSecurityError
+  );
+  assert.ok(Date.now() - started < 1000, 'deadline should not wait for the transport');
 });
 
 test('fetch transport rejects oversized and invalid UTF-8 bodies', async () => {

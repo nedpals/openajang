@@ -39,7 +39,7 @@ export async function runSmoke({ core, resolver, fixture }) {
     ...fixture,
     organizer: { ...fixture.organizer, email: 'event..host@example.org' }
   };
-  assert(!core.validateSafe(badEmail).valid, 'dot-atom email should be invalid');
+  assert(!core.validateSafe(badEmail).valid, 'consecutive-dot email should be invalid');
   checks++;
 
   assertEqual(
