@@ -70,7 +70,7 @@ async function readBody(
   } catch (err) {
     if (err instanceof ResolverSecurityError) throw err;
     if (signal.aborted) throw timeoutError();
-    throw new ResolverSecurityError(
+    throw new ResolverDiscoveryError(
       `Response stream error: ${err instanceof Error ? err.message : String(err)}`
     );
   }
@@ -123,7 +123,7 @@ export function createFetchTransport(options: FetchTransportOptions = {}): Trans
         });
       } catch (err) {
         if (signal.aborted) throw timeoutError();
-        throw new ResolverSecurityError(
+        throw new ResolverDiscoveryError(
           `Request error: ${err instanceof Error ? err.message : String(err)}`
         );
       }
