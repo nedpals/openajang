@@ -1,4 +1,7 @@
 import type { OpenAjangEvent } from '@openajang/core';
+import type { DnsLookup, Transport } from './transport.js';
+
+export type { DnsEntry, DnsLookup, Transport, TransportRequest, TransportResponse } from './transport.js';
 
 export interface ResolverOptions {
   /**
@@ -31,6 +34,24 @@ export interface ResolverOptions {
    */
   allowPrivateIps?: boolean;
 
+  /**
+   * HTTP transport override. When omitted, a portable Fetch transport is used.
+   * Node consumers should import `@openajang/resolver/node` or pass
+   * `createNodeTransport()` to keep DNS pinning.
+   */
+  transport?: Transport;
+
+  /**
+   * DNS resolver used by the built-in transports for pre-flight checks.
+   * Ignored by a custom transport that does its own resolution.
+   */
+  dnsLookup?: DnsLookup;
+
+  /**
+   * Additional validation applied to every redirect before it is followed.
+   * Throw to reject the redirect. Protocol downgrade checks always run first.
+   */
+  validateRedirect?: (from: URL, to: URL) => void;
 }
 
 export interface RetrievalProvenance {

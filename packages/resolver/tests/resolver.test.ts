@@ -18,7 +18,7 @@ import {
   normalizeDiscoveryUrl,
   ResolverSecurityError,
   ResolverDiscoveryError
-} from '../dist/index.js';
+} from '../dist/node.js';
 
 // Internal security helpers for unit tests
 import {

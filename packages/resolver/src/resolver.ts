@@ -2,9 +2,115 @@ import { validate, parseJsonStrict, MEDIA_TYPE } from '@openajang/core';
 import type { ResolverOptions, ResolvedEvent, RetrievalProvenance } from './types.js';
 import { discoverLinks, normalizeDiscoveryUrl } from './discovery.js';
 import { ResolverSecurityError, ResolverDiscoveryError } from './types.js';
-import { safeFetchWithRedirects } from './transport.js';
+import { assertSafeUrl } from './security.js';
+import type { Transport, TransportResponse } from './transport.js';
+import { isRedirectStatus } from './transport.js';
+import { createFetchTransport } from './transport-fetch.js';
+import { utf8ByteLength } from './platform.js';
 
+const DEFAULT_MAX_REDIRECTS = 5;
+const DEFAULT_TIMEOUT_MS = 10000;
 const DEFAULT_MAX_BYTES = 1048576;
+
+interface FetchResult {
+  status: number;
+  headers: Record<string, string>;
+  text: string;
+  url: string;
+  redirectHistory: string[];
+}
+
+function defaultTransport(options: ResolverOptions): Transport {
+  return createFetchTransport({ dnsLookup: options.dnsLookup });
+}
+
+function requestHeaders(): Record<string, string> {
+  return {
+    Accept: `${MEDIA_TYPE}, application/json;q=0.9, text/html;q=0.8`,
+    'Accept-Encoding': 'gzip, deflate, br',
+    'User-Agent': 'OpenAjang-Resolver/0.1.0'
+  };
+}
+
+/**
+ * Performs a safe retrieval, following redirects up to maxRedirects with URL
+ * policy, downgrade, and optional caller-supplied redirect checks on every hop.
+ */
+async function fetchWithRedirects(
+  initialUrlString: string,
+  options: ResolverOptions,
+  maxBytes: number,
+  transport: Transport,
+  signal: AbortSignal
+): Promise<FetchResult> {
+  const maxRedirects = options.maxRedirects ?? DEFAULT_MAX_REDIRECTS;
+  const allowPrivate = options.allowPrivateIps ?? false;
+  const headers = requestHeaders();
+
+  let currentUrlString = initialUrlString;
+  const redirectHistory: string[] = [];
+
+  for (let hop = 0; hop <= maxRedirects; hop++) {
+    const validatedUrl = assertSafeUrl(currentUrlString, allowPrivate);
+
+    let response: TransportResponse;
+    try {
+      response = await transport.request({
+        url: validatedUrl,
+        headers,
+        signal,
+        maxBytes,
+        allowPrivateIps: allowPrivate,
+        dnsLookup: options.dnsLookup
+      });
+    } catch (err) {
+      if (signal.aborted) {
+        throw new ResolverSecurityError(
+          `Request timed out after ${options.timeoutMs ?? DEFAULT_TIMEOUT_MS}ms`
+        );
+      }
+      throw err;
+    }
+
+    const location = response.headers['location'];
+    if (isRedirectStatus(response.status) && location) {
+      let nextUrl: URL;
+      try {
+        nextUrl = new URL(location, currentUrlString);
+      } catch {
+        throw new ResolverDiscoveryError(`Invalid redirect location from ${currentUrlString}`);
+      }
+
+      if (validatedUrl.protocol === 'https:' && nextUrl.protocol === 'http:') {
+        throw new ResolverSecurityError(
+          `Security downgrade rejected: redirect from HTTPS to HTTP (${nextUrl.toString()})`
+        );
+      }
+
+      options.validateRedirect?.(validatedUrl, nextUrl);
+
+      redirectHistory.push(currentUrlString);
+      currentUrlString = nextUrl.toString();
+      continue;
+    }
+
+    if (isRedirectStatus(response.status)) {
+      throw new ResolverDiscoveryError(
+        `Redirect response from ${currentUrlString} is missing a Location header`
+      );
+    }
+
+    return {
+      status: response.status,
+      headers: response.headers,
+      text: response.text,
+      url: currentUrlString,
+      redirectHistory
+    };
+  }
+
+  throw new ResolverSecurityError(`Too many redirects (exceeded limit of ${maxRedirects})`);
+}
 
 /**
  * Resolves an OpenAjang event from an Event URL or direct JSON URL:
@@ -19,11 +125,16 @@ export async function resolveOpenAjang(
 ): Promise<ResolvedEvent> {
   const maxJsonBytes = options.maxJsonBytes ?? DEFAULT_MAX_BYTES;
   const maxHtmlBytes = options.maxHtmlBytes ?? DEFAULT_MAX_BYTES;
+  const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
+  const transport = options.transport ?? defaultTransport(options);
+  const signal = AbortSignal.timeout(timeoutMs);
 
-  const firstFetch = await safeFetchWithRedirects(
+  const firstFetch = await fetchWithRedirects(
     urlString,
     options,
-    Math.max(maxJsonBytes, maxHtmlBytes)
+    Math.max(maxJsonBytes, maxHtmlBytes),
+    transport,
+    signal
   );
 
   if (firstFetch.status !== 200) {
@@ -42,7 +153,7 @@ export async function resolveOpenAjang(
   let docContentType = contentType;
 
   if (mime === MEDIA_TYPE || mime === 'application/json') {
-    if (Buffer.byteLength(firstFetch.text, 'utf8') > maxJsonBytes) {
+    if (utf8ByteLength(firstFetch.text) > maxJsonBytes) {
       throw new ResolverSecurityError('JSON response exceeds limit');
     }
     documentText = firstFetch.text;
@@ -62,7 +173,13 @@ export async function resolveOpenAjang(
     viaDiscovery = true;
     documentUrl = discoveredLink;
 
-    const jsonFetch = await safeFetchWithRedirects(documentUrl, options, maxJsonBytes);
+    const jsonFetch = await fetchWithRedirects(
+      documentUrl,
+      options,
+      maxJsonBytes,
+      transport,
+      signal
+    );
     if (jsonFetch.status !== 200) {
       throw new ResolverDiscoveryError(
         `Discovered OpenAjang endpoint returned HTTP ${jsonFetch.status}`
