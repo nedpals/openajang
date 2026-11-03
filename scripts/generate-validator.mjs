@@ -9,8 +9,8 @@ import { build } from 'esbuild';
 const root = path.dirname(fileURLToPath(import.meta.url));
 const repo = path.resolve(root, '..');
 const schemaPath = path.join(repo, 'schema/0.1/event.json');
-const formatsPath = path.join(repo, 'packages/core/src/formats.ts');
-const targetPath = path.join(repo, 'packages/core/src/validator.generated.ts');
+const coreSrc = path.join(repo, 'packages/core/src');
+const targetPath = path.join(coreSrc, 'validator.generated.ts');
 const checkOnly = process.argv.includes('--check');
 
 const schema = JSON.parse(await readFile(schemaPath, 'utf8'));
@@ -44,7 +44,7 @@ for (const name of formatNames) {
 
 const standaloneCode = standalone(ajv, ajv.compile(schema));
 const entry = [
-  `import { FORMATS } from ${JSON.stringify(formatsPath)};`,
+  "import { FORMATS } from './formats.js';",
   'const __formatsRef = { value: FORMATS };',
   standaloneCode,
   'export { validate as schemaValidate };',
@@ -54,7 +54,7 @@ const entry = [
 const result = await build({
   stdin: {
     contents: entry,
-    resolveDir: repo,
+    resolveDir: coreSrc,
     loader: 'ts',
     sourcefile: 'validator-entry.ts'
   },
@@ -66,7 +66,18 @@ const result = await build({
   target: 'es2022',
   write: false,
   minify: false,
-  legalComments: 'none'
+  legalComments: 'none',
+  plugins: [
+    {
+      name: 'keep-formats-external',
+      setup(build) {
+        build.onResolve({ filter: /^\.\/formats\.js$/ }, (args) => ({
+          path: args.path,
+          external: true
+        }));
+      }
+    }
+  ]
 });
 
 const generated = [
