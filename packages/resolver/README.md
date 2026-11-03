@@ -14,7 +14,7 @@ import { resolveOpenAjang } from '@openajang/resolver';
 const { event, provenance, relationshipWarnings } = await resolveOpenAjang(url);
 ```
 
-The package runs in Node.js 22 and newer, Deno, Bun, Cloudflare Workers, and browsers. It has no runtime `node:*` imports in its portable entry. Node resolves the default import to a hardened entry that keeps the existing DNS-pinning and socket-destination checks.
+The package runs in Node.js 22 and newer, Deno, Bun, Cloudflare Workers, and browsers. It has no runtime `node:*` imports in its portable entry. Node resolves the default import to a hardened entry that keeps the existing DNS-pinning and socket-destination checks. Bun and Deno select the Fetch entry through their package conditions.
 
 ## Entry points
 
@@ -37,7 +37,7 @@ The Node transport also resolves DNS, rejects every non-public answer, pins the 
 
 The Fetch transport cannot inspect the connected address or pin DNS. When you pass a `dnsLookup`, it checks every answer before the request, but a time-of-check/time-of-use window remains. On runtimes with platform egress controls, such as Cloudflare Workers, the platform is responsible for blocking private network access. Do not treat the Fetch transport as equivalent to the Node transport for untrusted destinations.
 
-`allowPrivateIps` permits private destinations and should only be used in trusted environments. Browser clients also need the remote host to allow cross-origin reads; a server-side resolver is usually the better choice.
+`allowPrivateIps` permits private destinations and should only be used in trusted environments. Browser clients also need the remote host to allow cross-origin reads, and browsers cannot follow redirects with `redirect: 'manual'`. A redirect in a browser context returns a clear error, so resolve those URLs on a server.
 
 The resolver follows bounded redirects, rejects HTTPS-to-HTTP downgrades, and limits response size and retrieval time. Defaults are a 1 MiB document limit, five redirects, and a 10-second deadline covering DNS, redirects, and the response body.
 
