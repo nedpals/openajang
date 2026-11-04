@@ -5,6 +5,7 @@ import { schemaOrgForPage } from './schema-org';
 import { resolveTemporal, type TemporalControl } from './temporal';
 import { Buffer } from 'buffer';
 import { eventFilename, normalizeFilename } from './filename';
+import { publisherBase, publisherEventUrl } from './publisher-path';
 import {
   eventId,
   parseJsonStrict,
@@ -33,6 +34,19 @@ errors.addEventListener('pointerdown', (event) => {
 const jsonButton = document.querySelector<HTMLButtonElement>('#json')!;
 const zipButton = document.querySelector<HTMLButtonElement>('#zip')!;
 const filenameInput = document.querySelector<HTMLInputElement>('#filename')!;
+const publisherInput = document.querySelector<HTMLInputElement>('#publisher-base')!;
+const publisherHelp = document.querySelector<HTMLElement>('#publisher-help')!;
+const publisherSettings = document.querySelector<HTMLDetailsElement>('#publishing-settings')!;
+const urlInput = form.elements.namedItem('url') as HTMLInputElement;
+const urlMode = document.querySelector<HTMLElement>('#url-mode')!;
+const usePublisherUrl = document.querySelector<HTMLButtonElement>('#use-publisher-url')!;
+const filenameChoice = document.querySelector<HTMLElement>('#filename-choice')!;
+const filenameWarning = document.querySelector<HTMLElement>('#filename-warning')!;
+const keepFilename = document.querySelector<HTMLButtonElement>('#keep-filename')!;
+let preserveFilename = false;
+let pendingFilename: string | null = null;
+let autoPublisherUrl = true;
+let lastPublisherUrl = '';
 let customFilename: string | null = null;
 let original: RecordObject;
 let edited = new Set<string>();
@@ -195,17 +209,73 @@ function load(value: RecordObject) {
   savedDraft = draftSnapshot();
 }
 const suggestedFilename = (event: RecordObject) => eventFilename(event.title, event.starts_at);
-const chosenFilename = () => normalizeFilename(filenameInput.value, suggestedFilename(record()));
+const chosenFilename = () => preserveFilename && customFilename !== null
+  ? customFilename : normalizeFilename(filenameInput.value, suggestedFilename(record()));
+const safeOriginalFilename = (name: string) => !/[\\/\u0000-\u001f\u007f]/.test(name) && name !== '.' && name !== '..';
 filenameInput.addEventListener('input', () => {
+  preserveFilename = false;
+  pendingFilename = null;
   customFilename = filenameInput.value.trim() ? filenameInput.value : null;
   if (customFilename === null) filenameInput.value = suggestedFilename(record());
+  refresh();
 });
 filenameInput.addEventListener('change', () => {
   if (customFilename !== null) filenameInput.value = customFilename = chosenFilename();
+  refresh();
+});
+publisherInput.addEventListener('input', () => refresh());
+usePublisherUrl.addEventListener('click', () => {
+  const suggested = publisherEventUrl(publisherInput.value, chosenFilename());
+  if (!suggested) return;
+  if (urlInput.value && urlInput.value !== suggested && !confirm('Use the suggested page URL? Links to the old page may stop working.')) return;
+  autoPublisherUrl = true;
+  refresh();
+});
+keepFilename.addEventListener('click', () => {
+  if (!pendingFilename || !safeOriginalFilename(pendingFilename)) return;
+  customFilename = filenameInput.value = pendingFilename;
+  preserveFilename = true;
+  pendingFilename = null;
+  refresh();
+});
+document.querySelector('#normalize-filename')!.addEventListener('click', () => {
+  if (!pendingFilename) return;
+  customFilename = filenameInput.value = normalizeFilename(pendingFilename, suggestedFilename(record()));
+  preserveFilename = false;
+  pendingFilename = null;
+  refresh();
 });
 function refresh() {
+  if (customFilename === null) filenameInput.value = suggestedFilename(record());
+  const base = publisherInput.value.trim();
+  const filename = chosenFilename();
+  const compatibleFilename = filename === normalizeFilename(filename, suggestedFilename(record()));
+  const derived = base && compatibleFilename ? publisherEventUrl(base, filename) : null;
+  filenameChoice.hidden = !pendingFilename;
+  if (pendingFilename) {
+    const proposed = normalizeFilename(pendingFilename, suggestedFilename(record()));
+    filenameWarning.textContent = `You opened “${pendingFilename}”. The suggested filename is “${proposed}”. Renaming a published file can break shared links. Choose a filename before downloading.`;
+    keepFilename.hidden = !safeOriginalFilename(pendingFilename);
+  }
+  usePublisherUrl.hidden = !derived || autoPublisherUrl;
+  urlMode.textContent = !base ? 'Enter an event page URL manually, or set a site base URL above.'
+    : !compatibleFilename ? 'This filename does not match the site naming format, so the event page URL stays the same.'
+    : autoPublisherUrl && derived ? 'Page URL follows the filename.' : 'The page URL stays as you entered it.';
+  if (autoPublisherUrl && derived) {
+    urlInput.value = derived;
+    lastPublisherUrl = derived;
+    edited.add('url');
+  } else if (autoPublisherUrl && lastPublisherUrl && urlInput.value === lastPublisherUrl) {
+    urlInput.value = '';
+    lastPublisherUrl = '';
+    edited.add('url');
+  }
+  publisherHelp.textContent = !base ? '' : !publisherBase(base)
+    ? 'Enter an HTTPS site URL ending in /, without credentials, query, or fragment.'
+    : !derived ? 'Choose a filename that matches the site format to get a suggested page URL.'
+    : autoPublisherUrl ? `Event page: ${derived}`
+    : `Suggested page: ${derived}. Your event URL stays the same.`;
   const event = record();
-  if (customFilename === null) filenameInput.value = suggestedFilename(event);
   for (const context of document.querySelectorAll<HTMLElement>('[data-time-zone-context]')) {
     context.textContent = zone.value ? `Time zone for edits: ${zone.value}.` : 'Set the time zone above before entering a time.';
   }
@@ -331,7 +401,7 @@ function refresh() {
       input.parentElement?.append(hint);
     }
   }
-  jsonButton.disabled = zipButton.disabled = !result.valid;
+  jsonButton.disabled = zipButton.disabled = !result.valid || !!pendingFilename;
   const mode = (form.elements.namedItem('location.type') as HTMLSelectElement).value;
   document.querySelector<HTMLElement>('#physical-fields')!.hidden = mode === 'virtual';
   document.querySelector<HTMLElement>('#virtual-fields')!.hidden = mode === 'physical';
@@ -361,6 +431,8 @@ function same(a: RecordObject, b: RecordObject) {
 function draftState() {
   return {
     original, identity, edited: [...edited], removedLocations: [...removedLocations], tickets, ticketsEdited,
+    publishing: { base: publisherInput.value, filename: filenameInput.value, customFilename, auto: autoPublisherUrl,
+      lastUrl: lastPublisherUrl, preserveFilename, pendingFilename },
     values: Object.fromEntries(inputs.map((input) => [input.name, input.value])),
     history: structuredClone(history),
     dates: Object.fromEntries(dateFields.map((prefix) => [prefix, {
@@ -372,7 +444,17 @@ function draftState() {
 function draftSnapshot() { return JSON.stringify(draftState()); }
 function isDirty() { return draftSnapshot() !== savedDraft; }
 function applyDraft(state: RecordObject) {
+  autoPublisherUrl = false;
   load(state.original);
+  const publishing = state.publishing;
+  publisherInput.value = publishing?.base ?? '';
+  customFilename = publishing?.customFilename ?? null;
+  preserveFilename = publishing?.preserveFilename ?? false;
+  pendingFilename = publishing?.pendingFilename ?? null;
+  autoPublisherUrl = publishing?.auto ?? false;
+  lastPublisherUrl = publishing?.lastUrl ?? '';
+  if (publishing) filenameInput.value = publishing.filename;
+  if (publisherInput.value) publisherSettings.open = true;
   identity = state.identity;
   edited = new Set(state.edited);
   removedLocations = new Set(state.removedLocations);
@@ -615,6 +697,7 @@ form.addEventListener('focusout', (e) => {
 form.addEventListener('input', (e) => {
   const input = e.target as HTMLInputElement;
   if (input.name) {
+    if (input.name === 'url') autoPublisherUrl = false;
     edited.add(input.name);
     refresh();
   }
@@ -658,7 +741,13 @@ document.querySelector('#new')!.addEventListener('click', () => {
     )
   )
     return;
-  load(fresh());
+  autoPublisherUrl = true;
+  lastPublisherUrl = '';
+  preserveFilename = false;
+  pendingFilename = null;
+  const next = fresh();
+  if (organizerParam) next.organizer.name = organizerParam.slice(0, 200);
+  load(next);
   notice.textContent = 'Started a new event.';
 });
 document.querySelector<HTMLInputElement>('#import')!.addEventListener('change', async (e) => {
@@ -674,6 +763,7 @@ document.querySelector<HTMLInputElement>('#import')!.addEventListener('change', 
     input.value = '';
     return;
   }
+  const previousAutoPublisherUrl = autoPublisherUrl;
   try {
     if (file.size > DRAFT_LIMIT) throw new Error('File exceeds the 4 MiB draft limit.');
     const value = parseJsonStrict(
@@ -694,11 +784,21 @@ document.querySelector<HTMLInputElement>('#import')!.addEventListener('change', 
         'The file is not a valid OpenAjang event: ' +
           checked.errors.map((error) => `${error.path || 'Document'}: ${error.message}`).join('; '),
       );
+    autoPublisherUrl = false;
+    preserveFilename = false;
+    pendingFilename = null;
     load(value as RecordObject);
-    // Keep the name the file came with, so editing and downloading again does not rename it.
-    if (file.name.endsWith('.json')) filenameInput.value = customFilename = normalizeFilename(file.name, suggestedFilename(record()));
+    if (/\.json$/i.test(file.name)) {
+      const normalized = normalizeFilename(file.name, suggestedFilename(record()));
+      filenameInput.value = customFilename = normalized;
+      if (normalized !== file.name) pendingFilename = file.name;
+    }
+    refresh();
+    savedDraft = draftSnapshot();
     notice.textContent = `Opened ${file.name}. Details outside this form have been kept.`;
   } catch (error) {
+    autoPublisherUrl = previousAutoPublisherUrl;
+    refresh();
     notice.textContent = `Could not import file: ${error instanceof Error ? error.message : 'invalid JSON'}`;
   }
   input.value = '';
@@ -736,4 +836,13 @@ zipButton.addEventListener('click', () => {
   );
   document.querySelector<HTMLElement>('#export-notice')!.textContent = 'ZIP download started. Upload the website files to publish your event.';
 });
-load(fresh());
+const params = new URLSearchParams(location.search);
+const baseParam = params.get('site');
+if (baseParam) {
+  publisherInput.value = baseParam;
+  publisherSettings.open = true;
+}
+const organizerParam = params.get('organizer');
+const initial = fresh();
+if (organizerParam) initial.organizer.name = organizerParam.slice(0, 200);
+load(initial);
