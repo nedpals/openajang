@@ -374,6 +374,13 @@ import Icon from '../components/Icon.astro';
         <p id="validation" role="status" aria-live="polite" aria-atomic="true"></p>
         <ul id="errors"></ul>
       </div>
+      <label class="filename-field">
+        File name
+        <input id="filename" autocomplete="off" spellcheck="false" aria-describedby="filename-hint" />
+      </label>
+      <p id="filename-hint" class="hint">
+        The name starts with the event date so files sort by date. Edit it to use your own, or clear it to restore the suggestion. The event's id, not the file name, identifies it.
+      </p>
       <div class="actions download-actions">
         <button id="json" type="button">
           <Icon name="download" size={18} />
@@ -516,6 +523,14 @@ import Icon from '../components/Icon.astro';
     border: 1px solid var(--line);
     border-radius: 4px;
     margin-bottom: 0.5rem;
+  }
+  .filename-field {
+    display: block;
+    margin-top: 0.75rem;
+  }
+  .filename-field input {
+    width: 100%;
+    font-family: ui-monospace, monospace;
   }
   .download-actions {
     display: grid;

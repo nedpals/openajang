@@ -13,7 +13,7 @@ You do not need a custom server, a central OpenAjang account, or any third-party
 
 ## Write the event document
 
-Create a UTF-8 JSON file holding one JSON object. The filename is arbitrary; `event.openajang.json` is a convenient default.
+Create a UTF-8 JSON file holding one JSON object. The filename is arbitrary. The event builder suggests `YYYY-MM-DD-title.openajang.json`, such as `2026-11-21-build-night.openajang.json`, so a folder of events sorts by date. Use `event.openajang.json` instead if each event has its own folder.
 
 Every document needs these fields ([Spec §3.2](/spec/#32-core-properties)):
 

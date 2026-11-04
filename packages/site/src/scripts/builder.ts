@@ -4,6 +4,7 @@ import { normalizeDiagnostics } from './diagnostics';
 import { schemaOrgForPage } from './schema-org';
 import { resolveTemporal, type TemporalControl } from './temporal';
 import { Buffer } from 'buffer';
+import { eventFilename, normalizeFilename } from './filename';
 import {
   eventId,
   parseJsonStrict,
@@ -31,6 +32,8 @@ errors.addEventListener('pointerdown', (event) => {
 });
 const jsonButton = document.querySelector<HTMLButtonElement>('#json')!;
 const zipButton = document.querySelector<HTMLButtonElement>('#zip')!;
+const filenameInput = document.querySelector<HTMLInputElement>('#filename')!;
+let customFilename: string | null = null;
 let original: RecordObject;
 let edited = new Set<string>();
 const touched = new Set<string>();
@@ -187,11 +190,22 @@ function load(value: RecordObject) {
       ? `Imported value: ${stamp}. This stays unchanged until you edit it.`
       : '';
   }
+  customFilename = null;
   refresh();
   savedDraft = draftSnapshot();
 }
+const suggestedFilename = (event: RecordObject) => eventFilename(event.title, event.starts_at);
+const chosenFilename = () => normalizeFilename(filenameInput.value, suggestedFilename(record()));
+filenameInput.addEventListener('input', () => {
+  customFilename = filenameInput.value.trim() ? filenameInput.value : null;
+  if (customFilename === null) filenameInput.value = suggestedFilename(record());
+});
+filenameInput.addEventListener('change', () => {
+  if (customFilename !== null) filenameInput.value = customFilename = chosenFilename();
+});
 function refresh() {
   const event = record();
+  if (customFilename === null) filenameInput.value = suggestedFilename(event);
   for (const context of document.querySelectorAll<HTMLElement>('[data-time-zone-context]')) {
     context.textContent = zone.value ? `Time zone for edits: ${zone.value}.` : 'Set the time zone above before entering a time.';
   }
@@ -443,8 +457,8 @@ function download(blob: Blob, name: string) {
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
-function html(event: RecordObject, jsonLd: string): string {
-  return `<!doctype html>\n<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${escape(event.title)}</title><link rel="alternate" type="application/vnd.openajang+json" href="event.openajang.json"><script type="application/ld+json">${jsonLd}</script><style>body{font:1rem/1.6 system-ui,sans-serif;color:#29283d;background:#faf9f6;margin:0}main{max-width:45rem;margin:3rem auto;padding:0 1.25rem}h1{font-size:2rem}h2{font-size:1.6rem}.event-image{display:block;max-width:100%;max-height:24rem;object-fit:contain}a{color:#873816}p{overflow-wrap:anywhere}</style></head><body><main>${render(event)}</main></body></html>\n`;
+function html(event: RecordObject, jsonLd: string, file: string): string {
+  return `<!doctype html>\n<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${escape(event.title)}</title><link rel="alternate" type="application/vnd.openajang+json" href="${escape(file)}"><script type="application/ld+json">${jsonLd}</script><style>body{font:1rem/1.6 system-ui,sans-serif;color:#29283d;background:#faf9f6;margin:0}main{max-width:45rem;margin:3rem auto;padding:0 1.25rem}h1{font-size:2rem}h2{font-size:1.6rem}.event-image{display:block;max-width:100%;max-height:24rem;object-fit:contain}a{color:#873816}p{overflow-wrap:anywhere}</style></head><body><main>${render(event)}</main></body></html>\n`;
 }
 function historyItem(value: string) {
   const match = /^(\d{4}-\d{2}-\d{2})(?:T(\d{2}:\d{2}(?::\d{2})?))?/.exec(value);
@@ -681,6 +695,8 @@ document.querySelector<HTMLInputElement>('#import')!.addEventListener('change', 
           checked.errors.map((error) => `${error.path || 'Document'}: ${error.message}`).join('; '),
       );
     load(value as RecordObject);
+    // Keep the name the file came with, so editing and downloading again does not rename it.
+    if (file.name.endsWith('.json')) filenameInput.value = customFilename = normalizeFilename(file.name, suggestedFilename(record()));
     notice.textContent = `Opened ${file.name}. Details outside this form have been kept.`;
   } catch (error) {
     notice.textContent = `Could not import file: ${error instanceof Error ? error.message : 'invalid JSON'}`;
@@ -694,7 +710,7 @@ jsonButton.addEventListener('click', () => {
       new Blob([JSON.stringify(event, null, 2) + '\n'], {
         type: 'application/vnd.openajang+json',
       }),
-      'event.openajang.json',
+      chosenFilename(),
     );
     document.querySelector<HTMLElement>('#export-notice')!.textContent = 'JSON download started.';
   }
@@ -703,14 +719,15 @@ zipButton.addEventListener('click', () => {
   const event = exportRecord();
   if (!event) return;
   const json = JSON.stringify(event, null, 2) + '\n';
+  const file = chosenFilename();
   const structured = schemaOrgForPage(event as OpenAjangEvent);
   const readme =
-    'Publish these files together in the same directory on your website.\nOpen index.html to view the event. Its discovery link points to event.openajang.json.\nThe page includes a Schema.org Event in JSON-LD as a demonstration. OpenAjang JSON is the authoritative record; some information cannot be represented in the Schema.org mapping.\nSet the event URL to the public page URL and upload both files over HTTPS.\n\nConversion notes:\n' +
+    'Publish these files together in the same directory on your website.\nOpen index.html to view the event. Its discovery link points to ' + file + '.\nThe page includes a Schema.org Event in JSON-LD as a demonstration. OpenAjang JSON is the authoritative record; some information cannot be represented in the Schema.org mapping.\nSet the event URL to the public page URL and upload both files over HTTPS.\n\nConversion notes:\n' +
     structured.diagnostics.map((note) => `- ${note}`).join('\n') +
     '\n';
   const zip = zipSync({
-    'index.html': strToU8(html(event, structured.json)),
-    'event.openajang.json': strToU8(json),
+    'index.html': strToU8(html(event, structured.json, file)),
+    [file]: strToU8(json),
     'README.txt': strToU8(readme),
   });
   download(
