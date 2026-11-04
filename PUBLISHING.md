@@ -13,8 +13,9 @@ in [SPEC.md](SPEC.md); filenames remain stable between releases.
 - [Validation and scenario report](TEST-REPORT.md)
 
 `examples/` contains eight event fixtures and illustrative Atom/RSS feeds.
-`examples/publisher/` is a static-hosted publisher feed example; see
-[publisher feeds](FEEDS.md#6-publisher-feeds).
+`examples/static-publisher/` builds a single-event page and JSON from one document.
+It includes a GitHub Pages workflow and a deployed-site check.
+`examples/publisher/` illustrates a static-hosted [publisher feed](FEEDS.md#6-publisher-feeds).
 `generated/` contains derived Schema.org and supported JSCalendar outputs, plus
 conversion diagnostics. `tools/` and `tests/` contain local reference helpers and
 regression tests. These are not a deployed authoring website, directory, or app.
