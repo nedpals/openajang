@@ -1,0 +1,16 @@
+{
+  "name": "openajang-static-publisher-example",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "verify": "node verify.mjs"
+  },
+  "dependencies": {
+    "@openajang/core": "0.1.0-rc.4"
+  }
+}
