@@ -43,6 +43,14 @@ import Icon from '../components/Icon.astro';
     <span id="notice" role="status"></span>
   </div>
   <p class="hint">Files can be up to 1 MiB for events and 4 MiB for drafts.</p>
+  <details class="optional-group" id="publishing-settings">
+    <summary>Static event site settings</summary>
+    <p class="hint">If your site uses the file name for each event page, enter its public base URL here. For new events, the page URL will follow the file name without the <code>.openajang.json</code> ending.</p>
+    <label for="publisher-base">Site base URL (HTTPS, ending in /)</label>
+    <input id="publisher-base" type="url" placeholder="https://example.org/community/" aria-describedby="publisher-help" />
+    <p id="publisher-help" class="hint" role="status"></p>
+    <p class="hint">To update an event, open its JSON file and replace it after editing. If you rename a published file, its page and document URLs change and shared links may stop working.</p>
+  </details>
   <p class="mobile-jump">
     <a href="#preview-panel">
       Output &amp; export <span id="mobile-error-count"></span>
@@ -77,6 +85,8 @@ import Icon from '../components/Icon.astro';
           Event page URL (required){' '}
           <input name="url" type="url" placeholder="https://example.org/event/" required />
         </label>
+        <p id="url-mode" class="hint" role="status"></p>
+        <button id="use-publisher-url" class="secondary" type="button" hidden>Use suggested page URL</button>
         <label>
           Organizer name (required) <input name="organizer.name" required />
         </label>
@@ -381,6 +391,11 @@ import Icon from '../components/Icon.astro';
       <p id="filename-hint" class="hint">
         The name starts with the event date so files sort by date. Edit it to use your own, or clear it to restore the suggestion. The event's id, not the file name, identifies it.
       </p>
+      <div id="filename-choice" hidden>
+        <p id="filename-warning" role="alert"></p>
+        <button id="keep-filename" class="secondary" type="button">Keep original filename</button>
+        <button id="normalize-filename" class="secondary" type="button">Use suggested filename</button>
+      </div>
       <div class="actions download-actions">
         <button id="json" type="button">
           <Icon name="download" size={18} />

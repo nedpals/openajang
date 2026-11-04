@@ -18,6 +18,13 @@ export function decodeDraft(value: unknown, names: string[]) {
     typeof s.identity !== 'string' || !strings(s.edited) || s.edited.some((n: string) => !names.includes(n)) ||
     !strings(s.removedLocations) || s.removedLocations.some((n: string) => !['physical', 'virtual'].includes(n)) ||
     !Array.isArray(s.tickets) || !s.tickets.every(object) || typeof s.ticketsEdited !== 'boolean' ||
+    (s.publishing !== undefined && (!object(s.publishing) ||
+      typeof s.publishing.base !== 'string' || typeof s.publishing.filename !== 'string' ||
+      !(s.publishing.customFilename === null || typeof s.publishing.customFilename === 'string') ||
+      typeof s.publishing.auto !== 'boolean' || typeof s.publishing.lastUrl !== 'string' ||
+      typeof s.publishing.preserveFilename !== 'boolean' ||
+      (s.publishing.preserveFilename && (typeof s.publishing.customFilename !== 'string' || s.publishing.filename !== s.publishing.customFilename || /[\\/\u0000-\u001f\u007f]/.test(s.publishing.filename) || ['.', '..'].includes(s.publishing.filename))) ||
+      !(s.publishing.pendingFilename === null || typeof s.publishing.pendingFilename === 'string'))) ||
     (s.history !== undefined && (!Array.isArray(s.history) || !s.history.every((item: unknown) => object(item) && ['value', 'date', 'time', 'offset'].every(k => typeof item[k] === 'string') && typeof item.dirty === 'boolean'))) ||
     !object(s.values) || names.some(n => !Object.hasOwn(s.values, n) || typeof s.values[n] !== 'string') || !object(s.dates) ||
     ['start', 'end', ...['registration-opens', 'registration-closes'].filter(p => s.dates[p] !== undefined)].some(p => !object(s.dates[p]) || ['date', 'time', 'offset'].some(k => typeof s.dates[p][k] !== 'string') || typeof s.dates[p].dirty !== 'boolean')) throw new Error('Invalid or unsupported draft file.');

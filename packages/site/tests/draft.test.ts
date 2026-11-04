@@ -24,3 +24,17 @@ test('draft preserves incomplete temporal controls and rejects malformed state',
   s.history[0].dirty = 'yes';
   assert.throws(() => encodeDraft(s, names), /Invalid/);
 });
+test('draft preserves publishing choices and remains compatible with older drafts', () => {
+  const s: any = state();
+  s.publishing = { base: 'https://example.org/events/', filename: 'Original Event.json', customFilename: 'Original Event.json', auto: false, lastUrl: '', preserveFilename: true, pendingFilename: null };
+  assert.deepEqual(decodeDraft(JSON.parse(encodeDraft(s, names)), names), s);
+  s.publishing.filename = '../unsafe.json';
+  s.publishing.customFilename = '../unsafe.json';
+  assert.throws(() => encodeDraft(s, names), /Invalid/);
+  s.publishing.filename = 'Original Event.json';
+  s.publishing.customFilename = 'Original Event.json';
+  s.publishing.auto = 'yes';
+  assert.throws(() => encodeDraft(s, names), /Invalid/);
+  delete s.publishing;
+  assert.deepEqual(decodeDraft(JSON.parse(encodeDraft(s, names)), names), s);
+});
